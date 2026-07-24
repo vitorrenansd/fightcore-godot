@@ -1,0 +1,8 @@
+faltando os scripts para cada ataque
+decidir quantos ataques
+specials tambem
+
+ex:
+attack_light.gd
+attack_heavy.gd
+special_hadouken.gd
