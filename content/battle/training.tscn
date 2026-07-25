@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://engine/battle/battle_manager.gd" id="3_battle"]
 [ext_resource type="PackedScene" uid="uid://c3e4elfni34m2" path="res://content/fighters/training_dummy/fighter.tscn" id="4_fighter"]
 [ext_resource type="Script" path="res://engine/debug/box_renderer.gd" id="5_boxes"]
+[ext_resource type="Script" path="res://engine/battle/round_manager.gd" id="6_rounds"]
 
 [node name="Training" type="Node2D"]
 script = ExtResource("1_training")
@@ -15,6 +16,12 @@ script = ExtResource("1_training")
 script = ExtResource("3_battle")
 fighter_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("4_fighter")])
 spawn_positions = Array[Vector2]([Vector2(-140, 0), Vector2(140, 0)])
+
+[node name="Rounds" type="Node" parent="."]
+script = ExtResource("6_rounds")
+battle = NodePath("../Battle")
+round_seconds = 99
+rounds_to_win = 2
 
 [node name="DebugBoxes" type="Node2D" parent="."]
 script = ExtResource("5_boxes")
@@ -30,15 +37,24 @@ zoom = Vector2(1.4, 1.4)
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 800.0
-offset_bottom = 80.0
+offset_bottom = 96.0
 theme_override_font_sizes/font_size = 15
+
+[node name="Banner" type="Label" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 150.0
+offset_bottom = 180.0
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
 
 [node name="Help" type="Label" parent="HUD"]
 offset_left = 16.0
-offset_top = 84.0
+offset_top = 100.0
 offset_right = 900.0
-offset_bottom = 140.0
+offset_bottom = 156.0
 theme_override_font_sizes/font_size = 13
 text = "P1 keyboard: WASD  J=P K=K L=S U=HS I=D      P2 keyboard: arrows + numpad 1..5
 Gamepad: d-pad/stick  A=P B=K X=S Y=HS RB=D
-Special: 236 + S       F1: toggle boxes"
+Special: 236 + S    Gatling: P > K > S > HS > D, any normal into 236S
+F1: toggle boxes    F2: restart match"

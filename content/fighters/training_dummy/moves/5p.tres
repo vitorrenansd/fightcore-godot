@@ -20,6 +20,7 @@ display_name = "Soco"
 startup_frames = 4
 recovery_frames = 8
 hitboxes = Array[ExtResource("1_hxv4a")]([SubResource("Resource_8godm")])
+cancel_into_types = 7
 damage = 300
 chip_damage = 30
 hitstun = 14
