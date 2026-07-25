@@ -17,12 +17,18 @@ const DEFAULT_SPAWN_OFFSET: float = 120.0
 ## Posicoes de spawn. Sem valor para um indice, cai no espelhamento padrao.
 @export var spawn_positions: Array[Vector2] = []
 @export var start_on_ready: bool = true
+## Registra o mapeamento de teclado e controle no InputMap ao iniciar.
+@export var apply_input_bindings: bool = true
 
 var fighters: Array[Fighter] = []
 var solver: CollisionSolver
+var bindings: InputBindings
 
 
 func _ready() -> void:
+	if apply_input_bindings:
+		bindings = InputBindings.load_or_create()
+		bindings.apply()
 	solver = CollisionSolver.new()
 	solver.name = &"CollisionSolver"
 	solver.hit_resolved.connect(_on_hit_resolved)
@@ -56,6 +62,9 @@ func spawn_fighter(scene: PackedScene, index: int) -> Fighter:
 	fighter.team = index
 	add_child(fighter)
 	fighter.position = get_spawn_position(index)
+	# Time 0 joga com p1_*, time 1 com p2_*.
+	if fighter.input != null:
+		fighter.input.player_index = index
 	register_fighter(fighter)
 	fighter_spawned.emit(fighter)
 	return fighter
