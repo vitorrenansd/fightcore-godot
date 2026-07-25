@@ -116,6 +116,19 @@ func get_spawn_position(index: int) -> Vector2:
 	return Vector2(-DEFAULT_SPAWN_OFFSET if index == 0 else DEFAULT_SPAWN_OFFSET, 0.0)
 
 
+## Full reset for a new round: health, states and positions.
+func reset_round() -> void:
+	for fighter in fighters:
+		fighter.reset_for_round()
+	reset_positions()
+
+
+## Freezes or releases every fighter, used by the round intro and pauses.
+func set_fighters_frozen(frozen: bool) -> void:
+	for fighter in fighters:
+		fighter.frozen = frozen
+
+
 ## Sends every fighter back to their starting spot, facing the opponent.
 func reset_positions() -> void:
 	for index in fighters.size():
