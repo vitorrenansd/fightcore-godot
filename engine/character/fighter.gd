@@ -7,9 +7,11 @@ var opponent: Fighter
 var facing_right: bool = true
 
 @onready var visuals: Node2D = $Visuals
+@onready var state_machine: FighterStateMachine = $StateMachine
 
 
 func _physics_process(delta: float) -> void:
+	state_machine.physics_update(delta)
 	_apply_gravity(delta)
 	move_and_slide()
 

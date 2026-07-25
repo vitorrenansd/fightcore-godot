@@ -1,7 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://c3e4elfni34m2"]
+[gd_scene load_steps=11 format=3 uid="uid://c3e4elfni34m2"]
 
 [ext_resource type="Script" uid="uid://by3brh74yv2a7" path="res://content/fighters/training_dummy/fighter.gd" id="1_dummy"]
 [ext_resource type="Resource" path="res://content/fighters/training_dummy/fighter_data.tres" id="2_data"]
+[ext_resource type="Script" uid="uid://dqom2ewrbdghm" path="res://engine/character/fighter_state_machine.gd" id="3_fsm"]
+[ext_resource type="Script" path="res://engine/character/states/idle.gd" id="4_idle"]
+[ext_resource type="Script" path="res://engine/character/states/walk.gd" id="5_walk"]
+[ext_resource type="Script" path="res://engine/character/states/jump.gd" id="6_jump"]
+[ext_resource type="Script" path="res://engine/character/states/crouch.gd" id="7_crouch"]
+[ext_resource type="Script" path="res://engine/character/states/block.gd" id="8_block"]
+[ext_resource type="Script" path="res://engine/character/states/hitstun.gd" id="9_hitstun"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 20.0
@@ -15,3 +22,24 @@ fighter_data = ExtResource("2_data")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=816229324]
 shape = SubResource("CapsuleShape2D_1")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("3_fsm")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("4_idle")
+
+[node name="Walk" type="Node" parent="StateMachine"]
+script = ExtResource("5_walk")
+
+[node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("6_jump")
+
+[node name="Crouch" type="Node" parent="StateMachine"]
+script = ExtResource("7_crouch")
+
+[node name="Block" type="Node" parent="StateMachine"]
+script = ExtResource("8_block")
+
+[node name="Hitstun" type="Node" parent="StateMachine"]
+script = ExtResource("9_hitstun")
