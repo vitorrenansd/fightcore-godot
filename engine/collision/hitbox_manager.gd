@@ -1,3 +1,4 @@
+class_name HitboxManager
 extends Node
 
 
