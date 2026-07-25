@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c3e4elfni34m2"]
+
+[ext_resource type="Script" uid="uid://by3brh74yv2a7" path="res://content/fighters/training_dummy/fighter.gd" id="1_dummy"]
+
+[node name="TrainingDummy" type="CharacterBody2D" unique_id=2111474389]
+script = ExtResource("1_dummy")
