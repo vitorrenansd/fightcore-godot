@@ -1,0 +1,2 @@
+class_name FighterData
+extends Resource
