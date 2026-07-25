@@ -32,6 +32,12 @@ nele. O solver se resolve sozinho todo frame de fisica, com
 `process_physics_priority = 100` para rodar depois de todos os lutadores terem se
 movido. Ver [hitboxes.md](hitboxes.md).
 
+## Input
+
+O `BattleManager` registra o mapeamento no InputMap ao iniciar
+(`apply_input_bindings`) e da a cada lutador o indice de jogador do seu time:
+time 0 joga com `p1_*`, time 1 com `p2_*`. Ver [input.md](input.md).
+
 ## Facing
 
 Quem decide de que lado cada lutador olha e a partida, nao o lutador: saber quem
@@ -77,5 +83,4 @@ Cobre spawn, times, facing, o solver resolvendo acerto sozinho e o KO.
 ## Ainda nao implementado
 
 - `RoundManager` e `Timer`: rounds, contagem regressiva, vitoria.
-- Camera, limites de tela e pushback na parede.
-- Entrada de input: hoje o golpe so sai chamando `Fighter.perform_attack()`.
+- Camera que segue os lutadores, limites de tela e pushback na parede.

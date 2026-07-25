@@ -23,7 +23,8 @@ engine/
   battle/         partida, rounds e cronometro
   character/      Fighter, resources de dados, estados concretos
   collision/      hitbox, hurtbox, resolucao de acertos
-  input/          buffer de input e leitura de comandos
+  debug/          desenho de boxes para ajuste de frame data
+  input/          buffer de input, motion e mapeamento
   physics/        gravidade, movimento, knockback
   state_machine/  FSM generica
 ```
@@ -76,8 +77,9 @@ lutadores terem se movido, sem depender da ordem deles na cena.
 | Estados de fighter | idle, walk, jump, crouch, block, hitstun, attack, ko |
 | Hitbox / hurtbox / HitData | pronto — [hitboxes.md](hitboxes.md) |
 | `BattleManager` | pronto — [battle.md](battle.md) |
+| Input, buffer e comandos | pronto — [input.md](input.md) |
+| Sala de treino jogavel | `content/battle/training.tscn` |
 | `battle/` round e cronometro | stub |
-| `input/` (buffer, comandos) | stub |
 | `physics/` (gravidade, movimento, knockback) | stub — gravidade vive no `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |
 | Animacao | stub — [animation.md](animation.md) |

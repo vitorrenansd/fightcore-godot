@@ -140,7 +140,8 @@ O `HitboxManager` varre a subarvore do lutador no `_ready` e registra todas.
 
 `HitData.build()` produz o resultado final; quem recebe nao reinterpreta nada.
 
-**Guarda** — `Fighter.can_block()`:
+**Guarda** — `Fighter.can_block()`. Defender e segurar para tras, nao apertar
+botao (ver [input.md](input.md)):
 
 | `Guard` | Defende |
 |---|---|
@@ -200,7 +201,6 @@ godot --headless --path . --script tests/hitbox_smoke_test.gd
 
 ## Ainda nao implementado
 
-- Nenhum input dispara golpe ainda: so chamada direta a `perform_attack()`.
 - Cancels e hierarquia de cancelamento entre golpes.
 - Pushbox (colisao corpo a corpo) e throwbox.
 - Atrito no knockback: hoje o alvo desliza com velocidade constante ate sair do

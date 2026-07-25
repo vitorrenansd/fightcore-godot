@@ -11,9 +11,9 @@ content/fighters/training_dummy/
 ├── fighter.tscn          cena do personagem
 ├── fighter.gd            extends Fighter
 ├── fighter_data.tres     FighterData: identidade, stats, golpes
+├── moves/                um AttackData .tres por golpe
 └── config/
-    ├── fighter_stats.tres  FighterStats
-    └── commands.gd
+    └── fighter_stats.tres  FighterStats
 ```
 
 ## Cena
@@ -27,6 +27,7 @@ TrainingDummy (CharacterBody2D + script que estende Fighter)
 ├── StateMachine (FighterStateMachine)
 │   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, KO
 ├── HitboxManager                dono das boxes
+├── Input (InputBuffer)          opcional: sem ele o lutador nao age
 └── Hurtboxes (Node2D)
     ├── Body (Hurtbox, height = MID)
     └── Head (Hurtbox, height = HIGH)
@@ -53,7 +54,7 @@ que e espelhada no flip. Ver [hitboxes.md](hitboxes.md).
 | `sprite_frames` | `SpriteFrames` | animacoes |
 | `stats` | `FighterStats` | numeros do personagem |
 | `moves` | `Array[AttackData]` | golpes |
-| `commands` | `Array[CommandData]` | comandos que disparam os golpes (stub) |
+| `commands` | `Array[CommandData]` | comandos que disparam os golpes — [input.md](input.md) |
 
 ### FighterStats
 
@@ -77,8 +78,8 @@ golpe. Documentado em [hitboxes.md](hitboxes.md).
 
 ### CommandData
 
-`engine/character/command_data.gd` — ainda stub. Vai ligar entrada de input
-(sequencia de direcoes e botoes) a um `AttackData`.
+`engine/character/command_data.gd` — liga um input (motion + botao + postura) a
+um `AttackData`. Documentado em [input.md](input.md).
 
 ## Script do personagem
 
@@ -124,4 +125,5 @@ guarda. O script do personagem existe para comportamento exclusivo dele.
 2. Ajustar `fighter_id` e `display_name` no `fighter_data.tres`.
 3. Ajustar os numeros em `config/fighter_stats.tres`.
 4. Redimensionar as hurtboxes na cena para o corpo do personagem.
-5. Criar os `AttackData` dos golpes e listar em `moves`.
+5. Criar os `AttackData` dos golpes em `moves/` e listar em `moves`.
+6. Criar os `CommandData` que disparam cada golpe e listar em `commands`.

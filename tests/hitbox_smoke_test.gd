@@ -12,6 +12,8 @@ var ok: bool = true
 
 func _initialize() -> void:
 	var scene: PackedScene = load(FIGHTER_SCENE)
+	# Defender agora e segurar para tras, entao o teste precisa do InputMap.
+	InputBindings.create_default().apply()
 
 	var floor_body := StaticBody2D.new()
 	var floor_shape := CollisionShape2D.new()
@@ -86,6 +88,7 @@ func _physics_process(_delta: float) -> bool:
 			p2.opponent = p1
 			p1.set_facing(true)
 			p2.set_facing(false)
+			p2.input.player_index = 1
 			print("p1 hurtboxes=%d  p2 hurtboxes=%d  layer p2=%d  mascara p1=%d" % [
 				p1.hitbox_manager.get_hurtboxes().size(),
 				p2.hitbox_manager.get_hurtboxes().size(),
@@ -126,7 +129,8 @@ func _physics_process(_delta: float) -> bool:
 			print("\n== 2. mesmo golpe defendido (MID, guarda em pe) ==")
 			landed.clear()
 			_reset_spacing()
-			p2.state_machine.transition_to(&"Block")
+			# p2 encara a esquerda: para tras dele e a direita da tela.
+			Input.action_press(&"p2_right")
 			p1.hitbox_manager.start_attack(_make_attack(AttackData.Guard.MID, 400, 40))
 		47:
 			check(landed.size() == 1, "1 acerto esperado")
@@ -143,7 +147,7 @@ func _physics_process(_delta: float) -> bool:
 			print("\n== 3. golpe baixo contra guarda em pe ==")
 			landed.clear()
 			_reset_spacing()
-			p2.state_machine.transition_to(&"Block")
+			# Continua segurando tras, mas em pe: guarda alta nao para golpe baixo.
 			p1.hitbox_manager.start_attack(_make_attack(AttackData.Guard.LOW, 300, 30))
 		81:
 			check(landed.size() == 1, "1 acerto esperado")
