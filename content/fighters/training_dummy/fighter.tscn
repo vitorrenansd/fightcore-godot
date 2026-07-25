@@ -1,18 +1,26 @@
-[gd_scene load_steps=11 format=3 uid="uid://c3e4elfni34m2"]
+[gd_scene format=3 uid="uid://c3e4elfni34m2"]
 
 [ext_resource type="Script" uid="uid://by3brh74yv2a7" path="res://content/fighters/training_dummy/fighter.gd" id="1_dummy"]
-[ext_resource type="Resource" path="res://content/fighters/training_dummy/fighter_data.tres" id="2_data"]
+[ext_resource type="Resource" uid="uid://bthdrrk5rj4gc" path="res://content/fighters/training_dummy/fighter_data.tres" id="2_data"]
 [ext_resource type="Script" uid="uid://dqom2ewrbdghm" path="res://engine/character/fighter_state_machine.gd" id="3_fsm"]
-[ext_resource type="Script" path="res://engine/character/states/idle.gd" id="4_idle"]
-[ext_resource type="Script" path="res://engine/character/states/walk.gd" id="5_walk"]
-[ext_resource type="Script" path="res://engine/character/states/jump.gd" id="6_jump"]
-[ext_resource type="Script" path="res://engine/character/states/crouch.gd" id="7_crouch"]
-[ext_resource type="Script" path="res://engine/character/states/block.gd" id="8_block"]
-[ext_resource type="Script" path="res://engine/character/states/hitstun.gd" id="9_hitstun"]
+[ext_resource type="Script" uid="uid://0c74b54nomyw" path="res://engine/character/states/idle.gd" id="4_idle"]
+[ext_resource type="Script" uid="uid://csjxre5o7gs0p" path="res://engine/character/states/walk.gd" id="5_walk"]
+[ext_resource type="Script" uid="uid://dsbkoc34s6iok" path="res://engine/character/states/jump.gd" id="6_jump"]
+[ext_resource type="Script" uid="uid://c8yct18w21dpu" path="res://engine/character/states/crouch.gd" id="7_crouch"]
+[ext_resource type="Script" uid="uid://de3kxq4nrfe24" path="res://engine/character/states/block.gd" id="8_block"]
+[ext_resource type="Script" uid="uid://wk5bc4yklux5" path="res://engine/character/states/hitstun.gd" id="9_hitstun"]
+[ext_resource type="Script" uid="uid://dpfw148wuhrq8" path="res://engine/collision/hitbox_manager.gd" id="10_manager"]
+[ext_resource type="Script" uid="uid://cpjtic4murchg" path="res://engine/collision/hurtbox.gd" id="11_hurtbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_1"]
 radius = 20.0
 height = 100.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(46, 74)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
+size = Vector2(38, 34)
 
 [node name="TrainingDummy" type="CharacterBody2D" unique_id=2111474389]
 script = ExtResource("1_dummy")
@@ -23,23 +31,43 @@ fighter_data = ExtResource("2_data")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=816229324]
 shape = SubResource("CapsuleShape2D_1")
 
-[node name="StateMachine" type="Node" parent="."]
+[node name="StateMachine" type="Node" parent="." unique_id=1695549568]
 script = ExtResource("3_fsm")
 
-[node name="Idle" type="Node" parent="StateMachine"]
+[node name="Idle" type="Node" parent="StateMachine" unique_id=1948621267]
 script = ExtResource("4_idle")
 
-[node name="Walk" type="Node" parent="StateMachine"]
+[node name="Walk" type="Node" parent="StateMachine" unique_id=920667111]
 script = ExtResource("5_walk")
 
-[node name="Jump" type="Node" parent="StateMachine"]
+[node name="Jump" type="Node" parent="StateMachine" unique_id=2058277036]
 script = ExtResource("6_jump")
 
-[node name="Crouch" type="Node" parent="StateMachine"]
+[node name="Crouch" type="Node" parent="StateMachine" unique_id=89564468]
 script = ExtResource("7_crouch")
 
-[node name="Block" type="Node" parent="StateMachine"]
+[node name="Block" type="Node" parent="StateMachine" unique_id=1062641631]
 script = ExtResource("8_block")
 
-[node name="Hitstun" type="Node" parent="StateMachine"]
+[node name="Hitstun" type="Node" parent="StateMachine" unique_id=972124526]
 script = ExtResource("9_hitstun")
+
+[node name="HitboxManager" type="Node" parent="."]
+script = ExtResource("10_manager")
+
+[node name="Hurtboxes" type="Node2D" parent="."]
+
+[node name="Body" type="Area2D" parent="Hurtboxes"]
+position = Vector2(0, 6)
+script = ExtResource("11_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtboxes/Body"]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Head" type="Area2D" parent="Hurtboxes"]
+position = Vector2(0, -34)
+script = ExtResource("11_hurtbox")
+height = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtboxes/Head"]
+shape = SubResource("RectangleShape2D_head")

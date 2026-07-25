@@ -15,6 +15,12 @@ func _ready() -> void:
 	transition_to(initial_state_name)
 
 
+## Acesso direto a um estado, para quem precisa parametrizar antes de entrar
+## nele (hitstun e blockstun recebem a duracao do golpe que acabou de acertar).
+func get_state(state_name: StringName) -> State:
+	return states.get(state_name)
+
+
 func physics_update(delta: float) -> void:
 	if current_state:
 		current_state.physics_update(delta)
