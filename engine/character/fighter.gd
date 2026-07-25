@@ -75,7 +75,9 @@ func set_facing(face_right: bool) -> void:
 func apply_hit(hit: HitData) -> void:
 	health = maxi(health - hit.damage, 0)
 	apply_hitstop(hit.hitstop)
-	if hit.blocked:
+	if health == 0:
+		_enter_ko()
+	elif hit.blocked:
 		_enter_blockstun(hit)
 	else:
 		combo_hits += 1
@@ -116,6 +118,48 @@ func can_resolve_hits() -> bool:
 	return is_alive() and hitstop_frames == 0 and hitbox_manager.is_attacking()
 
 
+## Executa um golpe. Falso quando o lutador nao pode agir no momento.
+func perform_attack(attack: AttackData) -> bool:
+	if attack == null or not can_act():
+		return false
+	var state := state_machine.get_state(&"Attack") as FighterAttackState
+	if state == null:
+		return false
+	state.setup(attack)
+	state_machine.transition_to(&"Attack")
+	return true
+
+
+func perform_attack_by_id(attack_id: StringName) -> bool:
+	return perform_attack(get_attack(attack_id))
+
+
+func get_attack(attack_id: StringName) -> AttackData:
+	if fighter_data == null:
+		return null
+	for attack in fighter_data.moves:
+		if attack != null and attack.attack_id == attack_id:
+			return attack
+	return null
+
+
+## Livre para receber comando. Congelado ou preso em stun nao aceita nada.
+func can_act() -> bool:
+	return is_alive() and hitstop_frames == 0 and not is_in_stun()
+
+
+## Pode virar de lado. Golpe comecado nao troca de lado no meio.
+func can_turn() -> bool:
+	return can_act() and not hitbox_manager.is_attacking() and is_on_floor()
+
+
+func is_in_stun() -> bool:
+	var state := state_machine.current_state
+	if state is FighterHitstunState:
+		return true
+	return state is FighterBlockState and (state as FighterBlockState).is_in_blockstun()
+
+
 func is_blocking() -> bool:
 	return state_machine.current_state is FighterBlockState
 
@@ -137,6 +181,10 @@ func can_block(guard: AttackData.Guard) -> bool:
 		AttackData.Guard.LOW:
 			return is_crouching()
 	return true
+
+
+func _enter_ko() -> void:
+	state_machine.transition_to(&"KO")
 
 
 func _enter_hitstun(hit: HitData) -> void:

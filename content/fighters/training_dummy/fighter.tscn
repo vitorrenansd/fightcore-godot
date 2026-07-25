@@ -9,6 +9,8 @@
 [ext_resource type="Script" uid="uid://c8yct18w21dpu" path="res://engine/character/states/crouch.gd" id="7_crouch"]
 [ext_resource type="Script" uid="uid://de3kxq4nrfe24" path="res://engine/character/states/block.gd" id="8_block"]
 [ext_resource type="Script" uid="uid://wk5bc4yklux5" path="res://engine/character/states/hitstun.gd" id="9_hitstun"]
+[ext_resource type="Script" path="res://engine/character/states/attack.gd" id="9_attack"]
+[ext_resource type="Script" path="res://engine/character/states/ko.gd" id="9_ko"]
 [ext_resource type="Script" uid="uid://dpfw148wuhrq8" path="res://engine/collision/hitbox_manager.gd" id="10_manager"]
 [ext_resource type="Script" uid="uid://cpjtic4murchg" path="res://engine/collision/hurtbox.gd" id="11_hurtbox"]
 
@@ -51,6 +53,12 @@ script = ExtResource("8_block")
 
 [node name="Hitstun" type="Node" parent="StateMachine" unique_id=972124526]
 script = ExtResource("9_hitstun")
+
+[node name="Attack" type="Node" parent="StateMachine"]
+script = ExtResource("9_attack")
+
+[node name="KO" type="Node" parent="StateMachine"]
+script = ExtResource("9_ko")
 
 [node name="HitboxManager" type="Node" parent="."]
 script = ExtResource("10_manager")
