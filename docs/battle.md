@@ -75,15 +75,78 @@ the genre expects (and what makes crossups exist).
 **Signals**: `battle_started`, `fighter_spawned(fighter)`,
 `fighter_died(fighter)`, `hit_resolved(hit)`.
 
+## Rounds
+
+`RoundManager` (`engine/battle/round_manager.gd`) sits one layer above and owns
+the rules around the fight: rounds, clock and win conditions. Splitting the two
+means a training room can run with no rounds at all, and a story mode can change
+the win conditions without touching combat.
+
+```gdscript
+var rounds := RoundManager.new()
+rounds.battle = battle
+rounds.round_seconds = 99
+rounds.rounds_to_win = 2
+add_child(rounds)
+```
+
+### Phases
+
+| Phase | What happens |
+|---|---|
+| `INTRO` | fighters frozen, clock stopped, `intro_frames` long |
+| `FIGHT` | fighters released, clock running |
+| `ROUND_END` | pause after a KO or a timeout, `round_end_frames` long |
+| `MATCH_END` | someone reached `rounds_to_win` |
+
+Every phase is counted in frames, like everything else in the engine.
+
+### Win conditions
+
+| Reason | When |
+|---|---|
+| `KO` | one fighter ran out of health |
+| `TIMEOUT` | clock ran out; the fighter with the higher health **fraction** wins |
+| `DRAW` | double KO, or an exact health tie on timeout |
+
+A KO is checked before the clock, so a knockout on the very last frame still
+reads as a KO. A draw gives both sides the round, the usual double KO rule.
+
+Health is compared as a fraction of the maximum so characters with different
+health pools are judged fairly.
+
+### Clock
+
+`RoundTimer` (`engine/battle/timer.gd`) counts **frames**, not seconds. A clock
+made of real seconds would drift away from a frame locked simulation and would
+make a replay or a rollback land on a different countdown. It is named
+`RoundTimer` because `Timer` is a native Godot class.
+
+### Reset between rounds
+
+`BattleManager.reset_round()` calls `Fighter.reset_for_round()` on everyone —
+health, combo, hitstop, velocity, the current attack and back to `Idle` — and
+then `reset_positions()`. Leaving the `KO` state through its normal exit is what
+turns the hurtboxes back on.
+
+**Signals**: `round_started(round_number)`,
+`round_ended(winner_team, reason)`, `match_ended(winner_team)`,
+`phase_changed(phase)`. A winner of `RoundManager.NO_WINNER` means a draw.
+
 ## Test
 
 ```sh
 godot --headless --path . --script tests/battle_smoke_test.gd
+godot --headless --path . --script tests/round_smoke_test.gd
 ```
 
-Covers spawn, teams, facing, the solver resolving a hit on its own, and the KO.
+The first covers spawn, teams, facing, the solver resolving a hit on its own,
+and the KO. The second covers the intro freeze, a KO round, the reset between
+rounds, a timeout decided by health and the end of the match.
 
 ## Not implemented yet
 
-- `RoundManager` and `Timer`: rounds, countdown, win conditions.
 - A camera that follows the fighters, screen bounds and corner pushback.
+- Round intro and result presentation: the phases exist, the animation does not.
+- Freezing at round end stops a KO'd fighter mid-air instead of letting them
+  land.

@@ -74,8 +74,9 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 
 ### AttackData
 
-`engine/character/attack_data.gd` — frame data and hit properties of a move.
-Documented in [hitboxes.md](hitboxes.md).
+`engine/character/attack_data.gd` — frame data and hit properties of a move,
+plus the cancel routes. Documented in [hitboxes.md](hitboxes.md) and
+[cancels.md](cancels.md).
 
 ### CommandData
 
@@ -107,17 +108,19 @@ character.
 | `health` | current health |
 | `combo_hits` | hits taken in the current combo, basis for scaling |
 | `hitstop_frames` | remaining freeze frames |
+| `frozen` | round pause: no state logic, no gravity |
 | `stats` | shortcut to `fighter_data.stats` |
 
 **Movement**: `walk(direction)`, `jump()`, `update_facing()`, `set_facing()`.
 
-**Combat**: `perform_attack(attack)`, `perform_attack_by_id(id)`,
+**Combat**: `perform_attack(attack, force)`, `perform_attack_by_id(id)`,
 `get_attack(id)`, `apply_hit(hit)`, `apply_hit_landed(hit)`,
 `apply_hitstop(frames)`, `can_block(guard)`, `is_blocking()`, `is_crouching()`,
-`can_be_hit()`, `reset_combo()`.
+`can_be_hit()`, `reset_combo()`, `reset_for_round()`.
 
 **State queries**: `can_act()` (free to take a command), `can_turn()` (allowed
-to turn around), `is_in_stun()`, `is_alive()`.
+to turn around), `can_start_attack(attack)` (cancel rules — [cancels.md](cancels.md)),
+`is_in_stun()`, `is_alive()`.
 
 **Signals**: `health_changed`, `hit_taken`, `hit_landed`, `died`.
 

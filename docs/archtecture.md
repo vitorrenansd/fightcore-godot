@@ -79,8 +79,9 @@ moved, regardless of their order in the scene.
 | Hitbox / hurtbox / HitData | done — [hitboxes.md](hitboxes.md) |
 | `BattleManager` | done — [battle.md](battle.md) |
 | Input, buffer and commands | done — [input.md](input.md) |
+| Cancels and gatling routes | done — [cancels.md](cancels.md) |
+| Rounds, clock and win conditions | done — [battle.md](battle.md) |
 | Playable training room | `content/battle/training.tscn` |
-| `battle/` rounds and timer | stub |
 | `physics/` (gravity, movement, knockback) | stub — gravity lives in `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |
 | Animation | stub — [animation.md](animation.md) |

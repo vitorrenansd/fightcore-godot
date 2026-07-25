@@ -172,4 +172,3 @@ motions, skipped diagonals and the move connecting.
 - Charge motions (`[4]` held for 40 frames, then `6`).
 - Two-button commands in practice (the bitmask already accepts them).
 - A remapping screen: the API exists, the UI does not.
-- Cancels: today a move can only be followed once it has fully ended.

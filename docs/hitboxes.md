@@ -205,7 +205,6 @@ godot --headless --path . --script tests/hitbox_smoke_test.gd
 
 ## Not implemented yet
 
-- Cancels and the cancel hierarchy between moves.
 - Pushbox (body to body collision) and throwbox.
 - Proximity guard (automatic block when a hitbox comes close).
 - Per state hurtboxes (crouching shrinks, airborne changes height).
