@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="AttackData" format=3]
+
+[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_v3vlj"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_os1od"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c4oem"]
+size = Vector2(46, 70)
+
+[sub_resource type="Resource" id="Resource_xxd6m"]
+script = ExtResource("1_v3vlj")
+shape = SubResource("RectangleShape2D_c4oem")
+offset = Vector2(48, -34)
+start_frame = 20
+end_frame = 23
+
+[resource]
+script = ExtResource("2_os1od")
+attack_id = &"5D"
+display_name = "Dust"
+startup_frames = 20
+active_frames = 4
+recovery_frames = 20
+hitboxes = Array[ExtResource("1_v3vlj")]([SubResource("Resource_xxd6m")])
+damage = 600
+chip_damage = 60
+guard = 1
+hitstun = 24
+hitstop = 9
+knockback = Vector2(120, -520)
+block_pushback = Vector2(72, 0)
+launcher = true

@@ -1,3 +1,22 @@
 [gd_scene format=3 uid="uid://dox58mpt3ju3y"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(4000, 80)
+
 [node name="Stage" type="Node2D" unique_id=219759945]
+
+[node name="Background" type="Polygon2D" parent="."]
+color = Color(0.11, 0.12, 0.16, 1)
+polygon = PackedVector2Array(-2000, -800, 2000, -800, 2000, 200, -2000, 200)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(0, 240)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Surface" type="Polygon2D" parent="Floor"]
+color = Color(0.22, 0.24, 0.3, 1)
+polygon = PackedVector2Array(-2000, -40, 2000, -40, 2000, 40, -2000, 40)

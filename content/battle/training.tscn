@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://content/battle/training.gd" id="1_training"]
+[ext_resource type="PackedScene" uid="uid://dox58mpt3ju3y" path="res://content/stages/empty_stage/stage.tscn" id="2_stage"]
+[ext_resource type="Script" path="res://engine/battle/battle_manager.gd" id="3_battle"]
+[ext_resource type="PackedScene" uid="uid://c3e4elfni34m2" path="res://content/fighters/training_dummy/fighter.tscn" id="4_fighter"]
+[ext_resource type="Script" path="res://engine/debug/box_renderer.gd" id="5_boxes"]
+
+[node name="Training" type="Node2D"]
+script = ExtResource("1_training")
+
+[node name="Stage" parent="." instance=ExtResource("2_stage")]
+
+[node name="Battle" type="Node2D" parent="."]
+script = ExtResource("3_battle")
+fighter_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("4_fighter")])
+spawn_positions = Array[Vector2]([Vector2(-140, 0), Vector2(140, 0)])
+
+[node name="DebugBoxes" type="Node2D" parent="."]
+script = ExtResource("5_boxes")
+battle = NodePath("../Battle")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 60)
+zoom = Vector2(1.4, 1.4)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Readout" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 12.0
+offset_right = 800.0
+offset_bottom = 80.0
+theme_override_font_sizes/font_size = 15
+
+[node name="Help" type="Label" parent="HUD"]
+offset_left = 16.0
+offset_top = 84.0
+offset_right = 900.0
+offset_bottom = 140.0
+theme_override_font_sizes/font_size = 13
+text = "P1 teclado: WASD  J=P K=K L=S U=HS I=D      P2 teclado: setas + numerico 1..5
+Controle: direcional/analogico  A=P B=K X=S Y=HS RB=D
+Especial: 236 + S       F1: liga/desliga boxes"

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="AttackData" format=3]
+
+[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_p0xmb"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_b8p7f"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ln6jt"]
+size = Vector2(78, 40)
+
+[sub_resource type="Resource" id="Resource_n4i3n"]
+script = ExtResource("1_p0xmb")
+shape = SubResource("RectangleShape2D_ln6jt")
+offset = Vector2(70, -8)
+start_frame = 11
+end_frame = 16
+
+[resource]
+script = ExtResource("2_b8p7f")
+attack_id = &"236S"
+display_name = "Avanco"
+startup_frames = 11
+active_frames = 6
+recovery_frames = 26
+hitboxes = Array[ExtResource("1_p0xmb")]([SubResource("Resource_n4i3n")])
+damage = 900
+chip_damage = 90
+hitstun = 24
+hitstop = 10
+knockback = Vector2(420, -60)
+block_pushback = Vector2(252, 0)

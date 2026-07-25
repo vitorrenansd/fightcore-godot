@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="AttackData" format=3]
+
+[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_2ta0j"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_xiw54"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0kgh4"]
+size = Vector2(80, 44)
+
+[sub_resource type="Resource" id="Resource_rtbfg"]
+script = ExtResource("1_2ta0j")
+shape = SubResource("RectangleShape2D_0kgh4")
+offset = Vector2(72, -6)
+start_frame = 13
+end_frame = 17
+
+[resource]
+script = ExtResource("2_xiw54")
+attack_id = &"5HS"
+display_name = "Heavy Slash"
+startup_frames = 13
+active_frames = 5
+recovery_frames = 22
+hitboxes = Array[ExtResource("1_2ta0j")]([SubResource("Resource_rtbfg")])
+damage = 1000
+chip_damage = 100
+hitstun = 22
+blockstun = 14
+hitstop = 10
+knockback = Vector2(380, -80)
+block_pushback = Vector2(228, 0)
