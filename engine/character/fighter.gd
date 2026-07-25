@@ -17,6 +17,8 @@ var health: int = 0
 var combo_hits: int = 0
 ## Remaining freeze frames from an impact.
 var hitstop_frames: int = 0
+## Round pauses freeze the fighter whole: no state logic, no gravity.
+var frozen: bool = false
 
 var stats: FighterStats:
 	get:
@@ -40,6 +42,8 @@ func _physics_process(delta: float) -> void:
 	# that is exactly when the player sets up the rest of the combo.
 	if input != null:
 		input.poll()
+	if frozen:
+		return
 	if hitstop_frames > 0:
 		hitstop_frames -= 1
 		return
@@ -110,6 +114,18 @@ func reset_combo() -> void:
 	combo_hits = 0
 
 
+## Puts the fighter back to a clean start for a new round.
+func reset_for_round() -> void:
+	health = stats.max_health if stats != null else health
+	combo_hits = 0
+	hitstop_frames = 0
+	velocity = Vector2.ZERO
+	hitbox_manager.stop_attack()
+	# Leaving KO through the normal exit is what turns the hurtboxes back on.
+	state_machine.transition_to(&"Idle")
+	health_changed.emit(health, health)
+
+
 func is_alive() -> bool:
 	return health > 0
 
@@ -143,8 +159,11 @@ func get_stance() -> CommandData.Stance:
 
 
 ## Runs an attack. False when the fighter cannot act right now.
-func perform_attack(attack: AttackData) -> bool:
+## `force` skips the cancel rules, for scripted moves and tests.
+func perform_attack(attack: AttackData, force: bool = false) -> bool:
 	if attack == null or not can_act():
+		return false
+	if not force and not can_start_attack(attack):
 		return false
 	var state := state_machine.get_state(&"Attack") as FighterAttackState
 	if state == null:
@@ -152,6 +171,18 @@ func perform_attack(attack: AttackData) -> bool:
 	state.setup(attack)
 	state_machine.transition_to(&"Attack")
 	return true
+
+
+## Whether this attack may start right now. Free while not attacking; during an
+## attack it becomes a cancel and has to obey the current move's rules.
+func can_start_attack(attack: AttackData) -> bool:
+	if attack == null:
+		return false
+	if not hitbox_manager.is_attacking():
+		return true
+	if not hitbox_manager.is_in_cancel_window():
+		return false
+	return hitbox_manager.current_attack.can_cancel_into(attack)
 
 
 func perform_attack_by_id(attack_id: StringName) -> bool:

@@ -30,6 +30,11 @@ func exit() -> void:
 
 func physics_update(delta: float) -> void:
 	super(delta)
+	# Polling here is what makes cancels exist: the command comes out mid-move
+	# instead of waiting for recovery. Fighter.can_start_attack decides whether
+	# the cancel is legal.
+	if fighter.try_command():
+		return
 	if not fighter.hitbox_manager.is_attacking():
 		transitioned.emit(&"Idle")
 

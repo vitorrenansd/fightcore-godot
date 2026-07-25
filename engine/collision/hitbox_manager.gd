@@ -15,6 +15,9 @@ var fighter: Fighter
 var current_attack: AttackData
 ## Current attack frame, counted from 0. Reads -1 while not attacking.
 var attack_frame: int = -1
+## Whether the current attack has touched anyone, on hit or on block. Cancels
+## are gated on this, which is what stops a whiffed move from being free.
+var has_connected: bool = false
 
 var _hurtboxes: Array[Hurtbox] = []
 ## victim_id -> { hit_group: true }
@@ -36,11 +39,21 @@ func is_in_startup() -> bool:
 	return is_attacking() and attack_frame < current_attack.startup_frames
 
 
+## Whether the current attack is open to being cancelled right now.
+func is_in_cancel_window() -> bool:
+	if not is_attacking():
+		return false
+	if attack_frame < current_attack.get_cancel_window_start():
+		return false
+	return has_connected or current_attack.can_whiff_cancel
+
+
 func start_attack(attack: AttackData) -> void:
 	if attack == null:
 		return
 	current_attack = attack
 	attack_frame = 0
+	has_connected = false
 	_hits.clear()
 	attack_started.emit(attack)
 
@@ -50,6 +63,7 @@ func stop_attack() -> void:
 		return
 	current_attack = null
 	attack_frame = -1
+	has_connected = false
 	_hits.clear()
 	attack_finished.emit()
 
@@ -89,6 +103,7 @@ func register_hit(victim: Fighter, hit_group: int) -> void:
 	if not _hits.has(victim_id):
 		_hits[victim_id] = {}
 	_hits[victim_id][hit_group] = true
+	has_connected = true
 
 
 func get_hurtboxes() -> Array[Hurtbox]:
