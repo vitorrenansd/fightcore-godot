@@ -73,10 +73,10 @@ lutadores terem se movido, sem depender da ordem deles na cena.
 |---|---|
 | FSM generica (`state_machine/`) | pronto — [state_machine.md](state_machine.md) |
 | Fighter, stats e movimento | pronto — [fighter_format.md](fighter_format.md) |
-| Estados de fighter | idle, walk, jump, crouch, block, hitstun |
+| Estados de fighter | idle, walk, jump, crouch, block, hitstun, attack, ko |
 | Hitbox / hurtbox / HitData | pronto — [hitboxes.md](hitboxes.md) |
-| Estado de ataque | falta: nada chama `start_attack()` ainda |
-| `battle/` (partida, round, cronometro) | stub |
+| `BattleManager` | pronto — [battle.md](battle.md) |
+| `battle/` round e cronometro | stub |
 | `input/` (buffer, comandos) | stub |
 | `physics/` (gravidade, movimento, knockback) | stub — gravidade vive no `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |

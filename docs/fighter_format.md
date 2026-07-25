@@ -25,7 +25,7 @@ TrainingDummy (CharacterBody2D + script que estende Fighter)
 ├── Visuals (Node2D)             unico no que inverte escala no flip
 ├── CollisionShape2D             corpo fisico contra chao e paredes
 ├── StateMachine (FighterStateMachine)
-│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun
+│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, KO
 ├── HitboxManager                dono das boxes
 └── Hurtboxes (Node2D)
     ├── Body (Hurtbox, height = MID)
@@ -108,9 +108,13 @@ guarda. O script do personagem existe para comportamento exclusivo dele.
 
 **Movimento**: `walk(direction)`, `jump()`, `update_facing()`, `set_facing()`.
 
-**Combate**: `apply_hit(hit)`, `apply_hit_landed(hit)`, `apply_hitstop(frames)`,
-`can_block(guard)`, `is_blocking()`, `is_crouching()`, `can_be_hit()`,
-`reset_combo()`.
+**Combate**: `perform_attack(attack)`, `perform_attack_by_id(id)`,
+`get_attack(id)`, `apply_hit(hit)`, `apply_hit_landed(hit)`,
+`apply_hitstop(frames)`, `can_block(guard)`, `is_blocking()`, `is_crouching()`,
+`can_be_hit()`, `reset_combo()`.
+
+**Consultas de estado**: `can_act()` (livre para receber comando), `can_turn()`
+(pode virar de lado), `is_in_stun()`, `is_alive()`.
 
 **Sinais**: `health_changed`, `hit_taken`, `hit_landed`, `died`.
 

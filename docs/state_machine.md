@@ -91,10 +91,18 @@ hitstun e blockstun recebem a duracao do golpe que acabou de acertar.
 | `Crouch` | zera velocidade horizontal, conta como abaixado na guarda |
 | `Block` | guarda em pe ou abaixada; com `stun_frames > 0` vira blockstun |
 | `Hitstun` | preso pelos frames do golpe; ao sair zera o combo do lutador |
+| `Attack` | executa um `AttackData`; volta para `Idle` quando o golpe acaba |
+| `KO` | nocaute; desliga as hurtboxes e nao sai sozinho |
 
 `Block` acumula duas funcoes de proposito: segurar a guarda (`stun_frames == 0`,
 sai quando quiser) e o blockstun (`stun_frames > 0`, preso). `crouch_block` diz
 se a guarda e baixa, o que decide se um overhead ou um golpe baixo passa.
+
+`Attack` nao conta os frames do golpe: quem conta e o `HitboxManager`. O estado
+so espera `is_attacking()` virar falso. Entrar nele e sempre via
+`Fighter.perform_attack()`, que respeita `can_act()` e lida com o caso de o
+lutador ja estar atacando — `setup()` reinicia o golpe na hora, que e o caminho
+de um cancel virar o golpe seguinte sem passar pelo neutro.
 
 ## Adicionando um estado
 

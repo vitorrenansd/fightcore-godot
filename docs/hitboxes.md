@@ -168,11 +168,17 @@ solver orienta pelo facing e divide pelo `weight` do alvo.
 
 ## Uso
 
-```gdscript
-# em algum estado de ataque
-fighter.hitbox_manager.start_attack(attack_data)
+O `BattleManager` ja cria o solver e registra os lutadores, entao normalmente
+basta disparar o golpe:
 
-# na cena de batalha
+```gdscript
+fighter.perform_attack(attack_data)
+fighter.perform_attack_by_id(&"5L")   # busca em fighter_data.moves
+```
+
+Montando na mao, fora de uma partida:
+
+```gdscript
 var solver := CollisionSolver.new()
 add_child(solver)
 solver.register_fighter(player_1)
@@ -194,8 +200,8 @@ godot --headless --path . --script tests/hitbox_smoke_test.gd
 
 ## Ainda nao implementado
 
-- Nenhum estado de ataque chama `start_attack()` — entra com o sistema de moves.
-- `BattleManager` ainda nao instancia o `CollisionSolver` nem registra os lutadores.
+- Nenhum input dispara golpe ainda: so chamada direta a `perform_attack()`.
+- Cancels e hierarquia de cancelamento entre golpes.
 - Pushbox (colisao corpo a corpo) e throwbox.
 - Atrito no knockback: hoje o alvo desliza com velocidade constante ate sair do
   hitstun, porque `engine/physics/knockback.gd` ainda e stub.
