@@ -1,12 +1,31 @@
 class_name StateMachine
 extends Node
 
+@export var initial_state_name: StringName = &"Idle"
 
-# Called when the node enters the scene tree for the first time.
+var current_state: State
+var states: Dictionary = {}
+
+
 func _ready() -> void:
-	pass # Replace with function body.
+	for child in get_children():
+		if child is State:
+			states[child.name] = child
+			child.transitioned.connect(transition_to)
+	transition_to(initial_state_name)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func physics_update(delta: float) -> void:
+	if current_state:
+		current_state.physics_update(delta)
+
+
+func transition_to(state_name: StringName) -> void:
+	if not states.has(state_name):
+		return
+	if current_state == states[state_name]:
+		return
+	if current_state:
+		current_state.exit()
+	current_state = states[state_name]
+	current_state.enter()
