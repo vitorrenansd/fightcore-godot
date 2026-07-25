@@ -7,15 +7,15 @@ signal hit_landed(hit: HitData)
 signal died()
 
 @export var fighter_data: FighterData
-## Lado do lutador. Define a camada das hurtboxes e quem ele consegue acertar.
+## Side of the fighter. Sets the hurtbox layer and who this fighter can hit.
 @export var team: int = 0
 
 var opponent: Fighter
 var facing_right: bool = true
 var health: int = 0
-## Golpes ja levados no combo atual, base do escalonamento de dano.
+## Hits already taken in the current combo, the basis for damage scaling.
 var combo_hits: int = 0
-## Frames de congelamento restantes do impacto.
+## Remaining freeze frames from an impact.
 var hitstop_frames: int = 0
 
 var stats: FighterStats:
@@ -25,7 +25,7 @@ var stats: FighterStats:
 @onready var visuals: Node2D = $Visuals
 @onready var state_machine: FighterStateMachine = $StateMachine
 @onready var hitbox_manager: HitboxManager = $HitboxManager
-## Opcional: lutador sem no de input nao recebe comando e fica parado.
+## Optional: a fighter without an input node takes no commands and stands still.
 @onready var input: InputBuffer = get_node_or_null(^"Input")
 
 
@@ -36,8 +36,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# Amostra antes do hitstop de proposito: congelado tambem bufferiza, que e
-	# justamente quando o jogador monta a continuacao do combo.
+	# Sampled before hitstop on purpose: a frozen fighter still buffers, and
+	# that is exactly when the player sets up the rest of the combo.
 	if input != null:
 		input.poll()
 	if hitstop_frames > 0:
@@ -77,7 +77,7 @@ func set_facing(face_right: bool) -> void:
 	hitbox_manager.set_facing(face_right)
 
 
-## Aplica o resultado de um acerto recebido. Chamado pelo CollisionSolver.
+## Applies an incoming hit result. Called by the CollisionSolver.
 func apply_hit(hit: HitData) -> void:
 	health = maxi(health - hit.damage, 0)
 	apply_hitstop(hit.hitstop)
@@ -88,7 +88,7 @@ func apply_hit(hit: HitData) -> void:
 	else:
 		combo_hits += 1
 		_enter_hitstun(hit)
-	# Depois da transicao: entrar em um estado zera a velocidade horizontal.
+	# After the transition: entering a state clears horizontal velocity.
 	velocity = hit.knockback
 	health_changed.emit(health, stats.max_health if stats != null else health)
 	hit_taken.emit(hit)
@@ -96,7 +96,7 @@ func apply_hit(hit: HitData) -> void:
 		died.emit()
 
 
-## Contrapartida no atacante: hitstop e aviso de hit confirm.
+## Attacker side of a hit: hitstop and the hit confirm notification.
 func apply_hit_landed(hit: HitData) -> void:
 	apply_hitstop(hit.hitstop)
 	hit_landed.emit(hit)
@@ -114,17 +114,17 @@ func is_alive() -> bool:
 	return health > 0
 
 
-## Alvo valido para as consultas do solver.
+## Valid target for solver queries.
 func can_be_hit() -> bool:
 	return is_alive()
 
 
-## Atacante valido no frame atual. Quem esta congelado nao confirma golpe novo.
+## Valid attacker this frame. A frozen fighter confirms no new hit.
 func can_resolve_hits() -> bool:
 	return is_alive() and hitstop_frames == 0 and hitbox_manager.is_attacking()
 
 
-## Tenta soltar o golpe que o input esta pedindo. Falso se nao ha comando valido.
+## Tries to run whatever attack the input is asking for.
 func try_command() -> bool:
 	if input == null or fighter_data == null or not can_act():
 		return false
@@ -135,14 +135,14 @@ func try_command() -> bool:
 	return true
 
 
-## Postura atual, usada para escolher entre golpe em pe, agachado e aereo.
+## Current stance, used to pick between standing, crouching and air attacks.
 func get_stance() -> CommandData.Stance:
 	if not is_on_floor():
 		return CommandData.Stance.AIR
 	return CommandData.Stance.CROUCH if is_crouching() else CommandData.Stance.STAND
 
 
-## Executa um golpe. Falso quando o lutador nao pode agir no momento.
+## Runs an attack. False when the fighter cannot act right now.
 func perform_attack(attack: AttackData) -> bool:
 	if attack == null or not can_act():
 		return false
@@ -167,12 +167,12 @@ func get_attack(attack_id: StringName) -> AttackData:
 	return null
 
 
-## Livre para receber comando. Congelado ou preso em stun nao aceita nada.
+## Free to take a command. Frozen or stunned fighters take nothing.
 func can_act() -> bool:
 	return is_alive() and hitstop_frames == 0 and not is_in_stun()
 
 
-## Pode virar de lado. Golpe comecado nao troca de lado no meio.
+## Allowed to turn around. A started attack never flips mid-move.
 func can_turn() -> bool:
 	return can_act() and not hitbox_manager.is_attacking() and is_on_floor()
 
@@ -184,8 +184,8 @@ func is_in_stun() -> bool:
 	return state is FighterBlockState and (state as FighterBlockState).is_in_blockstun()
 
 
-## Defende quem segura para tras no chao, fora de golpe e fora de hitstun.
-## Estar em blockstun nao atrapalha: e assim que block string funciona.
+## Blocking is holding back on the ground, outside of an attack and hitstun.
+## Being in blockstun does not get in the way: that is how block strings work.
 func is_blocking() -> bool:
 	if input == null or not is_alive() or not is_on_floor():
 		return false
@@ -203,7 +203,7 @@ func is_crouching() -> bool:
 	return state is FighterBlockState and (state as FighterBlockState).crouch_block
 
 
-## Regra de guarda: overhead so defende em pe, baixo so defende abaixado.
+## Guard rule: overheads only block standing, lows only block crouching.
 func can_block(guard: AttackData.Guard) -> bool:
 	if guard == AttackData.Guard.UNBLOCKABLE or not is_blocking():
 		return false

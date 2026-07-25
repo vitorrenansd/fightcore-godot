@@ -1,24 +1,24 @@
 class_name Hurtbox
 extends Area2D
 
-## Volume vulneravel de um lutador.
+## Vulnerable volume of a fighter.
 ##
-## E o unico lado do sistema que vive no servidor de fisica: fica registrada na
-## camada do proprio time para ser encontrada pelas consultas do CollisionSolver.
-## monitoring fica desligado de proposito, nenhum acerto e resolvido por sinal.
+## The only side of the system that lives in the physics server: registered on
+## its own team's layer so CollisionSolver queries can find it. Monitoring is
+## off on purpose, no hit is ever resolved through a signal.
 ##
-## As formas sao filhas CollisionShape2D authoradas na cena. A posicao do no e
-## capturada no _ready e espelhada por codigo quando o lutador troca de lado,
-## entao cada Hurtbox deve ficar no centro da sua propria caixa.
+## Shapes are CollisionShape2D children authored in the scene. The node
+## position is captured on _ready and mirrored in code when the fighter turns
+## around, so every Hurtbox must sit at the center of its own box.
 
 enum Height {
-	HIGH, ## Cabeca e tronco alto, alvo de anti-aereo e overhead.
-	MID, ## Corpo padrao.
-	LOW, ## Pernas, alvo natural de golpes baixos.
+	HIGH, ## Head and upper torso, target for anti-airs and overheads.
+	MID, ## Default body.
+	LOW, ## Legs, the natural target for low attacks.
 }
 
 @export var height: Height = Height.MID
-## Desliga a box sem tirar ela da cena (frames de invencibilidade, reversals).
+## Turns the box off without removing it (invincibility frames, reversals).
 @export var invulnerable: bool = false
 
 var fighter: Fighter

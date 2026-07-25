@@ -1,17 +1,17 @@
 class_name HitData
 extends Resource
 
-## Resultado ja resolvido de um acerto, entregue ao alvo pelo CollisionSolver.
+## Fully resolved result of one hit, handed to the target by CollisionSolver.
 ##
-## Diferente de AttackData (dado authorado, compartilhado entre lutadores), um
-## HitData e criado por acerto e ja carrega dano escalonado, knockback no espaco
-## do mundo e a reacao escolhida. Quem recebe nao precisa reinterpretar nada.
+## Unlike AttackData (authored data, shared between fighters), a HitData is
+## built per hit and already carries scaled damage, world-space knockback and
+## the chosen reaction. The receiving side reinterprets nothing.
 
 var attacker: Fighter
 var victim: Fighter
 var attack: AttackData
 
-## Ponto aproximado do impacto, util para hit sparks.
+## Approximate impact point, useful for hit sparks.
 var position: Vector2 = Vector2.ZERO
 var blocked: bool = false
 var counter_hit: bool = false
@@ -22,12 +22,12 @@ var hitstop: int = 0
 var knockback: Vector2 = Vector2.ZERO
 var launcher: bool = false
 
-## Quantos golpes o alvo ja tinha levado neste combo antes deste acerto.
+## Hits the target had already taken in this combo before this one.
 var combo_index: int = 0
 var damage_scaling: float = 1.0
 
 
-## Monta o resultado final a partir do dado authorado do golpe.
+## Builds the final result from the authored attack data.
 static func build(
 	p_attack: AttackData,
 	p_attacker: Fighter,
@@ -65,7 +65,7 @@ static func build(
 	return hit
 
 
-## Knockback ja orientado pelo facing do atacante e aliviado pelo peso do alvo.
+## Knockback oriented by the attacker's facing and softened by target weight.
 static func _build_knockback(
 	p_attack: AttackData, p_attacker: Fighter, p_victim: Fighter, p_blocked: bool
 ) -> Vector2:

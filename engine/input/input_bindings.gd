@@ -1,27 +1,27 @@
 class_name InputBindings
 extends Resource
 
-## Mapeamento fisico -> acao, por jogador. E a camada personalizavel do input.
+## Physical-to-action mapping, per player. This is the customizable layer.
 ##
-## As acoes sao criadas em runtime no InputMap (`p1_up`, `p1_p`, `p2_hs`...) em
-## vez de ficarem fixas no project.godot, porque remapear precisa funcionar com
-## o jogo rodando e ser salvo por usuario.
+## Actions are created at runtime in the InputMap (`p1_up`, `p1_p`, `p2_hs`...)
+## instead of being fixed in project.godot, because remapping has to work while
+## the game runs and be saved per user.
 ##
-## Teclado usa `physical_keycode`: a tecla e a posicao fisica, entao o padrao
-## funciona igual em ABNT2, QWERTY e AZERTY.
+## Keyboard uses `physical_keycode`: a key is its physical position, so the
+## defaults behave the same on ABNT2, QWERTY and AZERTY.
 ##
-## Controle e leverless nao precisam de tratamento especial aqui — leverless se
-## apresenta como teclado ou controle comum. O que ele exige e a limpeza de SOCD
-## que vive no InputDevice.
+## Leverless controllers need no special handling here — they present
+## themselves as a plain keyboard or pad. What they do require is the SOCD
+## cleaning that lives in InputDevice.
 
 const SAVE_PATH: String = "user://input_bindings.tres"
-## Deadzone alta de proposito: analogico precisa se comportar como gate, senao
-## direcao intermediaria vira motion falso.
+## High deadzone on purpose: an analog stick has to behave like a gate, or
+## intermediate directions turn into false motions.
 const STICK_DEADZONE: float = 0.5
 
 const DIRECTIONS: Array[StringName] = [&"up", &"down", &"left", &"right"]
 
-## Um dicionario por jogador: sufixo da acao -> Array de InputEvent.
+## One dictionary per player: action suffix -> Array of InputEvent.
 @export var players: Array[Dictionary] = []
 
 
@@ -39,10 +39,10 @@ static func load_or_create() -> InputBindings:
 	return create_default()
 
 
-## Registra tudo no InputMap. Chamar uma vez antes da partida comecar.
+## Registers everything in the InputMap. Call once before the match starts.
 func apply() -> void:
-	# Sem isto o Godot junta eventos do mesmo frame e o timing sub-frame de link
-	# se perde.
+	# Without this Godot merges events from the same frame and sub-frame link
+	# timing is lost.
 	Input.use_accumulated_input = false
 	for index in players.size():
 		var prefix := "p%d" % (index + 1)
@@ -63,7 +63,7 @@ func get_events(player_index: int, suffix: StringName) -> Array:
 	return players[player_index].get(suffix, [])
 
 
-## Troca um binding. `slot` 0 costuma ser teclado e 1 controle, mas e livre.
+## Replaces one binding. Slot 0 is usually keyboard and 1 the pad, but it is free.
 func set_event(player_index: int, suffix: StringName, slot: int, event: InputEvent) -> void:
 	if player_index >= players.size():
 		return
@@ -100,8 +100,8 @@ static func _pad_axis(axis: JoyAxis, value: float, device: int) -> InputEventJoy
 	return event
 
 
-## Teclado WASD + JKLUI, e controle no primeiro dispositivo.
-## No controle: A=P, B=K, X=S, Y=HS, RB=D. Gatilhos ficam livres para sistema.
+## Keyboard WASD + JKLUI, plus the first gamepad.
+## On pad: A=P, B=K, X=S, Y=HS, RB=D. Triggers stay free for system mechanics.
 static func _default_player_1() -> Dictionary:
 	return {
 		&"up": [_key(KEY_W), _pad_button(JOY_BUTTON_DPAD_UP, 0), _pad_axis(JOY_AXIS_LEFT_Y, -1.0, 0)],
@@ -116,7 +116,7 @@ static func _default_player_1() -> Dictionary:
 	}
 
 
-## Teclado setas + teclado numerico, e controle no segundo dispositivo.
+## Keyboard arrows + numpad, plus the second gamepad.
 static func _default_player_2() -> Dictionary:
 	return {
 		&"up": [_key(KEY_UP), _pad_button(JOY_BUTTON_DPAD_UP, 1), _pad_axis(JOY_AXIS_LEFT_Y, -1.0, 1)],

@@ -1,26 +1,26 @@
 class_name CommandParser
 extends RefCounted
 
-## Casa os CommandData de um lutador contra o historico de input.
+## Matches a fighter's CommandData against the input history.
 ##
-## O reconhecimento anda **para tras no tempo**, partindo do frame em que o
-## botao desceu: acha o botao dentro da janela de buffer, depois procura a
-## ultima direcao do motion, depois a anterior, ate a primeira. E o metodo usado
-## no genero porque nao depende de quando o motion comecou, so de ele ter sido
-## completado a tempo.
+## Recognition walks **backwards in time** from the frame the button went down:
+## find the press inside the buffer window, then the last direction of the
+## motion, then the one before it, all the way to the first. The genre uses
+## this method because it does not care when the motion started, only that it
+## was completed in time.
 ##
-## Leniencia: diagonal pulada nao invalida o motion (jogador humano quase nunca
-## acerta o 3 de um 236). Cardeal pulada invalida.
+## Leniency: a skipped diagonal does not break the motion (almost nobody hits
+## the 3 in a 236). A skipped cardinal does.
 
-## Janela de buffer padrao. O genero trabalha entre 5 e 10 frames: menos que
-## isso pune link legitimo, mais que isso solta golpe que o jogador nao quis.
+## Default buffer window. The genre works between 5 and 10 frames: less than
+## that punishes legitimate links, more of it throws out moves nobody asked for.
 const DEFAULT_BUFFER_FRAMES: int = 8
 
 var buffer_frames: int = DEFAULT_BUFFER_FRAMES
 
 
-## Melhor comando disponivel no frame atual, ou null.
-## `commands` nao precisa vir ordenado: a prioridade efetiva decide.
+## Best command available this frame, or null.
+## `commands` does not need to be sorted: effective priority decides.
 func parse(
 	commands: Array[CommandData],
 	history: InputHistory,
@@ -53,7 +53,7 @@ func matches(
 	var press_offset := history.find_press(command.button, buffer_frames)
 	if press_offset < 0:
 		return false
-	# Aperto ja gasto por um comando anterior nao dispara de novo.
+	# A press already spent by an earlier command does not fire again.
 	if history.get_frame() - press_offset <= consumed_until_frame:
 		return false
 	if command.hold_direction > 0:
@@ -64,7 +64,7 @@ func matches(
 	return _matches_motion(command, history, facing_right, press_offset)
 
 
-## Percorre o motion de tras para frente a partir do aperto do botao.
+## Walks the motion back to front, starting from the button press.
 func _matches_motion(
 	command: CommandData, history: InputHistory, facing_right: bool, press_offset: int
 ) -> bool:
@@ -74,7 +74,8 @@ func _matches_motion(
 		var step: int = command.motion[index]
 		var found := history.find_direction(step, search_from, remaining, facing_right)
 		if found < 0:
-			# Diagonal no meio do motion pode faltar; cardeal nao.
+			# A diagonal in the middle of a motion may be missing; a cardinal
+			# may not.
 			if command.allow_skipped_diagonals and FightInput.is_diagonal(step) and index > 0:
 				continue
 			return false

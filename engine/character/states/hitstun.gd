@@ -4,8 +4,8 @@ extends FighterState
 var stun_frames: int = 0
 
 
-## Reinicia a contagem mesmo se o lutador ja estiver em hitstun, que e o caso de
-## todo hit de combo depois do primeiro.
+## Restarts the count even if the fighter is already in hitstun, which is the
+## case for every combo hit after the first.
 func start_hitstun(frames: int) -> void:
 	stun_frames = frames
 	state_frame = 0

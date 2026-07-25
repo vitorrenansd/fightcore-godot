@@ -1,8 +1,8 @@
 class_name FighterWalkState
 extends FighterState
 
-## Andar para tras tambem e a guarda: quem segura tras defende ao ser atingido,
-## como manda a gramatica do genero 2D. Quem decide isso e Fighter.is_blocking.
+## Walking backwards is also blocking: holding back defends when hit, as the 2D
+## genre expects. Fighter.is_blocking is what decides that.
 
 var direction: float = 0.0
 

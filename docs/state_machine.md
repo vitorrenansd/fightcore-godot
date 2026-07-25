@@ -1,25 +1,26 @@
 # State Machine
 
-FSM generica usada pelos lutadores. Cada estado e um no filho da state machine, e
-a contagem de frames e inteira: nada de `await`, `Timer` ou tempo em segundos.
+Generic FSM used by the fighters. Every state is a child node of the state
+machine, and frame counting is integer based: no `await`, no `Timer`, no time
+in seconds.
 
 ## Classes
 
-| Classe | Arquivo | Papel |
+| Class | File | Role |
 |---|---|---|
-| `State` | `engine/state_machine/state.gd` | base de qualquer estado, conta `state_frame` |
-| `StateMachine` | `engine/state_machine/state_machine.gd` | registra os filhos e troca de estado |
-| `FighterState` | `engine/character/fighter_state.gd` | base dos estados de lutador, expoe `fighter` |
-| `FighterStateMachine` | `engine/character/fighter_state_machine.gd` | FSM do lutador |
+| `State` | `engine/state_machine/state.gd` | base of any state, counts `state_frame` |
+| `StateMachine` | `engine/state_machine/state_machine.gd` | registers children and switches states |
+| `FighterState` | `engine/character/fighter_state.gd` | base of fighter states, exposes `fighter` |
+| `FighterStateMachine` | `engine/character/fighter_state_machine.gd` | the fighter's FSM |
 
-A FSM e generica de proposito: `engine/state_machine/` nao sabe o que e um
-lutador. O acoplamento acontece so em `FighterState`, que resolve `fighter` a
-partir do `owner` da cena.
+The FSM is generic on purpose: `engine/state_machine/` does not know what a
+fighter is. Coupling only happens in `FighterState`, which resolves `fighter`
+from the scene `owner`.
 
-## Como funciona
+## How it works
 
-Os estados sao nos filhos da `StateMachine`. No `_ready` ela indexa cada filho
-pelo nome do no e conecta o sinal `transitioned` de todos:
+States are child nodes of the `StateMachine`. On `_ready` it indexes each child
+by node name and connects everyone's `transitioned` signal:
 
 ```
 StateMachine
@@ -31,14 +32,14 @@ StateMachine
 └── Hitstun
 ```
 
-O nome do no **e** o identificador do estado, entao `transition_to(&"Hitstun")`
-depende do no se chamar `Hitstun`.
+The node name **is** the state identifier, so `transition_to(&"Hitstun")`
+depends on the node being called `Hitstun`.
 
-`Fighter._physics_process` chama `state_machine.physics_update(delta)`, que
-repassa para o estado atual. A FSM nao tem `_process` proprio: quem dita o ritmo
-e o lutador, porque durante o hitstop ele precisa congelar a maquina inteira.
+`Fighter._physics_process` calls `state_machine.physics_update(delta)`, which
+forwards to the current state. The FSM has no `_process` of its own: the fighter
+sets the pace, because during hitstop it needs to freeze the whole machine.
 
-## Contagem de frames
+## Frame counting
 
 ```gdscript
 func enter() -> void:
@@ -48,65 +49,62 @@ func physics_update(_delta: float) -> void:
 	state_frame += 1
 ```
 
-`enter()` zera e cada update incrementa **antes** da logica, entao no primeiro
-update `state_frame == 1`. Um estado que dura N frames sai quando
+`enter()` resets and every update increments **before** the logic, so on the
+first update `state_frame == 1`. A state that lasts N frames leaves when
 `state_frame >= N`.
 
-## Trocando de estado
+## Switching states
 
-Do proprio estado, por sinal:
+From inside the state, through the signal:
 
 ```gdscript
 if fighter.is_on_floor():
 	transitioned.emit(&"Idle")
 ```
 
-De fora, direto:
+From outside, directly:
 
 ```gdscript
 fighter.state_machine.transition_to(&"Block")
 ```
 
-`transition_to` ignora nome desconhecido e ignora transicao para o estado atual —
-ou seja, **reentrar no mesmo estado nao chama `enter()` de novo**. Quem precisa
-reiniciar (todo hit de combo depois do primeiro) usa um metodo proprio:
+`transition_to` ignores unknown names and ignores a transition into the current
+state — meaning **re-entering the same state does not call `enter()` again**.
+Anything that needs a restart (every combo hit after the first) uses a method of
+its own:
 
 ```gdscript
 # Fighter._enter_hitstun
 var state := state_machine.get_state(&"Hitstun") as FighterHitstunState
-state.start_hitstun(hit.stun_frames)   # zera state_frame na mao
+state.start_hitstun(hit.stun_frames)   # resets state_frame by hand
 state_machine.transition_to(&"Hitstun")
 ```
 
-`get_state()` existe justamente para parametrizar um estado antes de entrar nele:
-hitstun e blockstun recebem a duracao do golpe que acabou de acertar.
+`get_state()` exists exactly for parametrizing a state before entering it:
+hitstun and blockstun take the duration of the move that just connected.
 
-## Estados atuais
+## Current states
 
-| Estado | Comportamento |
+| State | Behaviour |
 |---|---|
-| `Idle` | zera velocidade horizontal |
-| `Walk` | aplica `direction` na velocidade de caminhada |
-| `Jump` | pula ao entrar, volta para `Idle` ao tocar o chao |
-| `Crouch` | zera velocidade horizontal, conta como abaixado na guarda |
-| `Block` | guarda em pe ou abaixada; com `stun_frames > 0` vira blockstun |
-| `Hitstun` | preso pelos frames do golpe; ao sair zera o combo do lutador |
-| `Attack` | executa um `AttackData`; volta para `Idle` quando o golpe acaba |
-| `KO` | nocaute; desliga as hurtboxes e nao sai sozinho |
+| `Idle` | clears horizontal velocity |
+| `Walk` | applies `direction` at walking speed |
+| `Jump` | jumps on enter, returns to `Idle` on landing |
+| `Crouch` | clears horizontal velocity, counts as crouching for the guard |
+| `Block` | blockstun only; blocking itself is holding back |
+| `Hitstun` | locked for the move's frames; resets the fighter's combo on exit |
+| `Attack` | runs an `AttackData`; returns to `Idle` when the move ends |
+| `KO` | knockout; disables the hurtboxes and never leaves on its own |
 
-`Block` acumula duas funcoes de proposito: segurar a guarda (`stun_frames == 0`,
-sai quando quiser) e o blockstun (`stun_frames > 0`, preso). `crouch_block` diz
-se a guarda e baixa, o que decide se um overhead ou um golpe baixo passa.
+`Attack` does not count the move's frames: the `HitboxManager` does. The state
+only waits for `is_attacking()` to become false. Entering it always goes through
+`Fighter.perform_attack()`, which respects `can_act()` and handles the case of a
+fighter that is already attacking — `setup()` restarts the move immediately,
+which is how a cancel becomes the next move without passing through neutral.
 
-`Attack` nao conta os frames do golpe: quem conta e o `HitboxManager`. O estado
-so espera `is_attacking()` virar falso. Entrar nele e sempre via
-`Fighter.perform_attack()`, que respeita `can_act()` e lida com o caso de o
-lutador ja estar atacando — `setup()` reinicia o golpe na hora, que e o caminho
-de um cancel virar o golpe seguinte sem passar pelo neutro.
+## Adding a state
 
-## Adicionando um estado
-
-1. Criar o script em `engine/character/states/`:
+1. Create the script in `engine/character/states/`:
 
 ```gdscript
 class_name FighterDashState
@@ -122,8 +120,8 @@ func physics_update(delta: float) -> void:
 		transitioned.emit(&"Idle")
 ```
 
-2. Adicionar um no com esse script sob `StateMachine` na cena do lutador, com o
-   nome que sera usado nas transicoes.
+2. Add a node with that script under `StateMachine` in the fighter scene, named
+   with the name used in transitions.
 
-Sempre chamar `super()` em `enter()` e `super(delta)` em `physics_update()`: e o
-que zera e incrementa `state_frame`.
+Always call `super()` in `enter()` and `super(delta)` in `physics_update()`:
+that is what resets and increments `state_frame`.

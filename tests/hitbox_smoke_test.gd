@@ -12,7 +12,7 @@ var ok: bool = true
 
 func _initialize() -> void:
 	var scene: PackedScene = load(FIGHTER_SCENE)
-	# Defender agora e segurar para tras, entao o teste precisa do InputMap.
+	# Blocking is now holding back, so the test needs the InputMap.
 	InputBindings.create_default().apply()
 
 	var floor_body := StaticBody2D.new()
@@ -64,8 +64,8 @@ func _make_attack(guard: AttackData.Guard, damage: int, chip: int) -> AttackData
 	return attack
 
 
-## O knockback ainda nao decai no chao (nao existe atrito), entao entre as fases
-## o espacamento e refeito na mao.
+## Ground knockback does not decay yet (there is no friction), so spacing is
+## restored by hand between phases.
 func _reset_spacing() -> void:
 	p1.position = Vector2(0, 0)
 	p1.velocity = Vector2.ZERO
@@ -76,28 +76,28 @@ func _reset_spacing() -> void:
 func check(condition: bool, message: String) -> void:
 	if not condition:
 		ok = false
-		print("  FALHA: %s" % message)
+		print("  FAIL: %s" % message)
 
 
 func _physics_process(_delta: float) -> bool:
 	frames += 1
 	match frames:
 		1:
-			# Os @onready dos lutadores so resolvem depois que o tree roda.
+			# Fighter @onready vars only resolve once the tree is running.
 			p1.opponent = p2
 			p2.opponent = p1
 			p1.set_facing(true)
 			p2.set_facing(false)
 			p2.input.player_index = 1
-			print("p1 hurtboxes=%d  p2 hurtboxes=%d  layer p2=%d  mascara p1=%d" % [
+			print("p1 hurtboxes=%d  p2 hurtboxes=%d  p2 layer=%d  p1 mask=%d" % [
 				p1.hitbox_manager.get_hurtboxes().size(),
 				p2.hitbox_manager.get_hurtboxes().size(),
 				p2.hitbox_manager.get_hurtboxes()[0].collision_layer,
 				CollisionLayers.opponent_hurtbox_mask(p1.team),
 			])
 			var attack := _make_attack(AttackData.Guard.MID, 400, 0)
-			print("\n== 1. acerto limpo (MID, sem guarda) ==")
-			print("  frame data: total=%d vantagem_hit=%+d vantagem_block=%+d seguro=%s" % [
+			print("\n== 1. clean hit (MID, no guard) ==")
+			print("  frame data: total=%d adv_hit=%+d adv_block=%+d safe=%s" % [
 				attack.get_total_frames(),
 				attack.get_advantage_on_hit(),
 				attack.get_advantage_on_block(),
@@ -105,61 +105,61 @@ func _physics_process(_delta: float) -> bool:
 			])
 			p1.hitbox_manager.start_attack(attack)
 		8:
-			check(p1.hitstop_frames > 0, "atacante tambem congela no hitstop")
-			check(p2.hitstop_frames > 0, "alvo congela no hitstop")
+			check(p1.hitstop_frames > 0, "attacker freezes on hitstop too")
+			check(p2.hitstop_frames > 0, "target freezes on hitstop")
 		12:
-			check(landed.size() == 1, "1 acerto esperado, hit_group deve impedir reacerto")
+			check(landed.size() == 1, "exactly 1 hit, hit_group must prevent re-hits")
 			var hit: HitData = landed[0]
-			print("  dano=%d stun=%d hitstop=%d knockback=%s blocked=%s scaling=%.2f" % [
+			print("  damage=%d stun=%d hitstop=%d knockback=%s blocked=%s scaling=%.2f" % [
 				hit.damage, hit.stun_frames, hit.hitstop, hit.knockback, hit.blocked, hit.damage_scaling,
 			])
-			check(hit.damage == 400, "dano 400")
-			check(hit.knockback.x > 0.0, "knockback para a direita")
-			check(p2.health == 9600, "vida 9600, veio %d" % p2.health)
-			check(p2.state_machine.current_state.name == &"Hitstun", "p2 em Hitstun")
-			check(p2.combo_hits == 1, "combo_hits 1, veio %d" % p2.combo_hits)
+			check(hit.damage == 400, "400 damage")
+			check(hit.knockback.x > 0.0, "knockback pushes right")
+			check(p2.health == 9600, "health 9600, got %d" % p2.health)
+			check(p2.state_machine.current_state.name == &"Hitstun", "p2 in Hitstun")
+			check(p2.combo_hits == 1, "combo_hits 1, got %d" % p2.combo_hits)
 		34:
-			print("  fim do hitstun: estado=%s combo_hits=%d atacando=%s" % [
+			print("  hitstun over: state=%s combo_hits=%d attacking=%s" % [
 				p2.state_machine.current_state.name, p2.combo_hits, p1.hitbox_manager.is_attacking(),
 			])
-			check(p2.state_machine.current_state.name == &"Idle", "p2 voltou para Idle")
-			check(p2.combo_hits == 0, "combo zera ao sair do hitstun")
-			check(not p1.hitbox_manager.is_attacking(), "ataque terminou sozinho")
+			check(p2.state_machine.current_state.name == &"Idle", "p2 returned to Idle")
+			check(p2.combo_hits == 0, "combo resets on leaving hitstun")
+			check(not p1.hitbox_manager.is_attacking(), "attack ended on its own")
 		36:
-			print("\n== 2. mesmo golpe defendido (MID, guarda em pe) ==")
+			print("\n== 2. same move blocked (MID, standing guard) ==")
 			landed.clear()
 			_reset_spacing()
-			# p2 encara a esquerda: para tras dele e a direita da tela.
+			# p2 faces left, so its "back" is screen right.
 			Input.action_press(&"p2_right")
 			p1.hitbox_manager.start_attack(_make_attack(AttackData.Guard.MID, 400, 40))
 		47:
-			check(landed.size() == 1, "1 acerto esperado")
+			check(landed.size() == 1, "exactly 1 hit")
 			var hit: HitData = landed[0]
-			print("  blocked=%s dano=%d stun=%d vida=%d estado=%s" % [
+			print("  blocked=%s damage=%d stun=%d health=%d state=%s" % [
 				hit.blocked, hit.damage, hit.stun_frames, p2.health, p2.state_machine.current_state.name,
 			])
-			check(hit.blocked, "golpe MID deveria ser defendido")
-			check(hit.damage == 40, "so chip damage")
+			check(hit.blocked, "MID move should be blocked")
+			check(hit.damage == 40, "chip damage only")
 			check(hit.stun_frames == 12, "blockstun 12")
-			check(p2.health == 9560, "vida 9560, veio %d" % p2.health)
-			check(p2.combo_hits == 0, "defesa nao conta combo")
+			check(p2.health == 9560, "health 9560, got %d" % p2.health)
+			check(p2.combo_hits == 0, "blocking does not count as combo")
 		70:
-			print("\n== 3. golpe baixo contra guarda em pe ==")
+			print("\n== 3. low move against standing guard ==")
 			landed.clear()
 			_reset_spacing()
-			# Continua segurando tras, mas em pe: guarda alta nao para golpe baixo.
+			# Still holding back, but standing: a high guard does not stop a low.
 			p1.hitbox_manager.start_attack(_make_attack(AttackData.Guard.LOW, 300, 30))
 		81:
-			check(landed.size() == 1, "1 acerto esperado")
+			check(landed.size() == 1, "exactly 1 hit")
 			var hit: HitData = landed[0]
-			print("  blocked=%s dano=%d vida=%d estado=%s" % [
+			print("  blocked=%s damage=%d health=%d state=%s" % [
 				hit.blocked, hit.damage, p2.health, p2.state_machine.current_state.name,
 			])
-			check(not hit.blocked, "guarda em pe nao defende golpe baixo")
-			check(p2.health == 9260, "vida 9260, veio %d" % p2.health)
-			check(p2.state_machine.current_state.name == &"Hitstun", "p2 em Hitstun")
+			check(not hit.blocked, "standing guard does not block a low")
+			check(p2.health == 9260, "health 9260, got %d" % p2.health)
+			check(p2.state_machine.current_state.name == &"Hitstun", "p2 in Hitstun")
 		82:
-			print("\nRESULTADO: %s" % ("OK" if ok else "FALHOU"))
+			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
 	return false

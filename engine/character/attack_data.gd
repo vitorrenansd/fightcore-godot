@@ -1,57 +1,57 @@
 class_name AttackData
 extends Resource
 
-## Frame data e propriedades de acerto de um golpe.
+## Frame data and hit properties of a move.
 ##
-## Tudo que define o comportamento de um ataque vive aqui como .tres, nunca como
-## constante em script. Vantagem em hit e block sao derivadas do frame data em
-## vez de authoradas, para nao existir dado duplicado que desincronize.
+## Everything that defines an attack lives here as a .tres, never as script
+## constants. Advantage on hit and block are derived from the frame data
+## instead of authored, so there is no duplicated value that can drift.
 
 enum Guard {
-	MID, ## Defende em pe ou abaixado.
-	HIGH, ## Overhead: so defende em pe.
-	LOW, ## Baixo: so defende abaixado.
-	UNBLOCKABLE, ## Nao ha defesa.
+	MID, ## Blocks standing or crouching.
+	HIGH, ## Overhead: only blocks standing.
+	LOW, ## Low: only blocks crouching.
+	UNBLOCKABLE, ## No block at all.
 }
 
 @export var attack_id: StringName
 @export var display_name: String
 
 @export_group("Frame Data")
-## Frames antes da primeira hitbox ficar ativa.
+## Frames before the first hitbox goes active.
 @export var startup_frames: int = 5
-## Frames com hitbox ativa.
+## Frames with an active hitbox.
 @export var active_frames: int = 3
-## Frames de recuperacao depois das hitboxes sumirem.
+## Recovery frames after the hitboxes are gone.
 @export var recovery_frames: int = 12
 
 @export_group("Boxes")
 @export var hitboxes: Array[Hitbox] = []
 
-@export_group("Dano")
+@export_group("Damage")
 @export var damage: int = 400
-## Dano ao acertar a guarda do oponente.
+## Damage dealt when the opponent blocks.
 @export var chip_damage: int = 0
-## Reducao de dano por hit ja acumulado no combo (10% e o padrao do genero).
+## Damage cut per hit already in the combo (10% is the genre standard).
 @export_range(0.0, 1.0, 0.01) var scaling_per_hit: float = 0.1
-## Piso do escalonamento, impede combos longos zerarem o dano.
+## Scaling floor, so long combos cannot drop damage to nothing.
 @export_range(0.0, 1.0, 0.01) var min_damage_scaling: float = 0.1
 @export var counter_hit_damage_multiplier: float = 1.2
 @export var counter_hit_bonus_hitstun: int = 4
 
-@export_group("Reacao")
+@export_group("Reaction")
 @export var guard: Guard = Guard.MID
-## Frames que o oponente fica preso ao levar o golpe.
+## Frames the opponent is stuck for after being hit.
 @export var hitstun: int = 16
-## Frames que o oponente fica preso ao defender o golpe.
+## Frames the opponent is stuck for after blocking.
 @export var blockstun: int = 12
-## Frames de congelamento dos dois lados no impacto.
+## Freeze frames applied to both sides on impact.
 @export var hitstop: int = 8
-## Empurrao no acerto. X e sempre "para longe do atacante".
+## Knockback on hit. X always points away from the attacker.
 @export var knockback: Vector2 = Vector2(220.0, 0.0)
-## Empurrao na defesa.
+## Pushback on block.
 @export var block_pushback: Vector2 = Vector2(120.0, 0.0)
-## Lanca o oponente para o alto, permitindo juggle.
+## Launches the opponent upwards, allowing juggles.
 @export var launcher: bool = false
 
 
@@ -59,7 +59,7 @@ func get_total_frames() -> int:
 	return startup_frames + active_frames + recovery_frames
 
 
-## Ultimo frame do ataque, contando a partir de 0.
+## Last frame of the attack, counting from 0.
 func get_last_frame() -> int:
 	return get_total_frames() - 1
 
@@ -71,7 +71,7 @@ func is_active_on_frame(frame: int) -> bool:
 	return false
 
 
-## Frames que sobram para o atacante depois de acertar no primeiro frame ativo.
+## Frames the attacker still owes after connecting on the first active frame.
 func get_recovery_after_hit() -> int:
 	return maxi(active_frames - 1, 0) + recovery_frames
 
@@ -88,6 +88,6 @@ func is_safe_on_block() -> bool:
 	return get_advantage_on_block() >= 0
 
 
-## Escalonamento aplicado quando o alvo ja levou combo_index golpes no combo.
+## Scaling applied when the target has already taken combo_index hits.
 func get_damage_scaling(combo_index: int) -> float:
 	return maxf(1.0 - scaling_per_hit * combo_index, min_damage_scaling)

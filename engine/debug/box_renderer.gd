@@ -1,10 +1,11 @@
 class_name DebugBoxRenderer
 extends Node2D
 
-## Desenha hurtboxes e hitboxes ativas por cima da partida.
+## Draws hurtboxes and active hitboxes on top of the match.
 ##
-## Sem isto, ajustar frame data e as pura adivinhacao: e o unico jeito de ver
-## que a hitbox saiu no frame certo, no lugar certo e do lado certo.
+## Without this, tuning frame data is pure guesswork: it is the only way to see
+## that a hitbox came out on the right frame, in the right place, facing the
+## right way.
 
 const HURTBOX_COLOR := Color(0.25, 0.8, 0.35, 0.22)
 const HITBOX_COLOR := Color(0.95, 0.25, 0.25, 0.35)

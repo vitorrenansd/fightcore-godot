@@ -1,8 +1,8 @@
 class_name FighterJumpState
 extends FighterState
 
-## O pulo e comprometido: a direcao e lida uma vez, na saida do chao, e nao muda
-## mais no ar. E o que faz espacamento no ar significar alguma coisa.
+## Jumps are committed: the direction is read once, on leaving the ground, and
+## never changes in the air. That is what makes air spacing mean something.
 
 
 func enter() -> void:
@@ -16,7 +16,7 @@ func enter() -> void:
 func physics_update(delta: float) -> void:
 	super(delta)
 	fighter.try_command()
-	# state_frame > 1 evita voltar para Idle no mesmo frame da saida do chao,
-	# antes da velocidade vertical tirar o lutador do piso.
+	# state_frame > 1 avoids dropping back to Idle on the same frame the jump
+	# starts, before vertical velocity lifts the fighter off the floor.
 	if state_frame > 1 and fighter.is_on_floor():
 		transitioned.emit(&"Idle")

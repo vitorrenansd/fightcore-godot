@@ -1,11 +1,11 @@
 extends Node2D
 
-## Sala de treino: cena jogavel para testar input, frame data e boxes.
+## Training room: playable scene for testing input, frame data and boxes.
 ##
-## Teclado  P1: WASD move, J=P K=K L=S U=HS I=D
-## Teclado  P2: setas move, numerico 1..5
-## Controle:   direcional ou analogico, A=P B=K X=S Y=HS RB=D
-## F1 liga e desliga o desenho das boxes.
+## Keyboard P1: WASD to move, J=P K=K L=S U=HS I=D
+## Keyboard P2: arrows to move, numpad 1..5
+## Gamepad:     d-pad or stick, A=P B=K X=S Y=HS RB=D
+## F1 toggles the box overlay.
 
 const TEAM_COLORS: Array[Color] = [Color(0.6, 0.8, 1.0), Color(1.0, 0.7, 0.6)]
 
@@ -37,7 +37,7 @@ func _describe(fighter: Fighter, index: int) -> String:
 	var attack_info := "-"
 	if manager.is_attacking():
 		attack_info = "%s f%d" % [manager.current_attack.attack_id, manager.attack_frame]
-	return "P%d  vida %5d  %-8s  golpe %-10s  dir %d  hitstop %d  combo %d" % [
+	return "P%d  health %5d  %-8s  move %-10s  dir %d  hitstop %d  combo %d" % [
 		index + 1,
 		fighter.health,
 		fighter.state_machine.current_state.name if fighter.state_machine.current_state else "-",

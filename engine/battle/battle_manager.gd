@@ -1,10 +1,10 @@
 class_name BattleManager
 extends Node2D
 
-## Dono da partida: instancia os lutadores, define os times e roda o
-## CollisionSolver. E o unico lugar que sabe que existem dois lados.
+## Owner of the match: spawns the fighters, assigns teams and runs the
+## CollisionSolver. The only place in the engine that knows there are two sides.
 ##
-## Round, cronometro e placar nao vivem aqui, sao do RoundManager.
+## Rounds, timer and score do **not** live here — those belong to RoundManager.
 
 signal battle_started()
 signal fighter_spawned(fighter: Fighter)
@@ -14,10 +14,10 @@ signal hit_resolved(hit: HitData)
 const DEFAULT_SPAWN_OFFSET: float = 120.0
 
 @export var fighter_scenes: Array[PackedScene] = []
-## Posicoes de spawn. Sem valor para um indice, cai no espelhamento padrao.
+## Spawn positions. Missing entries fall back to the default mirrored offset.
 @export var spawn_positions: Array[Vector2] = []
 @export var start_on_ready: bool = true
-## Registra o mapeamento de teclado e controle no InputMap ao iniciar.
+## Registers the keyboard and pad mapping in the InputMap on startup.
 @export var apply_input_bindings: bool = true
 
 var fighters: Array[Fighter] = []
@@ -37,8 +37,8 @@ func _ready() -> void:
 		start_battle()
 
 
-## Facing e decidido aqui e nao dentro do lutador: quem sabe quem e o oponente
-## de quem e a partida. Golpe comecado nao vira de lado no meio.
+## Facing is decided here and not inside the fighter: knowing who faces whom is
+## the match's business. A started attack never flips mid-move.
 func _physics_process(_delta: float) -> void:
 	for fighter in fighters:
 		if fighter.can_turn():
@@ -56,13 +56,13 @@ func start_battle() -> void:
 func spawn_fighter(scene: PackedScene, index: int) -> Fighter:
 	var fighter := scene.instantiate() as Fighter
 	if fighter == null:
-		push_error("BattleManager: cena %s nao tem um Fighter na raiz" % scene.resource_path)
+		push_error("BattleManager: scene %s has no Fighter at its root" % scene.resource_path)
 		return null
-	# team antes de entrar na arvore: e ele que define a camada das hurtboxes.
+	# team before entering the tree: it decides the hurtbox layer.
 	fighter.team = index
 	add_child(fighter)
 	fighter.position = get_spawn_position(index)
-	# Time 0 joga com p1_*, time 1 com p2_*.
+	# Team 0 plays on p1_*, team 1 on p2_*.
 	if fighter.input != null:
 		fighter.input.player_index = index
 	register_fighter(fighter)
@@ -88,8 +88,8 @@ func unregister_fighter(fighter: Fighter) -> void:
 		fighter.died.disconnect(callback)
 
 
-## Liga cada lutador ao adversario e faz os dois se encararem. So pode rodar
-## depois de todos estarem na arvore, porque mexe em no de cena do lutador.
+## Links each fighter to their opponent and makes both face each other. Only
+## valid once everyone is in the tree, since it touches fighter scene nodes.
 func pair_fighters() -> void:
 	for fighter in fighters:
 		fighter.opponent = get_opponent_of(fighter)
@@ -116,7 +116,7 @@ func get_spawn_position(index: int) -> Vector2:
 	return Vector2(-DEFAULT_SPAWN_OFFSET if index == 0 else DEFAULT_SPAWN_OFFSET, 0.0)
 
 
-## Devolve os lutadores para a posicao inicial, encarando o adversario.
+## Sends every fighter back to their starting spot, facing the opponent.
 func reset_positions() -> void:
 	for index in fighters.size():
 		var fighter := fighters[index]

@@ -1,12 +1,14 @@
-# Partida
+# Match
 
-`BattleManager` (`engine/battle/battle_manager.gd`) e o dono da partida: instancia
-os lutadores, define os times, liga os oponentes e roda o `CollisionSolver`. E o
-unico lugar da engine que sabe que existem dois lados.
+`BattleManager` (`engine/battle/battle_manager.gd`) owns the match: it spawns
+the fighters, assigns teams, links the opponents and runs the
+`CollisionSolver`. It is the only place in the engine that knows there are two
+sides.
 
-Round, cronometro e placar **nao** ficam aqui — sao do `RoundManager`, ainda stub.
+Rounds, timer and score do **not** live here — those belong to `RoundManager`,
+still a stub.
 
-## Montagem
+## Setup
 
 ```gdscript
 var battle := BattleManager.new()
@@ -15,33 +17,34 @@ battle.spawn_positions = [Vector2(-120, 0), Vector2(120, 0)]
 add_child(battle)
 ```
 
-Com `start_on_ready` (padrao), a partida comeca sozinha assim que o no entra na
-arvore. Para controlar na mao, desligue e chame `start_battle()`.
+With `start_on_ready` (the default) the match starts by itself as soon as the
+node enters the tree. To drive it manually, turn that off and call
+`start_battle()`.
 
-O `team` de cada lutador e o indice dele em `fighter_scenes`, e e definido
-**antes** do lutador entrar na arvore, porque e ele que decide em qual camada as
-hurtboxes vao ser registradas.
+Each fighter's `team` is its index in `fighter_scenes`, and it is set **before**
+the fighter enters the tree, because it decides which layer the hurtboxes
+register on.
 
-`pair_fighters()` roda so depois de todos estarem na arvore: ligar oponente e
-ajustar facing mexe em nos que so existem depois do `_ready` do lutador.
+`pair_fighters()` only runs once everyone is in the tree: linking opponents and
+adjusting facing touches nodes that only exist after the fighter's `_ready`.
 
 ## Solver
 
-O `BattleManager` cria o `CollisionSolver` como filho e registra cada lutador
-nele. O solver se resolve sozinho todo frame de fisica, com
-`process_physics_priority = 100` para rodar depois de todos os lutadores terem se
-movido. Ver [hitboxes.md](hitboxes.md).
+`BattleManager` creates the `CollisionSolver` as a child and registers every
+fighter in it. The solver resolves itself every physics frame, with
+`process_physics_priority = 100` so it runs after all fighters have moved. See
+[hitboxes.md](hitboxes.md).
 
 ## Input
 
-O `BattleManager` registra o mapeamento no InputMap ao iniciar
-(`apply_input_bindings`) e da a cada lutador o indice de jogador do seu time:
-time 0 joga com `p1_*`, time 1 com `p2_*`. Ver [input.md](input.md).
+`BattleManager` registers the mapping in the InputMap on startup
+(`apply_input_bindings`) and gives each fighter the player index of its team:
+team 0 plays on `p1_*`, team 1 on `p2_*`. See [input.md](input.md).
 
 ## Facing
 
-Quem decide de que lado cada lutador olha e a partida, nao o lutador: saber quem
-e o oponente de quem e responsabilidade daqui.
+Which way each fighter looks is the match's decision, not the fighter's: knowing
+who faces whom is this class's responsibility.
 
 ```gdscript
 for fighter in fighters:
@@ -49,38 +52,38 @@ for fighter in fighters:
 		fighter.update_facing()
 ```
 
-`can_turn()` e falso durante ataque, stun, hitstop e no ar. Na pratica: **golpe
-comecado nao vira de lado no meio**. Um lutador que cruza para o outro lado
-durante o proprio golpe continua batendo para onde comecou, que e o
-comportamento esperado do genero (e o que faz crossup existir).
+`can_turn()` is false during attacks, stun, hitstop and in the air. In practice:
+**a started move never flips mid-attack**. A fighter crossing to the other side
+during their own move keeps hitting where they started, which is the behaviour
+the genre expects (and what makes crossups exist).
 
 ## API
 
-| Membro | Uso |
+| Member | Use |
 |---|---|
-| `fighters` | lutadores da partida, na ordem dos times |
-| `solver` | o `CollisionSolver` da partida |
-| `start_battle()` | limpa e monta tudo de novo |
-| `spawn_fighter(scene, index)` | instancia um lutador no time `index` |
-| `register_fighter(f)` | registra um lutador ja existente |
-| `pair_fighters()` | liga oponentes e ajusta o facing inicial |
-| `get_fighter(team)` | lutador de um time |
-| `get_opponent_of(f)` | adversario de um lutador |
-| `reset_positions()` | volta todos para o spawn (reset de round) |
-| `clear_battle()` | remove todos os lutadores |
+| `fighters` | the match's fighters, in team order |
+| `solver` | the match's `CollisionSolver` |
+| `start_battle()` | clears and builds everything again |
+| `spawn_fighter(scene, index)` | spawns a fighter on team `index` |
+| `register_fighter(f)` | registers an already existing fighter |
+| `pair_fighters()` | links opponents and sets the initial facing |
+| `get_fighter(team)` | a team's fighter |
+| `get_opponent_of(f)` | a fighter's opponent |
+| `reset_positions()` | sends everyone back to spawn (round reset) |
+| `clear_battle()` | removes every fighter |
 
-**Sinais**: `battle_started`, `fighter_spawned(fighter)`, `fighter_died(fighter)`,
-`hit_resolved(hit)`.
+**Signals**: `battle_started`, `fighter_spawned(fighter)`,
+`fighter_died(fighter)`, `hit_resolved(hit)`.
 
-## Teste
+## Test
 
 ```sh
 godot --headless --path . --script tests/battle_smoke_test.gd
 ```
 
-Cobre spawn, times, facing, o solver resolvendo acerto sozinho e o KO.
+Covers spawn, teams, facing, the solver resolving a hit on its own, and the KO.
 
-## Ainda nao implementado
+## Not implemented yet
 
-- `RoundManager` e `Timer`: rounds, contagem regressiva, vitoria.
-- Camera que segue os lutadores, limites de tela e pushback na parede.
+- `RoundManager` and `Timer`: rounds, countdown, win conditions.
+- A camera that follows the fighters, screen bounds and corner pushback.

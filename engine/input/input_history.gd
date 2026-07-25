@@ -1,14 +1,14 @@
 class_name InputHistory
 extends RefCounted
 
-## Historico circular de input, um registro por frame de fisica.
+## Circular input history, one record per physics frame.
 ##
-## Guarda direcao e bitmask de botoes em arrays fixos, sem alocar nada por
-## frame. Offset 0 e sempre o frame atual, 1 e o anterior, e assim por diante —
-## e assim que o parser de comando lê motion andando para tras no tempo.
+## Stores direction and button bitmask in fixed arrays, allocating nothing per
+## frame. Offset 0 is always the current frame, 1 the previous one, and so on —
+## that is how the command parser reads motions walking backwards in time.
 ##
-## A direcao guardada e sempre absoluta; espelhar para o facing acontece na
-## leitura, para input gravado antes de trocar de lado continuar valendo.
+## The stored direction is always absolute; mirroring for the facing happens on
+## read, so input recorded before a side switch still counts.
 
 const DEFAULT_SIZE: int = 90
 
@@ -17,7 +17,7 @@ var size: int
 var _directions: PackedInt32Array
 var _buttons: PackedInt32Array
 var _head: int = 0
-## Total de frames ja gravados. Serve de carimbo de tempo para consumo.
+## Total frames recorded so far. Doubles as a timestamp for buffer consumption.
 var _frame: int = 0
 
 
@@ -36,7 +36,7 @@ func push(direction: int, buttons: int) -> void:
 	_frame += 1
 
 
-## Numero do frame atual desde o inicio da leitura.
+## Current frame number since reading started.
 func get_frame() -> int:
 	return _frame
 
@@ -53,15 +53,15 @@ func is_held(button_mask: int, offset: int = 0) -> bool:
 	return _buttons[_index(offset)] & button_mask == button_mask
 
 
-## Verdadeiro so no frame em que o botao desceu.
+## True only on the frame the button went down.
 func is_pressed(button_mask: int, offset: int = 0) -> bool:
 	var current := _buttons[_index(offset)]
 	var previous := _buttons[_index(offset + 1)]
 	return current & button_mask == button_mask and previous & button_mask != button_mask
 
 
-## Offset do frame em que o botao desceu dentro da janela, ou -1.
-## Procura do mais recente para o mais antigo: o ultimo aperto vence.
+## Offset of the frame the button went down within the window, or -1.
+## Searches newest to oldest: the latest press wins.
 func find_press(button_mask: int, window: int) -> int:
 	for offset in mini(window, size - 1):
 		if is_pressed(button_mask, offset):
@@ -69,7 +69,7 @@ func find_press(button_mask: int, window: int) -> int:
 	return -1
 
 
-## Offset em que a direcao aparece, procurando de `from` para tras no tempo.
+## Offset where a direction appears, searching from `from` backwards in time.
 func find_direction(direction: int, from: int, window: int, facing_right: bool) -> int:
 	for offset in range(from, mini(from + window, size - 1)):
 		if get_direction(offset, facing_right) == direction:

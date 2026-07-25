@@ -1,14 +1,14 @@
 class_name CollisionSolver
 extends Node
 
-## Resolve os acertos do frame consultando o PhysicsServer direto.
+## Resolves this frame's hits by querying the PhysicsServer directly.
 ##
-## Nada de area_entered nem get_overlapping_areas: sinais de Area2D chegam um
-## frame depois e quebram trocas de golpe. Toda hitbox ativa vira uma consulta
-## intersect_shape contra a camada de hurtbox do time adversario, no mesmo frame.
+## No area_entered, no get_overlapping_areas: Area2D signals arrive a frame
+## late and break trades. Every active hitbox becomes an intersect_shape query
+## against the opposing team's hurtbox layer, on the same frame.
 ##
-## Roda com process_physics_priority alto para resolver depois que todos os
-## lutadores ja moveram, independente da ordem deles na cena.
+## Runs with a high process_physics_priority so it resolves after every fighter
+## has moved, no matter their order in the scene.
 
 const MAX_RESULTS: int = 8
 const SOLVE_PRIORITY: int = 100
@@ -39,9 +39,9 @@ func unregister_fighter(fighter: Fighter) -> void:
 	fighters.erase(fighter)
 
 
-## Resolve o frame inteiro: primeiro coleta todos os acertos, so depois aplica.
-## Coletar antes e o que permite trade, os dois lados confirmam o golpe antes de
-## qualquer um entrar em hitstun ou hitstop.
+## Resolves the whole frame: collects every hit first, applies them afterwards.
+## Collecting first is what allows trades — both sides confirm their hit before
+## either one enters hitstun or hitstop.
 func solve() -> Array[HitData]:
 	var hits: Array[HitData] = []
 	for attacker in fighters:

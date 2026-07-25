@@ -1,174 +1,175 @@
 # Input
 
-Leitura de comando do FightCore: buffer, motion classico (meia lua, dragon
-punch) e mapeamento personalizavel.
+FightCore's command reading: buffer, classic motions (quarter circles, dragon
+punches) and customizable mapping.
 
-## Layout de botoes
+## Button layout
 
-Cinco botoes, no formato Guilty Gear:
+Five buttons, Guilty Gear style:
 
-| Botao | Nome | Papel |
+| Button | Name | Role |
 |---|---|---|
-| P | Soco | golpe rapido, pouco dano |
-| K | Chute | alcance medio |
-| S | Slash | golpe forte |
-| HS | Heavy Slash | golpe lento e pesado |
-| D | Dust | overhead universal sozinho, agarrao com direcao |
+| P | Punch | fast, low damage |
+| K | Kick | medium range |
+| S | Slash | strong attack |
+| HS | Heavy Slash | slow and heavy |
+| D | Dust | universal overhead alone, throw with a direction |
 
-`SYSTEM_1..3` ficam reservados no bitmask para mecanica de sistema (burst,
-roman cancel, macro). Botao nao mapeado nao custa nada e nao compromete design.
+`SYSTEM_1..3` stay reserved in the bitmask for system mechanics (burst, roman
+cancel, macros). An unmapped button costs nothing and commits to no design.
 
-O D existe para dar a todo personagem um overhead e um launcher sem precisar
-authorar isso golpe a golpe.
+D exists to give every character an overhead and a launcher without authoring
+one move at a time.
 
-**Specials saem por motion**, nao por botao dedicado: `236S`, `623P`, `214K`.
-E o que faz cinco botoes gerarem dezenas de golpes.
+**Specials come out through motions**, not dedicated buttons: `236S`, `623P`,
+`214K`. That is what makes five buttons produce dozens of moves.
 
-## Notacao numerica
+## Numpad notation
 
-Direcao usa a notacao do teclado numerico, padrao do genero no mundo todo:
+Directions use numpad notation, the genre standard everywhere:
 
 ```
-7 8 9      cima-tras   cima   cima-frente
-4 5 6      tras        neutro frente
-1 2 3      baixo-tras  baixo  baixo-frente
+7 8 9      up-back    up      up-forward
+4 5 6      back       neutral forward
+1 2 3      down-back  down    down-forward
 ```
 
-A engine **guarda a direcao absoluta** (4 e sempre a esquerda da tela) e
-converte para frente/tras na leitura, usando o facing. E o que faz um input
-gravado antes de trocar de lado continuar valendo.
+The engine **stores the absolute direction** (4 is always screen left) and
+converts to forward/back on read, using the facing. That is what keeps an input
+recorded before a side switch meaningful.
 
-| Motion | Sequencia |
+| Motion | Sequence |
 |---|---|
-| meia lua frente | `[2, 3, 6]` |
-| meia lua tras | `[2, 1, 4]` |
+| quarter circle forward | `[2, 3, 6]` |
+| quarter circle back | `[2, 1, 4]` |
 | dragon punch | `[6, 2, 3]` |
 | normal | `[]` |
 
-## Pecas
+## Pieces
 
-| Classe | Arquivo | Papel |
+| Class | File | Role |
 |---|---|---|
-| `FightInput` | `engine/input/fight_input.gd` | vocabulario: botoes, direcoes, SOCD |
-| `InputBindings` | `engine/input/input_bindings.gd` | mapeamento fisico, remapeavel |
-| `InputDevice` | `engine/input/input_device.gd` | le o InputMap e limpa SOCD |
-| `InputHistory` | `engine/input/input_history.gd` | historico circular, um registro por frame |
-| `CommandParser` | `engine/input/command_parser.gd` | casa motion contra o historico |
-| `InputBuffer` | `engine/input/input_buffer.gd` | componente do lutador, junta tudo |
-| `CommandData` | `engine/character/command_data.gd` | input -> golpe |
+| `FightInput` | `engine/input/fight_input.gd` | vocabulary: buttons, directions, SOCD |
+| `InputBindings` | `engine/input/input_bindings.gd` | physical mapping, remappable |
+| `InputDevice` | `engine/input/input_device.gd` | reads the InputMap and cleans SOCD |
+| `InputHistory` | `engine/input/input_history.gd` | circular history, one record per frame |
+| `CommandParser` | `engine/input/command_parser.gd` | matches motions against the history |
+| `InputBuffer` | `engine/input/input_buffer.gd` | the fighter's component, ties it together |
+| `CommandData` | `engine/character/command_data.gd` | input -> move |
 
 ## Buffer
 
-Exigir o frame exato e injusto: o jogador aperta o botao alguns frames antes de
-poder agir e o golpe tem que sair mesmo assim. O padrao e **8 frames**, dentro
-da faixa de 5 a 10 do genero — menos pune link legitimo, mais solta golpe que o
-jogador nao pediu.
+Demanding the exact frame is unfair: the player presses a few frames before
+being allowed to act and the move still has to come out. The default is
+**8 frames**, inside the genre's 5 to 10 range — less punishes legitimate links,
+more throws out moves the player never asked for.
 
-A amostragem continua durante o hitstop de proposito: e justamente quando o
-jogador esta montando a continuacao do combo.
+Sampling continues during hitstop on purpose: that is exactly when the player is
+setting up the rest of the combo.
 
-Aperto que virou golpe e marcado como gasto (`InputBuffer.consume()`), senao o
-mesmo toque dispararia de novo nos frames seguintes.
+A press that produced a move is marked as spent (`InputBuffer.consume()`), or
+the same tap would fire again on the following frames.
 
-## Reconhecimento de motion
+## Motion recognition
 
-O parser anda **para tras no tempo**, partindo do frame em que o botao desceu:
-acha o botao dentro da janela de buffer, depois a ultima direcao do motion,
-depois a anterior, ate a primeira. Nao importa quando o motion comecou, so que
-tenha sido completado dentro de `motion_window` (padrao 20 frames).
+The parser walks **backwards in time** from the frame the button went down: find
+the press inside the buffer window, then the motion's last direction, then the
+one before it, all the way to the first. It does not matter when the motion
+started, only that it finished within `motion_window` (20 frames by default).
 
-**Diagonal pulada nao invalida** (`allow_skipped_diagonals`): quase ninguem
-acerta o `3` de um `236`. Cardeal pulada invalida — senao `26` viraria meia lua
-e specials sairiam sem querer.
+**A skipped diagonal does not break it** (`allow_skipped_diagonals`): almost
+nobody hits the `3` in a `236`. A skipped cardinal does break it — otherwise
+`26` would count as a quarter circle and specials would come out unasked.
 
-Comando com motion tem prioridade sobre comando sem motion, senao `236S` sairia
-como `5S` puro.
+A command with a motion has priority over one without, or `236S` would come out
+as a plain `5S`.
 
 ## SOCD
 
-Controle leverless (hitbox) permite segurar esquerda e direita ao mesmo tempo,
-o que produz input ambiguo e e banido em torneio sem tratamento. `InputDevice`
-resolve:
+Leverless controllers (hitbox) allow holding left and right at once, which
+produces ambiguous input and is banned in tournament without handling.
+`InputDevice` resolves it:
 
-| Modo | Comportamento |
+| Mode | Behaviour |
 |---|---|
-| `NEUTRAL` (padrao) | opostos se cancelam |
-| `LAST_WINS` | vale a direcao apertada por ultimo |
+| `NEUTRAL` (default) | opposites cancel out |
+| `LAST_WINS` | the most recently pressed direction wins |
 
-Vertical sempre da prioridade para cima: pular vence agachar.
+Vertical always favours up: jumping beats crouching.
 
-## Mapeamento personalizavel
+## Customizable mapping
 
-As acoes (`p1_up`, `p1_p`, `p2_hs`...) sao criadas em runtime a partir de
-`InputBindings`, e nao fixas no `project.godot`, porque remapear precisa
-funcionar com o jogo rodando e ser salvo por usuario
+Actions (`p1_up`, `p1_p`, `p2_hs`...) are created at runtime from
+`InputBindings` instead of being fixed in `project.godot`, because remapping has
+to work while the game runs and be saved per user
 (`user://input_bindings.tres`).
 
-Teclado usa `physical_keycode`: a tecla e a posicao fisica, entao o padrao
-funciona igual em ABNT2, QWERTY e AZERTY.
+Keyboard uses `physical_keycode`: a key is its physical position, so the
+defaults behave the same on ABNT2, QWERTY and AZERTY.
 
 ```gdscript
 var bindings := InputBindings.load_or_create()
-bindings.set_event(0, &"p", 0, event)   # jogador 1, botao P, slot 0
+bindings.set_event(0, &"p", 0, event)   # player 1, P button, slot 0
 bindings.save()
 ```
 
-Padrao de fabrica:
+Factory defaults:
 
 | | P1 | P2 |
 |---|---|---|
-| Direcao | WASD | setas |
-| P K S HS D | J K L U I | numerico 1 2 3 4 5 |
-| Controle | dispositivo 0 | dispositivo 1 |
-| Controle: botoes | A=P B=K X=S Y=HS RB=D | igual |
+| Directions | WASD | arrows |
+| P K S HS D | J K L U I | numpad 1 2 3 4 5 |
+| Gamepad | device 0 | device 1 |
+| Gamepad buttons | A=P B=K X=S Y=HS RB=D | same |
 
-Analogico usa deadzone alta (0.5) de proposito: sem isso ele se comporta como
-eixo continuo e produz direcao intermediaria, virando motion falso.
+The analog stick uses a high deadzone (0.5) on purpose: without it it behaves as
+a continuous axis and produces intermediate directions, which turn into false
+motions.
 
-`Input.use_accumulated_input` e desligado ao aplicar os bindings — o Godot
-juntaria eventos do mesmo frame e o timing sub-frame de link se perderia.
+`Input.use_accumulated_input` is disabled when the bindings are applied — Godot
+would merge events from the same frame and sub-frame link timing would be lost.
 
-## Comandos de um personagem
+## A character's commands
 
-`CommandData` mora em `FighterData.commands`. Cada um liga um input a um
+`CommandData` lives in `FighterData.commands`. Each one binds an input to an
 `AttackData`:
 
 ```gdscript
 command.motion = [2, 3, 6]
 command.button = FightInput.Buttons.S
 command.stance = CommandData.Stance.ANY    # ANY, STAND, CROUCH, AIR
-command.hold_direction = 6                 # opcional: 6P vira comando proprio
+command.hold_direction = 6                 # optional: makes 6P its own command
 ```
 
-`button` e bitmask e nao enum de proposito: macro de dois botoes (agarrao,
-burst) precisa marcar mais de um.
+`button` is a bitmask and not an enum on purpose: a two-button macro (throw,
+burst) needs to set more than one.
 
-Comandos do training dummy: `5P`, `5K`, `2K`, `5S`, `5HS`, `5D` e `236S`.
+Training dummy commands: `5P`, `5K`, `2K`, `5S`, `5HS`, `5D` and `236S`.
 
-## Guarda
+## Guarding
 
-Defesa nao e botao: **quem segura para tras defende**, como em todo jogo 2D do
-genero. `Fighter.is_blocking()` olha o input, nao o estado. Segurar baixo-tras
-defende golpe baixo; em pe defende overhead.
+Blocking is not a button: **holding back defends**, as in every 2D game in the
+genre. `Fighter.is_blocking()` looks at the input, not at the state. Holding
+down-back blocks lows; standing blocks overheads.
 
-## Sala de treino
+## Training room
 
-`content/battle/training.tscn` e a cena principal do projeto. Mostra vida,
-estado, frame do golpe, direcao lida e hitstop dos dois lados; **F1** liga e
-desliga o desenho de hitbox e hurtbox.
+`content/battle/training.tscn` is the project's main scene. It shows health,
+state, attack frame, the direction being read and hitstop for both sides; **F1**
+toggles the hitbox and hurtbox overlay.
 
-## Teste
+## Test
 
 ```sh
 godot --headless --path . --script tests/input_smoke_test.gd
 ```
 
-Simula input com `Input.action_press` e cobre SOCD, postura, buffer, motion,
-diagonal pulada e o golpe acertando.
+Simulates input with `Input.action_press` and covers SOCD, stance, the buffer,
+motions, skipped diagonals and the move connecting.
 
-## Ainda nao implementado
+## Not implemented yet
 
-- Motion de carga (`[4]` segurado 40 frames depois `6`).
-- Comando de dois botoes na pratica (o bitmask ja aceita).
-- Tela de remapeamento: a API existe, falta a interface.
-- Cancels: hoje um golpe so pode ser cancelado depois de terminar.
+- Charge motions (`[4]` held for 40 frames, then `6`).
+- Two-button commands in practice (the bitmask already accepts them).
+- A remapping screen: the API exists, the UI does not.
+- Cancels: today a move can only be followed once it has fully ended.

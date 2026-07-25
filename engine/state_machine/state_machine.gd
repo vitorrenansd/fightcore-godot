@@ -15,8 +15,8 @@ func _ready() -> void:
 	transition_to(initial_state_name)
 
 
-## Acesso direto a um estado, para quem precisa parametrizar antes de entrar
-## nele (hitstun e blockstun recebem a duracao do golpe que acabou de acertar).
+## Direct access to a state, for callers that need to parametrize it before
+## entering (hitstun and blockstun take the duration of the move that just hit).
 func get_state(state_name: StringName) -> State:
 	return states.get(state_name)
 

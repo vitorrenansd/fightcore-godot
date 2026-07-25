@@ -1,7 +1,7 @@
 extends SceneTree
 
-## Verifica a partida montada pelo BattleManager: spawn, times, facing, o
-## CollisionSolver rodando sozinho e o KO.
+## Checks the match built by BattleManager: spawn, teams, facing, the
+## CollisionSolver running on its own, and the KO.
 ##
 ##   godot --headless --path . --script tests/battle_smoke_test.gd
 
@@ -66,78 +66,78 @@ func _reset_spacing() -> void:
 func check(condition: bool, message: String) -> void:
 	if not condition:
 		ok = false
-		print("  FALHA: %s" % message)
+		print("  FAIL: %s" % message)
 
 
 func _physics_process(_delta: float) -> bool:
 	frames += 1
 	match frames:
 		1:
-			print("== 1. partida montada pelo BattleManager ==")
+			print("== 1. match built by BattleManager ==")
 			p1 = battle.get_fighter(0)
 			p2 = battle.get_fighter(1)
-			check(battle.fighters.size() == 2, "2 lutadores na partida")
-			check(p1 != null and p2 != null, "lutadores acessiveis por time")
-			check(battle.solver != null and battle.solver.fighters.size() == 2, "solver com os 2 registrados")
-			check(p1.opponent == p2 and p2.opponent == p1, "oponentes ligados")
-			check(p1.facing_right and not p2.facing_right, "lutadores se encarando")
+			check(battle.fighters.size() == 2, "2 fighters in the match")
+			check(p1 != null and p2 != null, "fighters reachable by team")
+			check(battle.solver != null and battle.solver.fighters.size() == 2, "solver has both registered")
+			check(p1.opponent == p2 and p2.opponent == p1, "opponents linked")
+			check(p1.facing_right and not p2.facing_right, "fighters facing each other")
 			print("  p1 team=%d facing_right=%s | p2 team=%d facing_right=%s" % [
 				p1.team, p1.facing_right, p2.team, p2.facing_right,
 			])
-			print("  hurtbox p1 layer=%d | hurtbox p2 layer=%d" % [
+			print("  p1 hurtbox layer=%d | p2 hurtbox layer=%d" % [
 				p1.hitbox_manager.get_hurtboxes()[0].collision_layer,
 				p2.hitbox_manager.get_hurtboxes()[0].collision_layer,
 			])
 
-			print("\n== 2. golpe pelo estado de ataque ==")
-			check(p1.perform_attack(_make_attack(400)), "perform_attack aceito")
-			check(p1.state_machine.current_state.name == &"Attack", "p1 entrou em Attack")
+			print("\n== 2. move through the attack state ==")
+			check(p1.perform_attack(_make_attack(400)), "perform_attack accepted")
+			check(p1.state_machine.current_state.name == &"Attack", "p1 entered Attack")
 		6:
-			print("  frame 6: p1 estado=%s attack_frame=%d | p2 estado=%s vida=%d" % [
+			print("  frame 6: p1 state=%s attack_frame=%d | p2 state=%s health=%d" % [
 				p1.state_machine.current_state.name,
 				p1.hitbox_manager.attack_frame,
 				p2.state_machine.current_state.name,
 				p2.health,
 			])
-			check(landed.size() == 1, "solver do BattleManager resolveu o acerto")
-			check(p2.health == 9600, "vida 9600, veio %d" % p2.health)
-			check(p2.state_machine.current_state.name == &"Hitstun", "p2 em Hitstun")
-			check(not p1.can_act(), "atacante travado durante o golpe")
+			check(landed.size() == 1, "BattleManager solver resolved the hit")
+			check(p2.health == 9600, "health 9600, got %d" % p2.health)
+			check(p2.state_machine.current_state.name == &"Hitstun", "p2 in Hitstun")
+			check(not p1.can_act(), "attacker locked during the move")
 		30:
-			print("  fim do golpe: p1 estado=%s | p2 estado=%s" % [
+			print("  move over: p1 state=%s | p2 state=%s" % [
 				p1.state_machine.current_state.name, p2.state_machine.current_state.name,
 			])
-			check(p1.state_machine.current_state.name == &"Idle", "p1 voltou para Idle sozinho")
-			check(p1.can_act(), "p1 livre de novo")
+			check(p1.state_machine.current_state.name == &"Idle", "p1 returned to Idle on its own")
+			check(p1.can_act(), "p1 free again")
 
-			print("\n== 3. facing invertido pela posicao ==")
+			print("\n== 3. facing flipped by position ==")
 			p1.position = Vector2(200, 0)
 			p2.position = Vector2(0, 0)
 		32:
 			print("  p1 facing_right=%s | p2 facing_right=%s" % [p1.facing_right, p2.facing_right])
-			check(not p1.facing_right, "p1 virou para a esquerda")
-			check(p2.facing_right, "p2 virou para a direita")
+			check(not p1.facing_right, "p1 turned left")
+			check(p2.facing_right, "p2 turned right")
 		34:
 			print("\n== 4. KO ==")
 			_reset_spacing()
 			p2.health = 300
 			landed.clear()
 		36:
-			# O facing so volta ao normal um frame depois do reposicionamento, e
-			# nao muda mais depois que o golpe comeca.
-			check(p1.facing_right, "p1 voltou a encarar o oponente antes do golpe")
-			check(p1.perform_attack(_make_attack(400)), "golpe final aceito")
+			# Facing only settles a frame after repositioning, and stops
+			# changing once the move has started.
+			check(p1.facing_right, "p1 faces the opponent again before the move")
+			check(p1.perform_attack(_make_attack(400)), "finishing move accepted")
 		47:
-			print("  p2 vida=%d estado=%s mortes=%d" % [
+			print("  p2 health=%d state=%s deaths=%d" % [
 				p2.health, p2.state_machine.current_state.name, deaths.size(),
 			])
-			check(p2.health == 0, "vida zerada")
-			check(p2.state_machine.current_state.name == &"KO", "p2 em KO")
-			check(deaths.size() == 1 and deaths[0] == p2, "BattleManager avisou a morte")
-			check(not p2.can_be_hit(), "nocauteado sai das consultas do solver")
-			check(not p2.can_act(), "nocauteado nao age")
+			check(p2.health == 0, "health reached zero")
+			check(p2.state_machine.current_state.name == &"KO", "p2 in KO")
+			check(deaths.size() == 1 and deaths[0] == p2, "BattleManager reported the death")
+			check(not p2.can_be_hit(), "a KOd fighter leaves solver queries")
+			check(not p2.can_act(), "a KOd fighter cannot act")
 		48:
-			print("\nRESULTADO: %s" % ("OK" if ok else "FALHOU"))
+			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
 	return false

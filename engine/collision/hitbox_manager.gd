@@ -1,19 +1,19 @@
 class_name HitboxManager
 extends Node
 
-## Dono das boxes de um lutador.
+## Owner of a fighter's boxes.
 ##
-## Guarda o frame atual do ataque, decide quais hitboxes estao ativas e mantem o
-## registro de quem ja foi acertado. O estado mutavel fica aqui e nao nas
-## resources: AttackData e Hitbox sao compartilhados entre lutadores e nunca
-## podem carregar dado de runtime.
+## Holds the current attack frame, decides which hitboxes are active and keeps
+## track of who has already been hit. Mutable state lives here and never in the
+## resources: AttackData and Hitbox are shared between fighters and can never
+## carry runtime state.
 
 signal attack_started(attack: AttackData)
 signal attack_finished()
 
 var fighter: Fighter
 var current_attack: AttackData
-## Frame atual do ataque, contado a partir de 0. Vale -1 fora de ataque.
+## Current attack frame, counted from 0. Reads -1 while not attacking.
 var attack_frame: int = -1
 
 var _hurtboxes: Array[Hurtbox] = []
@@ -31,7 +31,7 @@ func is_attacking() -> bool:
 	return current_attack != null
 
 
-## Verdadeiro enquanto o golpe ainda nao ficou ativo: janela de counter hit.
+## True while the move has not become active yet: the counter hit window.
 func is_in_startup() -> bool:
 	return is_attacking() and attack_frame < current_attack.startup_frames
 
@@ -54,8 +54,8 @@ func stop_attack() -> void:
 	attack_finished.emit()
 
 
-## Avanca o frame do ataque. Chamado uma vez por frame de fisica pelo Fighter,
-## antes da state machine, para o ataque iniciado neste frame valer no frame 0.
+## Advances the attack frame. Called once per physics frame by the Fighter,
+## before the state machine, so an attack started this frame lands on frame 0.
 func advance() -> void:
 	if not is_attacking():
 		return
@@ -74,7 +74,7 @@ func get_active_hitboxes() -> Array[Hitbox]:
 	return active
 
 
-## Falso quando este grupo de hitbox ja acertou o alvo no ataque atual.
+## False once this hitbox group has already connected during the current attack.
 func can_hit(victim: Fighter, hit_group: int) -> bool:
 	if victim == null:
 		return false
@@ -105,7 +105,7 @@ func set_hurtboxes_enabled(enabled: bool) -> void:
 		hurtbox.set_enabled(enabled)
 
 
-## Invencibilidade total do lutador, usada por reversals e wakeup.
+## Full-body invincibility, used by reversals and wakeup.
 func set_invulnerable(invulnerable: bool) -> void:
 	for hurtbox in _hurtboxes:
 		hurtbox.set_invulnerable(invulnerable)

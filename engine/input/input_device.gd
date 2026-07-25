@@ -1,13 +1,15 @@
 class_name InputDevice
 extends RefCounted
 
-## Le as acoes do InputMap de um jogador e devolve direcao e bitmask de botoes.
+## Reads one player's InputMap actions and returns a direction plus a button
+## bitmask.
 ##
-## Nao sabe se veio de teclado, controle ou leverless: quem resolve isso e o
-## InputMap, que e remapeavel em runtime (ver InputBindings). Aqui so acontece
-## a limpeza de SOCD, que e o que faz controle leverless produzir input valido.
+## It does not know whether the input came from a keyboard, a pad or a
+## leverless controller: the InputMap handles that, and it is remappable at
+## runtime (see InputBindings). What happens here is SOCD cleaning, which is
+## what makes leverless input valid in the first place.
 
-## Prefixo das acoes deste jogador: p1_up, p1_p, p1_k...
+## Action prefix for this player: p1_up, p1_p, p1_k...
 var prefix: StringName = &"p1"
 var socd_mode: FightInput.SOCD = FightInput.SOCD.NEUTRAL
 
@@ -24,7 +26,7 @@ func set_player_index(player_index: int) -> void:
 	_cache_actions()
 
 
-## Direcao em notacao numerica, ja com SOCD resolvido.
+## Numpad direction, with SOCD already resolved.
 func read_direction() -> int:
 	var left := _is_pressed(&"left")
 	var right := _is_pressed(&"right")
@@ -39,8 +41,8 @@ func read_direction() -> int:
 		_horizontal,
 		socd_mode
 	)
-	# Vertical sempre da prioridade para cima: pular vence agachar, que e o que
-	# todo jogo do genero faz.
+	# Vertical always favours up: jumping beats crouching, the way every game
+	# in the genre does it.
 	var vertical := 0
 	if up:
 		vertical = 1
@@ -58,8 +60,8 @@ func read_buttons() -> int:
 	return buttons
 
 
-## Acao ainda nao registrada no InputMap simplesmente le como solta, em vez de
-## quebrar: os bindings podem ser aplicados depois do lutador entrar na cena.
+## An action not registered in the InputMap simply reads as released instead of
+## breaking: bindings may be applied after the fighter enters the scene.
 func _is_pressed(key: Variant) -> bool:
 	var action: StringName = _actions.get(key, &"")
 	return action != &"" and InputMap.has_action(action) and Input.is_action_pressed(action)

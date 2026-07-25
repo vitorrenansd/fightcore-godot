@@ -1,8 +1,8 @@
 class_name FighterKOState
 extends FighterState
 
-## Lutador nocauteado. Nao sai deste estado sozinho: quem tira dele e o reset de
-## round. Mantem o knockback do golpe final e so freia ao encostar no chao.
+## Knocked out fighter. Never leaves this state on its own: only a round reset
+## takes it out. Keeps the knockback of the finishing blow and stops on landing.
 
 func enter() -> void:
 	super()

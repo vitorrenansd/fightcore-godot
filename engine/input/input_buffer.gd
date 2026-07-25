@@ -1,20 +1,20 @@
 class_name InputBuffer
 extends Node
 
-## Componente de input de um lutador: amostra o dispositivo uma vez por frame de
-## fisica, guarda no historico e responde as perguntas que os estados fazem.
+## A fighter's input component: samples the device once per physics frame,
+## records it in the history and answers the questions states ask.
 ##
-## Um lutador sem este no simplesmente nao recebe comando — e assim que o
-## training dummy fica parado apanhando.
+## A fighter without this node simply never receives a command — that is how
+## the training dummy stands there taking hits.
 ##
-## O buffer existe porque exigir o frame exato e injusto: o jogador aperta o
-## botao alguns frames antes de poder agir e o golpe tem que sair mesmo assim.
-## Por isso a amostragem continua durante o hitstop, que e justamente quando o
-## jogador esta montando a continuacao do combo.
+## The buffer exists because demanding the exact frame is unfair: the player
+## presses a few frames before they are allowed to act and the move still has
+## to come out. That is also why sampling continues during hitstop, which is
+## exactly when the player is setting up the rest of the combo.
 
 signal command_accepted(command: CommandData)
 
-## Janela de buffer em frames. O genero trabalha entre 5 e 10.
+## Buffer window in frames. The genre works between 5 and 10.
 @export var buffer_frames: int = CommandParser.DEFAULT_BUFFER_FRAMES
 @export var socd_mode: FightInput.SOCD = FightInput.SOCD.NEUTRAL
 
@@ -26,7 +26,7 @@ var device: InputDevice
 var history: InputHistory
 var parser: CommandParser
 
-## Frame ate o qual os apertos ja foram gastos por algum comando.
+## Frame up to which presses have already been spent by some command.
 var _consumed_frame: int = -1
 
 
@@ -44,7 +44,7 @@ func set_player_index(index: int) -> void:
 		device.set_player_index(index)
 
 
-## Amostra o frame atual. Chamado pelo Fighter, sempre — inclusive congelado.
+## Samples the current frame. Called by the Fighter every frame, frozen or not.
 func poll() -> void:
 	if history == null:
 		return
@@ -54,20 +54,20 @@ func poll() -> void:
 		history.push(FightInput.NEUTRAL, 0)
 
 
-## Melhor comando disponivel agora, ou null. Nao consome nada.
+## Best command available right now, or null. Consumes nothing.
 func get_command(commands: Array[CommandData], facing_right: bool, stance: CommandData.Stance) -> CommandData:
 	if history == null or commands.is_empty():
 		return null
 	return parser.parse(commands, history, facing_right, stance, _consumed_frame)
 
 
-## Gasta o buffer atual, para o mesmo aperto nao disparar duas vezes.
+## Spends the current buffer so the same press cannot fire twice.
 func consume() -> void:
 	if history != null:
 		_consumed_frame = history.get_frame()
 
 
-## Confirma que o comando saiu: gasta o buffer e avisa quem estiver ouvindo.
+## Confirms a command came out: spends the buffer and notifies listeners.
 func accept(command: CommandData) -> void:
 	consume()
 	command_accepted.emit(command)

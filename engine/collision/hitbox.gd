@@ -1,22 +1,22 @@
 class_name Hitbox
 extends Resource
 
-## Volume de acerto de um ataque. E dado puro e imutavel: nunca vira no de cena.
+## Attack volume. Pure immutable data: never becomes a scene node.
 ##
-## O offset e authorado no espaco "olhando para a direita" e espelhado em runtime
-## conforme o facing do lutador, nunca invertendo escala de nos.
-## Hitboxes com o mesmo hit_group contam como um unico golpe, o que permite
-## descrever ataques largos sem acertar o mesmo alvo duas vezes; multi-hits usam
-## grupos diferentes para reacertar.
+## The offset is authored in "facing right" space and mirrored at runtime from
+## the fighter's facing, never by flipping node scale.
+## Hitboxes sharing a hit_group count as a single blow, which describes wide
+## attacks without hitting the same target twice; multi-hits use separate
+## groups so they can connect again.
 
 @export var shape: Shape2D
-## Deslocamento em relacao a origem do lutador (facing direita).
+## Offset from the fighter origin, in facing-right space.
 @export var offset: Vector2 = Vector2.ZERO
-## Primeiro frame ativo, contado a partir do inicio do ataque.
+## First active frame, counted from the start of the attack.
 @export var start_frame: int = 0
-## Ultimo frame ativo, inclusivo.
+## Last active frame, inclusive.
 @export var end_frame: int = 0
-## Golpes de multi-hit usam grupos diferentes para poder reacertar.
+## Multi-hit moves use different groups so they can connect again.
 @export var hit_group: int = 0
 
 
@@ -24,7 +24,7 @@ func is_active_on_frame(frame: int) -> bool:
 	return shape != null and frame >= start_frame and frame <= end_frame
 
 
-## Transform de consulta, ja espelhado para o lado que o lutador encara.
+## Query transform, already mirrored to the side the fighter is facing.
 func get_query_transform(origin: Vector2, facing_right: bool) -> Transform2D:
 	var mirrored := offset
 	if not facing_right:

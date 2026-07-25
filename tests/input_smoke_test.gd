@@ -1,7 +1,7 @@
 extends SceneTree
 
-## Verifica o input de ponta a ponta com input simulado: buffer, SOCD,
-## reconhecimento de motion e o golpe saindo pelo estado de ataque.
+## End-to-end input check with simulated input: buffer, SOCD, motion
+## recognition and the move coming out through the attack state.
 ##
 ##   godot --headless --path . --script tests/input_smoke_test.gd
 
@@ -15,8 +15,8 @@ var landed: Array[HitData] = []
 var accepted: Array[CommandData] = []
 var ok: bool = true
 
-## Acoes seguradas neste frame, repostas a cada frame para o Godot enxergar
-## press e release do jeito certo.
+## Actions held this frame, refreshed every frame so Godot sees presses and
+## releases correctly.
 var _held: Array[StringName] = []
 
 
@@ -51,7 +51,7 @@ func hold(actions: Array[StringName]) -> void:
 func check(condition: bool, message: String) -> void:
 	if not condition:
 		ok = false
-		print("  FALHA: %s" % message)
+		print("  FAIL: %s" % message)
 
 
 func _physics_process(_delta: float) -> bool:
@@ -61,56 +61,56 @@ func _physics_process(_delta: float) -> bool:
 			p1 = battle.get_fighter(0)
 			p2 = battle.get_fighter(1)
 			p1.input.command_accepted.connect(func(c: CommandData) -> void: accepted.append(c))
-			# O dummy nao reage: so o p1 recebe comando neste teste.
+			# The dummy does not react: only p1 takes commands in this test.
 			p2.input.enabled = false
-			print("== 1. acoes registradas no InputMap ==")
+			print("== 1. actions registered in the InputMap ==")
 			for action in [&"p1_left", &"p1_right", &"p1_up", &"p1_down", &"p1_p", &"p1_k", &"p1_s", &"p1_hs", &"p1_d"]:
-				check(InputMap.has_action(action), "acao %s registrada" % action)
-			check(not Input.use_accumulated_input, "input acumulado desligado")
-			print("  %d acoes de p1 e p2 no mapa" % InputMap.get_actions().size())
+				check(InputMap.has_action(action), "action %s registered" % action)
+			check(not Input.use_accumulated_input, "accumulated input disabled")
+			print("  %d actions in the map" % InputMap.get_actions().size())
 
-			print("\n== 2. SOCD: esquerda + direita ao mesmo tempo ==")
+			print("\n== 2. SOCD: left + right at the same time ==")
 			hold([&"p1_left", &"p1_right"])
 		3:
-			print("  direcao com os dois lados apertados: %d" % p1.input.get_direction())
-			check(p1.input.get_direction() == FightInput.NEUTRAL, "opostos se cancelam (neutro)")
+			print("  direction with both sides held: %d" % p1.input.get_direction())
+			check(p1.input.get_direction() == FightInput.NEUTRAL, "opposites cancel out (neutral)")
 			hold([&"p1_right"])
 		6:
-			check(p1.input.get_direction() == 6, "direita sozinha = 6")
-			check(p1.state_machine.current_state.name == &"Walk", "andando para frente")
+			check(p1.input.get_direction() == 6, "right alone = 6")
+			check(p1.state_machine.current_state.name == &"Walk", "walking forward")
 			hold([&"p1_down"])
 		9:
-			check(p1.input.get_direction() == 2, "baixo = 2")
-			check(p1.state_machine.current_state.name == &"Crouch", "agachado")
-			check(p1.get_stance() == CommandData.Stance.CROUCH, "postura agachada")
+			check(p1.input.get_direction() == 2, "down = 2")
+			check(p1.state_machine.current_state.name == &"Crouch", "crouching")
+			check(p1.get_stance() == CommandData.Stance.CROUCH, "crouching stance")
 
-			print("\n== 3. golpe baixo por postura: 2K ==")
+			print("\n== 3. low move by stance: 2K ==")
 			hold([&"p1_down", &"p1_k"])
 		11:
-			check(accepted.size() == 1, "um comando aceito")
+			check(accepted.size() == 1, "one command accepted")
 			if accepted.size() == 1:
-				print("  comando: %s" % accepted[0].command_id)
-				check(accepted[0].command_id == &"2K", "agachado + K deu 2K, nao 5K")
-			check(p1.state_machine.current_state.name == &"Attack", "entrou em Attack")
+				print("  command: %s" % accepted[0].command_id)
+				check(accepted[0].command_id == &"2K", "crouch + K gave 2K, not 5K")
+			check(p1.state_machine.current_state.name == &"Attack", "entered Attack")
 			hold([])
 		30:
-			print("\n== 4. buffer: botao apertado antes de poder agir ==")
+			print("\n== 4. buffer: button pressed before the fighter can act ==")
 			accepted.clear()
-			check(p1.can_act(), "p1 livre")
+			check(p1.can_act(), "p1 free")
 			hold([&"p1_hs"])
 		31:
 			hold([])
-			check(accepted.size() == 1 and accepted[0].command_id == &"5HS", "5HS saiu")
-			# 5HS tem 40 frames no total; o P apertado agora e no meio do golpe
-			# e precisa sobreviver ate o fim da recuperacao.
+			check(accepted.size() == 1 and accepted[0].command_id == &"5HS", "5HS came out")
+			# 5HS is 40 frames total; the P pressed now lands mid-move and would
+			# have to survive until recovery ends.
 		34:
 			hold([&"p1_p"])
 		35:
 			hold([])
-			check(accepted.size() == 1, "aperto no meio do golpe nao sai na hora")
+			check(accepted.size() == 1, "a press mid-move does not fire right away")
 		42:
-			print("  golpes aceitos ate aqui: %d (buffer de 8 frames ja expirou)" % accepted.size())
-			check(accepted.size() == 1, "buffer de 8 frames expira, nao guarda para sempre")
+			print("  commands accepted so far: %d (the 8 frame buffer already expired)" % accepted.size())
+			check(accepted.size() == 1, "the 8 frame buffer expires, it does not hold forever")
 
 		75:
 			print("\n== 5. motion: 236 + S ==")
@@ -124,14 +124,14 @@ func _physics_process(_delta: float) -> bool:
 			hold([&"p1_right", &"p1_s"])
 		83:
 			hold([])
-			check(accepted.size() == 1, "um comando aceito no 236S")
+			check(accepted.size() == 1, "one command accepted for 236S")
 			if accepted.size() == 1:
-				print("  comando: %s (prioridade %d)" % [
+				print("  command: %s (priority %d)" % [
 					accepted[0].command_id, accepted[0].get_effective_priority(),
 				])
-				check(accepted[0].command_id == &"236S", "236+S deu o especial, nao 5S")
+				check(accepted[0].command_id == &"236S", "236+S gave the special, not 5S")
 		130:
-			print("\n== 6. diagonal pulada ainda vale (2 -> 6, sem o 3) ==")
+			print("\n== 6. skipped diagonal still counts (2 -> 6, no 3) ==")
 			accepted.clear()
 			hold([&"p1_down"])
 		133:
@@ -141,12 +141,12 @@ func _physics_process(_delta: float) -> bool:
 		137:
 			hold([])
 			if accepted.size() == 1:
-				print("  comando: %s" % accepted[0].command_id)
-				check(accepted[0].command_id == &"236S", "meia lua sem a diagonal ainda sai")
+				print("  command: %s" % accepted[0].command_id)
+				check(accepted[0].command_id == &"236S", "quarter circle without the diagonal still comes out")
 			else:
-				check(false, "nenhum comando aceito com a diagonal pulada")
+				check(false, "no command accepted with the diagonal skipped")
 		185:
-			print("\n== 7. o golpe acerta o oponente ==")
+			print("\n== 7. the move connects with the opponent ==")
 			landed.clear()
 			p1.position = Vector2(-60, 0)
 			p2.position = Vector2(10, 0)
@@ -155,11 +155,11 @@ func _physics_process(_delta: float) -> bool:
 		188:
 			hold([])
 		200:
-			print("  acertos: %d  vida do p2: %d" % [landed.size(), p2.health])
-			check(landed.size() == 1, "5S acertou")
-			check(p2.health < 10000, "dano aplicado")
+			print("  hits: %d  p2 health: %d" % [landed.size(), p2.health])
+			check(landed.size() == 1, "5S connected")
+			check(p2.health < 10000, "damage applied")
 		201:
-			print("\nRESULTADO: %s" % ("OK" if ok else "FALHOU"))
+			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
 	return false
