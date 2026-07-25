@@ -25,6 +25,8 @@ var stats: FighterStats:
 @onready var visuals: Node2D = $Visuals
 @onready var state_machine: FighterStateMachine = $StateMachine
 @onready var hitbox_manager: HitboxManager = $HitboxManager
+## Opcional: lutador sem no de input nao recebe comando e fica parado.
+@onready var input: InputBuffer = get_node_or_null(^"Input")
 
 
 func _ready() -> void:
@@ -34,6 +36,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# Amostra antes do hitstop de proposito: congelado tambem bufferiza, que e
+	# justamente quando o jogador monta a continuacao do combo.
+	if input != null:
+		input.poll()
 	if hitstop_frames > 0:
 		hitstop_frames -= 1
 		return
@@ -118,6 +124,24 @@ func can_resolve_hits() -> bool:
 	return is_alive() and hitstop_frames == 0 and hitbox_manager.is_attacking()
 
 
+## Tenta soltar o golpe que o input esta pedindo. Falso se nao ha comando valido.
+func try_command() -> bool:
+	if input == null or fighter_data == null or not can_act():
+		return false
+	var command := input.get_command(fighter_data.commands, facing_right, get_stance())
+	if command == null or not perform_attack(command.attack):
+		return false
+	input.accept(command)
+	return true
+
+
+## Postura atual, usada para escolher entre golpe em pe, agachado e aereo.
+func get_stance() -> CommandData.Stance:
+	if not is_on_floor():
+		return CommandData.Stance.AIR
+	return CommandData.Stance.CROUCH if is_crouching() else CommandData.Stance.STAND
+
+
 ## Executa um golpe. Falso quando o lutador nao pode agir no momento.
 func perform_attack(attack: AttackData) -> bool:
 	if attack == null or not can_act():
@@ -160,11 +184,19 @@ func is_in_stun() -> bool:
 	return state is FighterBlockState and (state as FighterBlockState).is_in_blockstun()
 
 
+## Defende quem segura para tras no chao, fora de golpe e fora de hitstun.
+## Estar em blockstun nao atrapalha: e assim que block string funciona.
 func is_blocking() -> bool:
-	return state_machine.current_state is FighterBlockState
+	if input == null or not is_alive() or not is_on_floor():
+		return false
+	if hitbox_manager.is_attacking() or state_machine.current_state is FighterHitstunState:
+		return false
+	return input.is_holding_back(facing_right)
 
 
 func is_crouching() -> bool:
+	if input != null and input.is_holding_down():
+		return true
 	var state := state_machine.current_state
 	if state is FighterCrouchState:
 		return true
