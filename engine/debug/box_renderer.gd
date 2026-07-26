@@ -17,9 +17,27 @@ const PIVOT_RADIUS := 3.0
 	set = set_enabled
 
 
+func _ready() -> void:
+	if battle == null:
+		battle = _find_battle()
+
+
 func _process(_delta: float) -> void:
 	if enabled:
 		queue_redraw()
+
+
+## Same lookup as RoundManager: parent first, then siblings.
+func _find_battle() -> BattleManager:
+	var parent := get_parent()
+	if parent is BattleManager:
+		return parent
+	if parent == null:
+		return null
+	for sibling in parent.get_children():
+		if sibling is BattleManager:
+			return sibling
+	return null
 
 
 func set_enabled(value: bool) -> void:

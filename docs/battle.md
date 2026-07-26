@@ -84,11 +84,13 @@ the win conditions without touching combat.
 
 ```gdscript
 var rounds := RoundManager.new()
-rounds.battle = battle
 rounds.round_seconds = 99
 rounds.rounds_to_win = 2
 add_child(rounds)
 ```
+
+`battle` can be left unset: the manager looks at its parent and then its
+siblings for a `BattleManager`, so dropping the node next to one just works.
 
 ### Phases
 

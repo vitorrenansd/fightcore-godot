@@ -50,9 +50,27 @@ var _phase_frame: int = 0
 
 func _ready() -> void:
 	if battle == null:
-		battle = get_parent() as BattleManager
+		battle = find_battle()
+	if battle == null:
+		push_error("RoundManager: no BattleManager found, the match will not start")
+		return
 	if auto_start:
 		start_match()
+
+
+## Finds the match this manager drives. Looks at the exported reference first,
+## then the parent, then the siblings — so dropping the node next to a
+## BattleManager just works, with no wiring.
+func find_battle() -> BattleManager:
+	var parent := get_parent()
+	if parent is BattleManager:
+		return parent
+	if parent == null:
+		return null
+	for sibling in parent.get_children():
+		if sibling is BattleManager:
+			return sibling
+	return null
 
 
 func _physics_process(_delta: float) -> void:

@@ -19,13 +19,11 @@ spawn_positions = Array[Vector2]([Vector2(-140, 0), Vector2(140, 0)])
 
 [node name="Rounds" type="Node" parent="." unique_id=1983941407]
 script = ExtResource("6_rounds")
-battle = NodePath("../Battle")
 round_seconds = 99
 rounds_to_win = 2
 
 [node name="DebugBoxes" type="Node2D" parent="." unique_id=1662939924]
 script = ExtResource("5_boxes")
-battle = NodePath("../Battle")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1287664715]
 position = Vector2(0, 60)

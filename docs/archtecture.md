@@ -78,6 +78,10 @@ Nothing here needs the editor open:
 godot --headless --path . --script tests/script_load_test.gd 2>&1 \
     | grep -q "Failed to load script" && echo BROKEN
 
+# does the game itself run? --quit-after, never `timeout`: Godot block-buffers
+# stdout into a pipe, so killing it throws the whole error log away
+godot --headless --path . --quit-after 300
+
 # behaviour
 godot --headless --path . --script tests/hitbox_smoke_test.gd
 godot --headless --path . --script tests/battle_smoke_test.gd
