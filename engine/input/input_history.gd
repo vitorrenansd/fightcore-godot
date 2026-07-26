@@ -77,6 +77,33 @@ func find_direction(direction: int, from: int, window: int, facing_right: bool) 
 	return -1
 
 
+## Offset where the direction entered the "up" band, or -1. A press and not a
+## hold, so holding up does not spend every air jump at once.
+func find_up_press(window: int) -> int:
+	for offset in mini(window, size - 2):
+		if FightInput.is_up(get_direction(offset)) and not FightInput.is_up(get_direction(offset + 1)):
+			return offset
+	return -1
+
+
+## Two taps toward the same side inside the window: the dash input.
+##
+## Matched on the horizontal component and not on the exact direction, because
+## in the air the player is usually holding up-forward and taps through 9 and 5,
+## never through a clean 6.
+func has_double_tap(forward: bool, window: int, facing_right: bool) -> bool:
+	var target := 1 if forward else -1
+	var taps := 0
+	for offset in mini(window, size - 2):
+		var current := FightInput.horizontal(get_direction(offset, facing_right))
+		var previous := FightInput.horizontal(get_direction(offset + 1, facing_right))
+		if current == target and previous != target:
+			taps += 1
+			if taps >= 2:
+				return true
+	return false
+
+
 func clear() -> void:
 	_directions.fill(FightInput.NEUTRAL)
 	_buttons.fill(0)

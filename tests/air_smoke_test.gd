@@ -145,7 +145,77 @@ func _physics_process(_delta: float) -> bool:
 			if landed.size() == 1:
 				check(not landed[0].blocked, "a crouching guard does not stop an overhead")
 			check(p2.health < 10000, "damage went through")
-		85:
+		90:
+			print("\n== 6. double jump ==")
+			hold([])
+			p1.global_position = Vector2(-200, 0)
+			p1.velocity = Vector2.ZERO
+			p2.input.enabled = false
+		95:
+			check(p1.is_on_floor(), "on the ground with a full tank")
+			check(p1.air_jumps_left == p1.stats.air_jumps, "air jumps refilled on landing")
+			hold([&"p1_up"])
+		99:
+			check(not p1.is_on_floor(), "first jump left the ground")
+			check(p1.air_jumps_left == p1.stats.air_jumps, "the ground jump costs no air jump")
+			# Releasing matters: the second jump is a press, not a hold.
+			hold([])
+		103:
+			_air_velocity_x = p1.velocity.y
+			hold([&"p1_up"])
+		105:
+			print("  air jumps left %d   vertical velocity %.0f -> %.0f" % [
+				p1.air_jumps_left, _air_velocity_x, p1.velocity.y,
+			])
+			check(p1.air_jumps_left == 0, "the second jump spent the air jump")
+			check(p1.velocity.y < _air_velocity_x, "it pushed the fighter back up")
+			hold([])
+		108:
+			check(not p1.can_air_jump(), "no third jump")
+		150:
+			print("\n== 7. air dash ==")
+			print("  on floor=%s  air dashes %d" % [p1.is_on_floor(), p1.air_dashes_left])
+			check(p1.is_on_floor(), "landed again")
+			check(p1.air_dashes_left == p1.stats.air_dashes, "air dashes refilled")
+			p1.global_position = Vector2(-200, 0)
+			hold([&"p1_up"])
+		154:
+			hold([])
+		156:
+			# Double tap forward while airborne.
+			check(not p1.is_on_floor(), "airborne")
+			_air_velocity_x = p1.global_position.x
+			hold([&"p1_right"])
+		158:
+			hold([])
+		160:
+			hold([&"p1_right"])
+		163:
+			print("  state %s   air dashes left %d" % [
+				p1.state_machine.current_state.name, p1.air_dashes_left,
+			])
+			check(p1.state_machine.current_state.name == &"AirDash", "the double tap dashed")
+			check(p1.air_dashes_left == 0, "the dash was spent")
+			check(not p1.gravity_enabled, "gravity is suspended during the dash")
+			check(p1.velocity.x > 300.0, "dashing forward fast")
+			check(is_zero_approx(p1.velocity.y), "no falling during the dash")
+		168:
+			# An attack out of a dash keeps the dash momentum.
+			hold([&"p1_right", &"p1_p"])
+		170:
+			hold([&"p1_right"])
+			print("  attacking out of the dash: %s  velocity x=%.0f" % [
+				current_move(p1), p1.velocity.x,
+			])
+			check(current_move(p1) == &"j.P", "the air normal came out of the dash")
+			check(p1.velocity.x > 300.0, "the dash momentum survived the attack")
+		185:
+			print("  after the dash: gravity=%s  x travelled %.0f" % [
+				p1.gravity_enabled, p1.global_position.x - _air_velocity_x,
+			])
+			check(p1.gravity_enabled, "gravity came back")
+			check(p1.global_position.x - _air_velocity_x > 100.0, "covered real distance")
+		190:
 			hold([])
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)

@@ -93,5 +93,16 @@ func is_holding_up() -> bool:
 	return FightInput.is_up(get_direction())
 
 
+## Up pressed just now, not merely held. Small window on purpose: the fighter
+## polls every frame, and a wide one would spend two air jumps on one press.
+func was_up_pressed(window: int = 2) -> bool:
+	return history != null and history.find_up_press(window) >= 0
+
+
+## Double tap toward the front or the back, the dash input of the genre.
+func has_dash_input(forward: bool, facing_right: bool, window: int = 14) -> bool:
+	return history != null and history.has_double_tap(forward, window, facing_right)
+
+
 func is_held(button_mask: int) -> bool:
 	return history != null and history.is_held(button_mask)

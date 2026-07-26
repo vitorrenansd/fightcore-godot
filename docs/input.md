@@ -151,6 +151,26 @@ Stance is what picks between them: the same P button gives `5P` standing and
 `j.P` in the air. A `Stance.ANY` command never fires airborne — ground moves
 staying on the ground is the default, not something each move opts out of.
 
+## Air options
+
+Both extra air actions are spent until the fighter lands, which is what stops
+anyone from staying airborne forever.
+
+| Action | Input | Cost |
+|---|---|---|
+| Double jump | up, **released and pressed again** | one air jump |
+| Air dash | double tap forward or back in the air | one air dash |
+
+The release matters: without it the same press that started the jump would spend
+the air jump on the very next frame.
+
+The dash is matched on the **horizontal component** and not on an exact
+direction, because in the air the player is usually holding up-forward and taps
+through 9 and 5, never through a clean 6.
+
+Counts and speeds are per character, in `FighterStats`: `air_jumps`,
+`air_jump_velocity`, `air_dashes`, `air_dash_speed`, `air_dash_frames`.
+
 ## Guarding
 
 Blocking is not a button: **holding back defends**, as in every 2D game in the

@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://wk5bc4yklux5" path="res://engine/character/states/hitstun.gd" id="9_hitstun"]
 [ext_resource type="Script" path="res://engine/character/states/attack.gd" id="9_attack"]
 [ext_resource type="Script" path="res://engine/character/states/ko.gd" id="9_ko"]
+[ext_resource type="Script" path="res://engine/character/states/air_dash.gd" id="9_airdash"]
 [ext_resource type="Script" uid="uid://dpfw148wuhrq8" path="res://engine/collision/hitbox_manager.gd" id="10_manager"]
 [ext_resource type="Script" uid="uid://cpjtic4murchg" path="res://engine/collision/hurtbox.gd" id="11_hurtbox"]
 [ext_resource type="Script" path="res://engine/input/input_buffer.gd" id="12_input"]
@@ -70,6 +71,9 @@ script = ExtResource("9_attack")
 
 [node name="KO" type="Node" parent="StateMachine"]
 script = ExtResource("9_ko")
+
+[node name="AirDash" type="Node" parent="StateMachine"]
+script = ExtResource("9_airdash")
 
 [node name="HitboxManager" type="Node" parent="."]
 script = ExtResource("10_manager")

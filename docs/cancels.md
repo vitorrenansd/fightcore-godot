@@ -141,8 +141,7 @@ Covers the ladder, the special cancel, the whiff block and the cancel window.
 
 ## Not implemented yet
 
-- Dash cancel.
-- Air dash and double jump, which is what would make air routes longer.
+- Dash cancel, and cancelling a move directly into an air dash.
 - Roman cancel style mechanics, which would cancel *anything* at a meter cost.
 - Cancel only on counter hit, or only in the corner.
 - Super moves: the class exists in the enum, nothing uses it yet.

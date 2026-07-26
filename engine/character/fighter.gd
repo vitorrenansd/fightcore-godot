@@ -19,6 +19,11 @@ var combo_hits: int = 0
 var hitstop_frames: int = 0
 ## Round pauses freeze the fighter whole: no state logic, no gravity.
 var frozen: bool = false
+## Air options left before touching the ground again.
+var air_jumps_left: int = 0
+var air_dashes_left: int = 0
+## Turned off while an air dash holds its momentum.
+var gravity_enabled: bool = true
 
 var stats: FighterStats:
 	get:
@@ -33,6 +38,7 @@ var stats: FighterStats:
 
 func _ready() -> void:
 	hitbox_manager.setup(self)
+	refill_air_options()
 	health = stats.max_health if stats != null else 0
 	health_changed.emit(health, health)
 
@@ -51,10 +57,12 @@ func _physics_process(delta: float) -> void:
 	state_machine.physics_update(delta)
 	_apply_gravity(delta)
 	move_and_slide()
+	if is_on_floor():
+		refill_air_options()
 
 
 func _apply_gravity(delta: float) -> void:
-	if not is_on_floor():
+	if gravity_enabled and not is_on_floor():
 		velocity.y += stats.gravity * delta
 
 
@@ -65,6 +73,32 @@ func walk(direction: float) -> void:
 func jump() -> void:
 	if is_on_floor():
 		velocity.y = stats.jump_velocity
+
+
+## Air jumps and air dashes come back on landing, never mid-air.
+func refill_air_options() -> void:
+	air_jumps_left = stats.air_jumps if stats != null else 0
+	air_dashes_left = stats.air_dashes if stats != null else 0
+
+
+func can_air_jump() -> bool:
+	return not is_on_floor() and air_jumps_left > 0
+
+
+## Second jump: spends one air jump and starts a fresh arc from the held
+## direction, so a double jump can change where the fighter is going.
+func air_jump() -> bool:
+	if not can_air_jump():
+		return false
+	air_jumps_left -= 1
+	velocity.y = stats.air_jump_velocity
+	if input != null:
+		velocity.x = FightInput.horizontal(input.get_direction()) * stats.walk_speed
+	return true
+
+
+func can_air_dash() -> bool:
+	return not is_on_floor() and air_dashes_left > 0
 
 
 func update_facing() -> void:
@@ -120,6 +154,8 @@ func reset_for_round() -> void:
 	combo_hits = 0
 	hitstop_frames = 0
 	velocity = Vector2.ZERO
+	gravity_enabled = true
+	refill_air_options()
 	hitbox_manager.stop_attack()
 	# Leaving KO through the normal exit is what turns the hurtboxes back on.
 	state_machine.transition_to(&"Idle")

@@ -26,7 +26,7 @@ TrainingDummy (CharacterBody2D + script extending Fighter)
 ├── Visuals (Node2D)             the only node that flips scale
 ├── CollisionShape2D             body against the stage only, never the opponent
 ├── StateMachine (FighterStateMachine)
-│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, KO
+│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, AirDash, KO
 ├── HitboxManager                owner of the boxes
 ├── Input (InputBuffer)          optional: without it the fighter never acts
 └── Hurtboxes (Node2D)
@@ -69,6 +69,11 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 | `dash_speed` | 400.0 | px/s while dashing |
 | `jump_velocity` | -650.0 | jump impulse (negative goes up) |
 | `gravity` | 1800.0 | px/s² |
+| `air_jumps` | 1 | extra jumps before landing |
+| `air_jump_velocity` | -560.0 | weaker than the ground jump, so it is a commitment |
+| `air_dashes` | 1 | air dashes before landing |
+| `air_dash_speed` | 420.0 | px/s during the dash |
+| `air_dash_frames` | 18 | how long the dash suspends gravity |
 | `pushbox_width` | 46.0 | space the fighter holds against the opponent |
 | `weight` | 1.0 | divides incoming knockback |
 | `defense_multiplier` | 1.0 | multiplies incoming damage |

@@ -94,7 +94,12 @@ hitstun and blockstun take the duration of the move that just connected.
 | `Block` | blockstun only; blocking itself is holding back |
 | `Hitstun` | locked for the move's frames; resets the fighter's combo on exit |
 | `Attack` | runs an `AttackData`; returns to `Idle` when the move ends |
+| `AirDash` | horizontal burst with gravity suspended |
 | `KO` | knockout; disables the hurtboxes and never leaves on its own |
+
+`AirDash` suspends gravity for its whole duration, which is what makes it read
+as a straight line instead of a shallow jump. Attacks come out of it and keep
+the momentum. It costs one of the fighter's air dashes.
 
 `Jump` doubles as the airborne state. Entering it from the ground jumps;
 entering it from the air — after an air attack, after hitstun from a launcher —
