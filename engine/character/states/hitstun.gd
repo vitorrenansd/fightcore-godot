@@ -18,5 +18,7 @@ func exit() -> void:
 
 func physics_update(delta: float) -> void:
 	super(delta)
-	if state_frame >= stun_frames:
-		transitioned.emit(&"Idle")
+	if state_frame < stun_frames:
+		return
+	# Launched off the ground: stay airborne instead of standing up mid-air.
+	transitioned.emit(&"Jump" if not fighter.is_on_floor() else &"Idle")

@@ -1,12 +1,17 @@
 class_name FighterJumpState
 extends FighterState
 
-## Jumps are committed: the direction is read once, on leaving the ground, and
+## Doubles as the airborne state: entering it from the ground jumps, entering it
+## from the air (after an air attack, after hitstun) just means "still falling".
+##
+## The jump is committed: the direction is read once, on leaving the ground, and
 ## never changes in the air. That is what makes air spacing mean something.
 
 
 func enter() -> void:
 	super()
+	if not fighter.is_on_floor():
+		return
 	fighter.jump()
 	if fighter.input != null:
 		var horizontal := FightInput.horizontal(fighter.input.get_direction())

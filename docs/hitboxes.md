@@ -144,7 +144,8 @@ The `HitboxManager` scans the fighter subtree on `_ready` and registers them all
 nothing.
 
 **Guard** — `Fighter.can_block()`. Blocking means holding back, not pressing a
-button (see [input.md](input.md)):
+button (see [input.md](input.md)). Air moves are authored as `HIGH`, which is
+what makes jumping in an overhead:
 
 | `Guard` | Blocks |
 |---|---|

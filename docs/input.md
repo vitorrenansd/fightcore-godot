@@ -144,7 +144,12 @@ command.hold_direction = 6                 # optional: makes 6P its own command
 `button` is a bitmask and not an enum on purpose: a two-button macro (throw,
 burst) needs to set more than one.
 
-Training dummy commands: `5P`, `5K`, `2K`, `5S`, `5HS`, `5D` and `236S`.
+Training dummy commands: `5P`, `5K`, `2K`, `5S`, `5HS`, `5D`, `236S`, and the
+air normals `j.P`, `j.K`, `j.S`, `j.HS`.
+
+Stance is what picks between them: the same P button gives `5P` standing and
+`j.P` in the air. A `Stance.ANY` command never fires airborne — ground moves
+staying on the ground is the default, not something each move opts out of.
 
 ## Guarding
 

@@ -79,6 +79,11 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 plus the cancel routes. Documented in [hitboxes.md](hitboxes.md) and
 [cancels.md](cancels.md).
 
+`ends_on_landing` marks an air move: it keeps the jump arc instead of planting
+the fighter, and it is cut short the moment the fighter touches the ground.
+Authored rather than read from `is_on_floor()`, because that flag only updates
+after a move and would misread a move started on the landing frame.
+
 ### CommandData
 
 `engine/character/command_data.gd` — binds an input (motion + button + stance)

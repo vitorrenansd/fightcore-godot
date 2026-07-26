@@ -35,11 +35,17 @@ func physics_update(delta: float) -> void:
 	# the cancel is legal.
 	if fighter.try_command():
 		return
-	if not fighter.hitbox_manager.is_attacking():
+	# Landing cuts an air move short, the usual landing recovery of the genre.
+	if attack != null and attack.ends_on_landing and state_frame > 1 and fighter.is_on_floor():
 		transitioned.emit(&"Idle")
+		return
+	if not fighter.hitbox_manager.is_attacking():
+		transitioned.emit(&"Jump" if not fighter.is_on_floor() else &"Idle")
 
 
 func _begin() -> void:
 	state_frame = 0
-	fighter.velocity.x = 0.0
+	# A grounded move plants the fighter; an air move keeps the jump arc.
+	if attack != null and not attack.ends_on_landing:
+		fighter.velocity.x = 0.0
 	fighter.hitbox_manager.start_attack(attack)

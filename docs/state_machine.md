@@ -89,12 +89,16 @@ hitstun and blockstun take the duration of the move that just connected.
 |---|---|
 | `Idle` | clears horizontal velocity |
 | `Walk` | applies `direction` at walking speed |
-| `Jump` | jumps on enter, returns to `Idle` on landing |
+| `Jump` | jumps on enter, returns to `Idle` on landing; also the airborne state |
 | `Crouch` | clears horizontal velocity, counts as crouching for the guard |
 | `Block` | blockstun only; blocking itself is holding back |
 | `Hitstun` | locked for the move's frames; resets the fighter's combo on exit |
 | `Attack` | runs an `AttackData`; returns to `Idle` when the move ends |
 | `KO` | knockout; disables the hurtboxes and never leaves on its own |
+
+`Jump` doubles as the airborne state. Entering it from the ground jumps;
+entering it from the air — after an air attack, after hitstun from a launcher —
+just means "still falling", with no second impulse and no change to the arc.
 
 `Attack` does not count the move's frames: the `HitboxManager` does. The state
 only waits for `is_attacking()` to become false. Entering it always goes through

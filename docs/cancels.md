@@ -104,6 +104,13 @@ it the command would only be read after recovery ended.
 | 5HS | 3 | 5D, 236S |
 | 5D | 4 | 236S |
 | 236S | special | supers only (none exist yet) |
+| j.P | 0 | j.K, j.S, j.HS |
+| j.K | 1 | j.S, j.HS |
+| j.S | 2 | j.HS |
+| j.HS | 3 | — |
+
+Air moves use the same ladder, so `5D` launching into a jump and then
+`j.P > j.K > j.S` is a real combo route.
 
 ## Test
 

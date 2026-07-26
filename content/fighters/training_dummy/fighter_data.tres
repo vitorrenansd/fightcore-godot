@@ -1,16 +1,20 @@
 [gd_resource type="Resource" script_class="FighterData" format=3 uid="uid://bthdrrk5rj4gc"]
 
-[ext_resource type="Script" uid="uid://bq3ue6rupxisu" path="res://engine/character/fighter_data.gd" id="1_data"]
-[ext_resource type="Script" uid="uid://egviegdu67v6" path="res://engine/character/command_data.gd" id="1_t8yr3"]
-[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_7xsbi"]
-[ext_resource type="Resource" uid="uid://ofsktfpqfldm" path="res://content/fighters/training_dummy/moves/5p.tres" id="2_cwmw1"]
-[ext_resource type="Resource" uid="uid://d3c14gsbbxy28" path="res://content/fighters/training_dummy/config/fighter_stats.tres" id="2_stats"]
-[ext_resource type="Resource" uid="uid://b6e3isxha5ir7" path="res://content/fighters/training_dummy/moves/5k.tres" id="3_rvoh4"]
-[ext_resource type="Resource" uid="uid://flrudgkskvju" path="res://content/fighters/training_dummy/moves/2k.tres" id="4_y0g8h"]
-[ext_resource type="Resource" uid="uid://cglw4hasuxxla" path="res://content/fighters/training_dummy/moves/5s.tres" id="5_itjh6"]
-[ext_resource type="Resource" uid="uid://vdkup208bldw" path="res://content/fighters/training_dummy/moves/5hs.tres" id="6_rjf36"]
-[ext_resource type="Resource" uid="uid://bs0swum0nuxg2" path="res://content/fighters/training_dummy/moves/5d.tres" id="7_11jr4"]
-[ext_resource type="Resource" uid="uid://bxvw4veok7cyk" path="res://content/fighters/training_dummy/moves/236s.tres" id="8_wj0pl"]
+[ext_resource type="Script" path="res://engine/character/fighter_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://engine/character/command_data.gd" id="1_t8yr3"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_7xsbi"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/5p.tres" id="2_cwmw1"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/config/fighter_stats.tres" id="2_stats"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/5k.tres" id="3_rvoh4"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/2k.tres" id="4_y0g8h"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/5s.tres" id="5_itjh6"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/5hs.tres" id="6_rjf36"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/5d.tres" id="7_11jr4"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/236s.tres" id="8_wj0pl"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/jp.tres" id="9_rjf36"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/jk.tres" id="10_11jr4"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/js.tres" id="11_wj0pl"]
+[ext_resource type="Resource" path="res://content/fighters/training_dummy/moves/jhs.tres" id="12_cip03"]
 
 [sub_resource type="Resource" id="Resource_cip03"]
 script = ExtResource("1_t8yr3")
@@ -57,10 +61,37 @@ attack = ExtResource("8_wj0pl")
 motion = Array[int]([2, 3, 6])
 button = 4
 
+[sub_resource type="Resource" id="Resource_s7n44"]
+script = ExtResource("1_t8yr3")
+command_id = &"j.P"
+attack = ExtResource("9_rjf36")
+stance = 3
+
+[sub_resource type="Resource" id="Resource_3ldlc"]
+script = ExtResource("1_t8yr3")
+command_id = &"j.K"
+attack = ExtResource("10_11jr4")
+button = 2
+stance = 3
+
+[sub_resource type="Resource" id="Resource_4whcm"]
+script = ExtResource("1_t8yr3")
+command_id = &"j.S"
+attack = ExtResource("11_wj0pl")
+button = 4
+stance = 3
+
+[sub_resource type="Resource" id="Resource_jfu6h"]
+script = ExtResource("1_t8yr3")
+command_id = &"j.HS"
+attack = ExtResource("12_cip03")
+button = 8
+stance = 3
+
 [resource]
 script = ExtResource("1_data")
 fighter_id = &"training_dummy"
 display_name = "Training Dummy"
 stats = ExtResource("2_stats")
-moves = Array[ExtResource("2_7xsbi")]([ExtResource("2_cwmw1"), ExtResource("3_rvoh4"), ExtResource("4_y0g8h"), ExtResource("5_itjh6"), ExtResource("6_rjf36"), ExtResource("7_11jr4"), ExtResource("8_wj0pl")])
-commands = Array[ExtResource("1_t8yr3")]([SubResource("Resource_cip03"), SubResource("Resource_u5myo"), SubResource("Resource_bobbp"), SubResource("Resource_7v6cx"), SubResource("Resource_ang2o"), SubResource("Resource_0xl5v"), SubResource("Resource_xxv7b")])
+moves = Array[ExtResource("2_7xsbi")]([ExtResource("2_cwmw1"), ExtResource("3_rvoh4"), ExtResource("4_y0g8h"), ExtResource("5_itjh6"), ExtResource("6_rjf36"), ExtResource("7_11jr4"), ExtResource("8_wj0pl"), ExtResource("9_rjf36"), ExtResource("10_11jr4"), ExtResource("11_wj0pl"), ExtResource("12_cip03")])
+commands = Array[ExtResource("1_t8yr3")]([SubResource("Resource_cip03"), SubResource("Resource_u5myo"), SubResource("Resource_bobbp"), SubResource("Resource_7v6cx"), SubResource("Resource_ang2o"), SubResource("Resource_0xl5v"), SubResource("Resource_xxv7b"), SubResource("Resource_s7n44"), SubResource("Resource_3ldlc"), SubResource("Resource_4whcm"), SubResource("Resource_jfu6h")])

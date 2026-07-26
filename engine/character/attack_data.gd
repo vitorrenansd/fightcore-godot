@@ -31,6 +31,11 @@ enum CancelType {
 @export var active_frames: int = 3
 ## Recovery frames after the hitboxes are gone.
 @export var recovery_frames: int = 12
+## Air moves end the moment the fighter touches the ground, the landing
+## recovery of the genre. Authored here and not read from `is_on_floor()`
+## because that flag only updates after a move, and a move started on the same
+## frame a fighter lands would read as airborne.
+@export var ends_on_landing: bool = false
 
 @export_group("Boxes")
 @export var hitboxes: Array[Hitbox] = []

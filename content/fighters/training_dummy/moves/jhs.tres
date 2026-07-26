@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="AttackData" format=3]
+
+[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_0pu60"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_reks6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bygut"]
+size = Vector2(78, 56)
+
+[sub_resource type="Resource" id="Resource_yrjt7"]
+script = ExtResource("1_0pu60")
+shape = SubResource("RectangleShape2D_bygut")
+offset = Vector2(64, 20)
+start_frame = 11
+end_frame = 16
+
+[resource]
+script = ExtResource("2_reks6")
+attack_id = &"j.HS"
+display_name = "Air HS"
+startup_frames = 11
+active_frames = 6
+recovery_frames = 20
+ends_on_landing = true
+hitboxes = Array[ExtResource("1_0pu60")]([SubResource("Resource_yrjt7")])
+cancel_into_types = 7
+cancel_level = 3
+damage = 800
+chip_damage = 80
+guard = 1
+hitstun = 22
+blockstun = 15
+hitstop = 10
+knockback = Vector2(330, -140)
+block_pushback = Vector2(198, 0)
