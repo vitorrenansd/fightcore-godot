@@ -121,10 +121,12 @@ find the class.
 | `BattleManager` | done — [battle.md](battle.md) |
 | Input, buffer and commands | done — [input.md](input.md) |
 | Cancels and gatling routes | done — [cancels.md](cancels.md) |
+| Juggle, knockdown and wakeup | done — [state_machine.md](state_machine.md) |
 | Rounds, clock and win conditions | done — [battle.md](battle.md) |
 | Playable training room | `content/battle/training.tscn` |
 | `physics/knockback.gd` | done — friction rule, called by `Fighter` |
 | `physics/gravity.gd`, `physics/movement.gd` | stub — both live in `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |
+| Walls, corner and camera | missing — the next slice, see [roadmap.md](roadmap.md) |
 | Animation | stub — [animation.md](animation.md) |
 | Modding | stub — [modding.md](modding.md) |

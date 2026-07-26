@@ -5,19 +5,48 @@ lists the file that already exists as a stub, when there is one.
 
 For what is already built, see [archtecture.md](archtecture.md).
 
-## Next: the fight is not fair yet
+## Just closed: the combat loop has an ending
 
-These are the gaps a player runs into within a minute of playing.
+Juggle gravity, knockdown/wakeup and knockback friction landed together, and
+they are one thing rather than three. Before them the air route built by the
+previous commits — launcher, jump cancel, air normal, air dash — had no
+terminator: hitstun running out in the air handed control straight back, so the
+same route repeated and damage scaling only made it cheap.
+
+Now every airborne hit raises the victim's gravity until the route stops
+reaching, hitstun ending in the air drops them into a knockdown, and getting up
+has its own timing with the invincibility that ends exactly when the fighter
+becomes actionable. That is the `Advantage → Repeat` half of the genre core
+loop, which simply did not exist before.
+
+Details: [state_machine.md](state_machine.md) for the states,
+[fighter_format.md](fighter_format.md) for the authored fields.
+
+## The next slice: walls, the corner and the camera
+
+**Agreed as the next piece of work, deliberately deferred.** These two are one
+slice, not two items: the camera clamp is what decides where the wall is, so
+building them apart means building the same boundary twice and reconciling it.
 
 **Walls and the corner.** The stage is only a floor, so a fighter can be pushed
 out of the screen forever. Screen bounds turn the corner into a real place: it
 is where pushback stops working, where mixups get scary, and where half the
-game's tension lives.
-→ `engine/battle/battle_manager.gd`, stage scene
+game's tension lives. The `PushboxSolver` has to learn about them too — a
+fighter with their back to the wall should push the *opponent* out instead of
+giving ground, which is the entire reason cornering someone is worth doing.
+→ `engine/battle/battle_manager.gd`, `engine/collision/pushbox_solver.gd`,
+stage scene
 
 **Camera.** One static camera that does not follow anyone. It needs to frame
 both fighters, zoom with the distance between them and clamp to the stage
-bounds — which is also what defines where the corner is.
+bounds.
+→ `engine/camera/` (empty)
+
+This slice is worth more now than it was before the knockdown existed: a corner
+without a knockdown is just a wall, but a corner *with* one is where okizeme
+turns into real pressure.
+
+## Then: the fight is still not fair
 
 **Okizeme options.** Knockdown and wakeup exist, but the fighter getting up has
 no say in it: no wakeup roll, no reversal, no delayed wakeup. Right now the
@@ -92,6 +121,10 @@ toggles and input display. Half of it already exists in the debug renderer.
   lives in `Fighter`. `knockback.gd` is real now, the other two are not.
 - There is no air recovery, so every airborne hit ends in a knockdown. A burst
   or an air tech would be the counterplay.
+- A knocked down fighter is still hittable on the single frame they touch the
+  floor: `is_on_floor()` reflects the previous `move_and_slide()`, so `Knockdown`
+  turns the body off one frame after the landing the solver already saw. Left
+  as is on purpose — that frame reads as the tail of the fall, not as okizeme.
 - The pushbox is a width only. A proper one would have a height too, so a
   crouching fighter takes less space.
 - No input display, so verifying what the buffer read means reading the HUD
