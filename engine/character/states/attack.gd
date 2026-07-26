@@ -35,6 +35,10 @@ func physics_update(delta: float) -> void:
 	# the cancel is legal.
 	if fighter.try_command():
 		return
+	# Checked after the button: holding up while pressing an attack should give
+	# the attack, and the buffered press then comes out as the air version.
+	if fighter.try_jump_cancel():
+		return
 	# Landing cuts an air move short, the usual landing recovery of the genre.
 	if attack != null and attack.ends_on_landing and state_frame > 1 and fighter.is_on_floor():
 		transitioned.emit(&"Idle")

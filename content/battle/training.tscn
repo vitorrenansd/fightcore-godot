@@ -53,4 +53,5 @@ theme_override_font_sizes/font_size = 13
 text = "P1 keyboard: WASD  J=P K=K L=S U=HS I=D      P2 keyboard: arrows + numpad 1..5
 Gamepad: d-pad/stick  A=P B=K X=S Y=HS RB=D
 Special: 236 + S    Gatling: P > K > S > HS > D, any normal into 236S
+Air: jump then P/K/S/HS (overheads)    5D on hit + hold up = jump cancel
 F1: toggle boxes    F2: restart match"

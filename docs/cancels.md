@@ -49,6 +49,25 @@ attack.cancel_into_types = 7                  # normal, special and super
 attack.cancel_into = [&"2D"]                  # plus this specific exception
 ```
 
+## Jump cancel
+
+`jump_cancellable` lets a move be cancelled straight into a jump. Holding up is
+enough — no button, no motion — and the jump comes out on the first cancellable
+frame, so it obeys the same window and contact rules as any other cancel: a
+whiffed launcher cannot be jump cancelled.
+
+That is what turns a launcher into an air combo instead of a single knockdown:
+
+```
+5D (hit, launches) -> hold up -> j.P > j.K > j.S
+```
+
+The check runs **after** the attack cancel, so holding up while pressing a
+button gives the attack. The press then sits in the buffer and comes out as the
+air version a frame later, which is exactly the combo route above.
+
+`Fighter.can_jump_cancel()` answers whether the window is open right now.
+
 ## Timing
 
 ```
@@ -102,7 +121,7 @@ it the command would only be read after recovery ended.
 | 5K / 2K | 1 | 5S, 5HS, 5D, 236S |
 | 5S | 2 | 5HS, 5D, 236S |
 | 5HS | 3 | 5D, 236S |
-| 5D | 4 | 236S |
+| 5D | 4 | 236S, and jump cancel on hit |
 | 236S | special | supers only (none exist yet) |
 | j.P | 0 | j.K, j.S, j.HS |
 | j.K | 1 | j.S, j.HS |
@@ -122,7 +141,8 @@ Covers the ladder, the special cancel, the whiff block and the cancel window.
 
 ## Not implemented yet
 
-- Jump cancel and dash cancel.
+- Dash cancel.
+- Air dash and double jump, which is what would make air routes longer.
 - Roman cancel style mechanics, which would cancel *anything* at a meter cost.
 - Cancel only on counter hit, or only in the corner.
 - Super moves: the class exists in the enum, nothing uses it yet.

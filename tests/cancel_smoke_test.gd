@@ -163,7 +163,49 @@ func _physics_process(_delta: float) -> bool:
 			print("  move after the motion: %s" % current_move(p1))
 			check(current_move(p1) == &"236S", "5S cancelled into the special")
 			check(accepted.size() == 2, "two commands accepted, got %d" % accepted.size())
-		123:
+		170:
+			print("\n== 6. jump cancel: 5D launches into an air combo ==")
+			accepted.clear()
+			p1.position = Vector2(-30, 0)
+			p2.position = Vector2(30, 0)
+			p2.health = 10000
+		173:
+			check(p1.get_attack(&"5D").jump_cancellable, "5D is jump cancellable")
+			check(not p1.get_attack(&"5P").jump_cancellable, "a plain jab is not")
+			hold([&"p1_d"])
+		174:
+			hold([])
+		196:
+			# 5D has 20 frames of startup, so it has connected by now.
+			print("  move %s  connected=%s  p2 y=%.0f" % [
+				current_move(p1), p1.hitbox_manager.has_connected, p2.global_position.y,
+			])
+			check(current_move(p1) == &"5D", "5D is running")
+			check(p1.hitbox_manager.has_connected, "5D connected")
+			check(p1.can_jump_cancel(), "the jump cancel window is open")
+			hold([&"p1_up"])
+		205:
+			print("  after holding up: state %s  on floor=%s  attacking=%s" % [
+				p1.state_machine.current_state.name, p1.is_on_floor(),
+				p1.hitbox_manager.is_attacking(),
+			])
+			check(not p1.is_on_floor(), "jumped straight out of the move")
+			check(not p1.hitbox_manager.is_attacking(), "the launcher was cut short")
+			hold([&"p1_up", &"p1_p"])
+		207:
+			hold([])
+		209:
+			print("  air follow-up: %s" % current_move(p1))
+			check(current_move(p1) == &"j.P", "the air normal came out after the jump")
+			check(accepted.size() == 2, "two commands accepted, got %d" % accepted.size())
+		215:
+			print("  p2 health %d  combo %d  p2 y=%.0f" % [
+				p2.health, p2.combo_hits, p2.global_position.y,
+			])
+			# Checked here and not during hitstop: nothing moves while frozen.
+			check(p2.global_position.y < -10.0, "the launcher sent the opponent up")
+			check(p2.combo_hits >= 2, "the air hit continued the combo, got %d" % p2.combo_hits)
+		216:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true

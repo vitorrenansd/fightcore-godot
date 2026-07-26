@@ -151,6 +151,27 @@ func try_command() -> bool:
 	return true
 
 
+## Jumps straight out of the current move when the input asks for it.
+## Holding up is enough: the jump comes out on the first cancellable frame,
+## which is how a launcher chains into an air combo.
+func try_jump_cancel() -> bool:
+	if input == null or not can_act() or not is_on_floor():
+		return false
+	if not input.is_holding_up() or not can_jump_cancel():
+		return false
+	state_machine.transition_to(&"Jump")
+	return true
+
+
+func can_jump_cancel() -> bool:
+	if not hitbox_manager.is_attacking():
+		return false
+	return (
+		hitbox_manager.current_attack.jump_cancellable
+		and hitbox_manager.is_in_cancel_window()
+	)
+
+
 ## Current stance, used to pick between standing, crouching and air attacks.
 func get_stance() -> CommandData.Stance:
 	if not is_on_floor():

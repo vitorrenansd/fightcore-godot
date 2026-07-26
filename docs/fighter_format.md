@@ -79,6 +79,9 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 plus the cancel routes. Documented in [hitboxes.md](hitboxes.md) and
 [cancels.md](cancels.md).
 
+`jump_cancellable` lets the move be cancelled into a jump by holding up, which
+is how a launcher leads into an air combo — see [cancels.md](cancels.md).
+
 `ends_on_landing` marks an air move: it keeps the jump arc instead of planting
 the fighter, and it is cut short the moment the fighter touches the ground.
 Authored rather than read from `is_on_floor()`, because that flag only updates

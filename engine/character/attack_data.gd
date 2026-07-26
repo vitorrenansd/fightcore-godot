@@ -53,6 +53,9 @@ enum CancelType {
 ## Cancelling without touching the opponent. Off by default: whiff cancelling
 ## erases the risk of throwing out a move, which is what makes neutral matter.
 @export var can_whiff_cancel: bool = false
+## Holding up during the cancel window jumps straight out of the move. This is
+## what turns a launcher into an air combo instead of a single knockdown.
+@export var jump_cancellable: bool = false
 ## First frame this move can be cancelled, from the start of the attack.
 ## -1 means the first active frame, which is the genre default.
 @export var cancel_window_start: int = -1

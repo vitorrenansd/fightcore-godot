@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://bs0swum0nuxg2"]
+[gd_resource type="Resource" script_class="AttackData" format=3]
 
-[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_v3vlj"]
-[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_os1od"]
+[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_v3vlj"]
+[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_os1od"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c4oem"]
 size = Vector2(46, 70)
@@ -23,6 +23,7 @@ recovery_frames = 20
 hitboxes = Array[ExtResource("1_v3vlj")]([SubResource("Resource_xxd6m")])
 cancel_into_types = 7
 cancel_level = 4
+jump_cancellable = true
 damage = 600
 chip_damage = 60
 guard = 1
