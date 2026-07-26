@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="AttackData" format=3]
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://c6vkuvv4x0hkv"]
 
-[ext_resource type="Script" path="res://engine/collision/hitbox.gd" id="1_bcjtf"]
-[ext_resource type="Script" path="res://engine/character/attack_data.gd" id="2_dnqw1"]
+[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_bcjtf"]
+[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_dnqw1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lx10m"]
 size = Vector2(58, 42)
