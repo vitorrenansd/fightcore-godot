@@ -21,6 +21,9 @@ var stun_frames: int = 0
 var hitstop: int = 0
 var knockback: Vector2 = Vector2.ZERO
 var launcher: bool = false
+## Juggle added to the victim by this hit. Zero on block: a blocked move never
+## feeds the juggle counter.
+var juggle_cost: int = 0
 
 ## Hits the target had already taken in this combo before this one.
 var combo_index: int = 0
@@ -46,6 +49,7 @@ static func build(
 	hit.combo_index = p_victim.combo_hits
 	hit.damage_scaling = p_attack.get_damage_scaling(hit.combo_index)
 	hit.launcher = p_attack.launcher and not p_blocked
+	hit.juggle_cost = 0 if p_blocked else p_attack.juggle_cost
 
 	var defense := p_victim.stats.defense_multiplier if p_victim.stats != null else 1.0
 	if hit.blocked:

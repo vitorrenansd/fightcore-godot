@@ -58,7 +58,8 @@ Fighter._physics_process            (one per fighter)
   hitstop -> freeze and bail out
   hitbox_manager.advance()          advance the attack frame
   state_machine.physics_update()    current state logic
-  gravity + move_and_slide()
+  gravity (juggle included) + move_and_slide()
+  on the floor -> land(): air options and juggle reset
 
 CollisionSolver._physics_process    (process_physics_priority = 100)
   query active hitboxes against opposing hurtboxes
@@ -89,6 +90,8 @@ godot --headless --path . --script tests/input_smoke_test.gd
 godot --headless --path . --script tests/cancel_smoke_test.gd
 godot --headless --path . --script tests/round_smoke_test.gd
 godot --headless --path . --script tests/pushbox_smoke_test.gd
+godot --headless --path . --script tests/air_smoke_test.gd
+godot --headless --path . --script tests/juggle_smoke_test.gd
 ```
 
 `--check-only --script <file>` reports parse errors per file, but it does not

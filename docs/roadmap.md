@@ -9,12 +9,6 @@ For what is already built, see [archtecture.md](archtecture.md).
 
 These are the gaps a player runs into within a minute of playing.
 
-**Juggle gravity.** A launched opponent falls the same way every time, so in
-theory the same air route repeats forever. The genre fix is increasing gravity
-per hit while airborne, plus a juggle counter on the victim. Without it, damage
-scaling alone does not end a combo.
-→ `Fighter`, `HitData`, `AttackData`
-
 **Walls and the corner.** The stage is only a floor, so a fighter can be pushed
 out of the screen forever. Screen bounds turn the corner into a real place: it
 is where pushback stops working, where mixups get scary, and where half the

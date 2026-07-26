@@ -85,6 +85,9 @@ enum CancelType {
 @export var block_pushback: Vector2 = Vector2(120.0, 0.0)
 ## Launches the opponent upwards, allowing juggles.
 @export var launcher: bool = false
+## Juggle this move puts on an airborne victim, which raises their gravity for
+## the rest of the combo. Heavy enders cost more, so they close the route.
+@export var juggle_cost: int = 1
 
 
 func get_total_frames() -> int:

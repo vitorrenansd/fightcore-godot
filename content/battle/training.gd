@@ -90,7 +90,7 @@ func _describe(fighter: Fighter, index: int) -> String:
 			manager.attack_frame,
 			" C" if manager.is_in_cancel_window() else "",
 		]
-	return "P%d  health %5d  %-8s  move %-12s  dir %d  hitstop %d  combo %d" % [
+	return "P%d  health %5d  %-9s  move %-12s  dir %d  hitstop %d  combo %d  juggle %d (x%.2f)" % [
 		index + 1,
 		fighter.health,
 		fighter.state_machine.current_state.name if fighter.state_machine.current_state else "-",
@@ -98,6 +98,8 @@ func _describe(fighter: Fighter, index: int) -> String:
 		fighter.input.get_direction() if fighter.input != null else 5,
 		fighter.hitstop_frames,
 		fighter.combo_hits,
+		fighter.juggle_count,
+		fighter.get_juggle_gravity_multiplier(),
 	]
 
 

@@ -22,6 +22,9 @@ var frozen: bool = false
 ## Air options left before touching the ground again.
 var air_jumps_left: int = 0
 var air_dashes_left: int = 0
+## Juggle accumulated while airborne. Raises this fighter's gravity for the rest
+## of the combo, and goes back to zero on landing.
+var juggle_count: int = 0
 ## Turned off while an air dash holds its momentum.
 var gravity_enabled: bool = true
 
@@ -38,7 +41,7 @@ var stats: FighterStats:
 
 func _ready() -> void:
 	hitbox_manager.setup(self)
-	refill_air_options()
+	land()
 	health = stats.max_health if stats != null else 0
 	health_changed.emit(health, health)
 
@@ -58,12 +61,27 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	move_and_slide()
 	if is_on_floor():
-		refill_air_options()
+		land()
 
 
 func _apply_gravity(delta: float) -> void:
 	if gravity_enabled and not is_on_floor():
-		velocity.y += stats.gravity * delta
+		velocity.y += get_effective_gravity() * delta
+
+
+## Gravity the fighter falls under right now, juggle included.
+func get_effective_gravity() -> float:
+	if stats == null:
+		return 0.0
+	return stats.gravity * get_juggle_gravity_multiplier()
+
+
+## Grows with every hit taken airborne, which is what makes an air route stop
+## reaching: the victim drops out of the next link instead of hanging there.
+func get_juggle_gravity_multiplier() -> float:
+	if stats == null or juggle_count <= 0:
+		return 1.0
+	return minf(1.0 + stats.juggle_gravity_per_hit * juggle_count, stats.max_juggle_gravity)
 
 
 func walk(direction: float) -> void:
@@ -73,6 +91,13 @@ func walk(direction: float) -> void:
 func jump() -> void:
 	if is_on_floor():
 		velocity.y = stats.jump_velocity
+
+
+## Everything that comes back when the fighter touches the ground: air options
+## refill and the juggle the combo had built up is gone.
+func land() -> void:
+	refill_air_options()
+	juggle_count = 0
 
 
 ## Air jumps and air dashes come back on landing, never mid-air.
@@ -125,6 +150,7 @@ func apply_hit(hit: HitData) -> void:
 		_enter_blockstun(hit)
 	else:
 		combo_hits += 1
+		_add_juggle(hit)
 		_enter_hitstun(hit)
 	# After the transition: entering a state clears horizontal velocity.
 	velocity = hit.knockback
@@ -155,7 +181,7 @@ func reset_for_round() -> void:
 	hitstop_frames = 0
 	velocity = Vector2.ZERO
 	gravity_enabled = true
-	refill_air_options()
+	land()
 	hitbox_manager.stop_attack()
 	# Leaving KO through the normal exit is what turns the hurtboxes back on.
 	state_machine.transition_to(&"Idle")
@@ -305,6 +331,13 @@ func can_block(guard: AttackData.Guard) -> bool:
 
 func _enter_ko() -> void:
 	state_machine.transition_to(&"KO")
+
+
+## Juggle only builds up in the air. A launcher counts even though it connects
+## on a grounded opponent: it is the hit that starts the juggle.
+func _add_juggle(hit: HitData) -> void:
+	if hit.launcher or not is_on_floor():
+		juggle_count += hit.juggle_cost
 
 
 func _enter_hitstun(hit: HitData) -> void:

@@ -74,6 +74,8 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 | `air_dashes` | 1 | air dashes before landing |
 | `air_dash_speed` | 420.0 | px/s during the dash |
 | `air_dash_frames` | 18 | how long the dash suspends gravity |
+| `juggle_gravity_per_hit` | 0.12 | extra gravity per point of juggle |
+| `max_juggle_gravity` | 2.2 | ceiling for the juggle multiplier |
 | `pushbox_width` | 46.0 | space the fighter holds against the opponent |
 | `weight` | 1.0 | divides incoming knockback |
 | `defense_multiplier` | 1.0 | multiplies incoming damage |
@@ -91,6 +93,12 @@ is how a launcher leads into an air combo — see [cancels.md](cancels.md).
 the fighter, and it is cut short the moment the fighter touches the ground.
 Authored rather than read from `is_on_floor()`, because that flag only updates
 after a move and would misread a move started on the landing frame.
+
+`launcher` and `juggle_cost` drive the juggle. A launcher opens it even though
+it connects on a grounded opponent; after that every hit taken in the air adds
+its `juggle_cost` to the victim's `juggle_count`, and that counter multiplies
+their gravity. Heavier enders cost more juggle, which is how a route is closed
+by data instead of by a hardcoded hit limit. A blocked hit costs nothing.
 
 ### CommandData
 
@@ -121,6 +129,7 @@ character.
 | `facing_right` | which way the fighter looks |
 | `health` | current health |
 | `combo_hits` | hits taken in the current combo, basis for scaling |
+| `juggle_count` | juggle built up in the air, raises this fighter's gravity |
 | `hitstop_frames` | remaining freeze frames |
 | `frozen` | round pause: no state logic, no gravity |
 | `stats` | shortcut to `fighter_data.stats` |
