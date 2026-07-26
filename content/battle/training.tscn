@@ -1,46 +1,46 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cpauhsbl48tto"]
 
-[ext_resource type="Script" path="res://content/battle/training.gd" id="1_training"]
+[ext_resource type="Script" uid="uid://c5hex41dpk7qq" path="res://content/battle/training.gd" id="1_training"]
 [ext_resource type="PackedScene" uid="uid://dox58mpt3ju3y" path="res://content/stages/empty_stage/stage.tscn" id="2_stage"]
-[ext_resource type="Script" path="res://engine/battle/battle_manager.gd" id="3_battle"]
+[ext_resource type="Script" uid="uid://ddefvx6b35f86" path="res://engine/battle/battle_manager.gd" id="3_battle"]
 [ext_resource type="PackedScene" uid="uid://c3e4elfni34m2" path="res://content/fighters/training_dummy/fighter.tscn" id="4_fighter"]
-[ext_resource type="Script" path="res://engine/debug/box_renderer.gd" id="5_boxes"]
-[ext_resource type="Script" path="res://engine/battle/round_manager.gd" id="6_rounds"]
+[ext_resource type="Script" uid="uid://b01ekckju0yqq" path="res://engine/debug/box_renderer.gd" id="5_boxes"]
+[ext_resource type="Script" uid="uid://c64vddd7152xs" path="res://engine/battle/round_manager.gd" id="6_rounds"]
 
-[node name="Training" type="Node2D"]
+[node name="Training" type="Node2D" unique_id=165994213]
 script = ExtResource("1_training")
 
-[node name="Stage" parent="." instance=ExtResource("2_stage")]
+[node name="Stage" parent="." unique_id=1926235089 instance=ExtResource("2_stage")]
 
-[node name="Battle" type="Node2D" parent="."]
+[node name="Battle" type="Node2D" parent="." unique_id=313360634]
 script = ExtResource("3_battle")
 fighter_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("4_fighter")])
 spawn_positions = Array[Vector2]([Vector2(-140, 0), Vector2(140, 0)])
 
-[node name="Rounds" type="Node" parent="."]
+[node name="Rounds" type="Node" parent="." unique_id=1983941407]
 script = ExtResource("6_rounds")
 battle = NodePath("../Battle")
 round_seconds = 99
 rounds_to_win = 2
 
-[node name="DebugBoxes" type="Node2D" parent="."]
+[node name="DebugBoxes" type="Node2D" parent="." unique_id=1662939924]
 script = ExtResource("5_boxes")
 battle = NodePath("../Battle")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1287664715]
 position = Vector2(0, 60)
 zoom = Vector2(1.4, 1.4)
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=883443843]
 
-[node name="Readout" type="Label" parent="HUD"]
+[node name="Readout" type="Label" parent="HUD" unique_id=123785676]
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 800.0
 offset_bottom = 96.0
 theme_override_font_sizes/font_size = 15
 
-[node name="Banner" type="Label" parent="HUD"]
+[node name="Banner" type="Label" parent="HUD" unique_id=1384735701]
 anchors_preset = 10
 anchor_right = 1.0
 offset_top = 150.0
@@ -48,7 +48,7 @@ offset_bottom = 180.0
 theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 
-[node name="Help" type="Label" parent="HUD"]
+[node name="Help" type="Label" parent="HUD" unique_id=987042637]
 offset_left = 16.0
 offset_top = 100.0
 offset_right = 900.0

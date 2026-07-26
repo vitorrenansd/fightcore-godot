@@ -9,19 +9,6 @@ extends Node2D
 
 const TEAM_COLORS: Array[Color] = [Color(0.6, 0.8, 1.0), Color(1.0, 0.7, 0.6)]
 
-const PHASE_NAMES: Dictionary = {
-	RoundManager.Phase.INTRO: "READY",
-	RoundManager.Phase.FIGHT: "FIGHT",
-	RoundManager.Phase.ROUND_END: "ROUND OVER",
-	RoundManager.Phase.MATCH_END: "MATCH OVER",
-}
-
-const REASON_NAMES: Dictionary = {
-	RoundManager.EndReason.KO: "KO",
-	RoundManager.EndReason.TIMEOUT: "TIME OVER",
-	RoundManager.EndReason.DRAW: "DRAW",
-}
-
 @onready var battle: BattleManager = $Battle
 @onready var rounds: RoundManager = $Rounds
 @onready var boxes: DebugBoxRenderer = $DebugBoxes
@@ -64,8 +51,34 @@ func _describe_round() -> String:
 		rounds.get_seconds_left(),
 		rounds.get_wins(0),
 		rounds.get_wins(1),
-		PHASE_NAMES.get(rounds.phase, "-"),
+		_phase_name(rounds.phase),
 	]
+
+
+## Enum values from another class are not constant expressions, so these names
+## live in a match instead of a const dictionary.
+func _phase_name(phase: RoundManager.Phase) -> String:
+	match phase:
+		RoundManager.Phase.INTRO:
+			return "READY"
+		RoundManager.Phase.FIGHT:
+			return "FIGHT"
+		RoundManager.Phase.ROUND_END:
+			return "ROUND OVER"
+		RoundManager.Phase.MATCH_END:
+			return "MATCH OVER"
+	return "-"
+
+
+func _reason_name(reason: RoundManager.EndReason) -> String:
+	match reason:
+		RoundManager.EndReason.KO:
+			return "KO"
+		RoundManager.EndReason.TIMEOUT:
+			return "TIME OVER"
+		RoundManager.EndReason.DRAW:
+			return "DRAW"
+	return "-"
 
 
 func _describe(fighter: Fighter, index: int) -> String:
@@ -89,7 +102,7 @@ func _describe(fighter: Fighter, index: int) -> String:
 
 
 func _on_round_ended(winner_team: int, reason: RoundManager.EndReason) -> void:
-	var label: String = REASON_NAMES.get(reason, "-")
+	var label := _reason_name(reason)
 	if winner_team == RoundManager.NO_WINNER:
 		_last_result = "%s - DRAW" % label
 	else:

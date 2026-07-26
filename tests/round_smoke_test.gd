@@ -42,7 +42,7 @@ func _initialize() -> void:
 	rounds.round_seconds = 1
 	rounds.rounds_to_win = 2
 	rounds.round_ended.connect(
-		func(winner: int, reason: RoundManager.EndReason) -> void:
+		func(winner: int, reason: int) -> void:
 			round_results.append([winner, reason])
 	)
 	rounds.match_ended.connect(func(winner: int) -> void: match_winner = winner)
@@ -56,7 +56,7 @@ func check(condition: bool, message: String) -> void:
 
 
 func phase_name() -> String:
-	return RoundManager.Phase.keys()[rounds.phase]
+	return str(rounds.phase)
 
 
 func _physics_process(_delta: float) -> bool:

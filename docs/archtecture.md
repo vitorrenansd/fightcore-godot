@@ -69,6 +69,31 @@ CollisionSolver._physics_process    (process_physics_priority = 100)
 The solver runs at high physics priority so it acts after every fighter has
 moved, regardless of their order in the scene.
 
+## Checking the project
+
+Nothing here needs the editor open:
+
+```sh
+# does everything compile? the grep is the check, see the test docstring
+godot --headless --path . --script tests/script_load_test.gd 2>&1 \
+    | grep -q "Failed to load script" && echo BROKEN
+
+# behaviour
+godot --headless --path . --script tests/hitbox_smoke_test.gd
+godot --headless --path . --script tests/battle_smoke_test.gd
+godot --headless --path . --script tests/input_smoke_test.gd
+godot --headless --path . --script tests/cancel_smoke_test.gd
+godot --headless --path . --script tests/round_smoke_test.gd
+```
+
+`--check-only --script <file>` reports parse errors per file, but it does not
+catch everything: a `const` built from another class enum passes it and still
+breaks in the editor. The load scan above is what catches those.
+
+After adding a new `class_name`, run `--headless --path . --editor --quit` once
+so the global class cache picks it up, otherwise standalone scripts will not
+find the class.
+
 ## Current state
 
 | System | Status |
