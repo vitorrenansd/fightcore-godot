@@ -99,6 +99,10 @@ After adding a new `class_name`, run `--headless --path . --editor --quit` once
 so the global class cache picks it up, otherwise standalone scripts will not
 find the class.
 
+## What is missing
+
+[roadmap.md](roadmap.md) lists it, ordered by what each item unlocks.
+
 ## Current state
 
 | System | Status |
