@@ -22,6 +22,7 @@ const DEFAULT_SPAWN_OFFSET: float = 120.0
 
 var fighters: Array[Fighter] = []
 var solver: CollisionSolver
+var pushboxes: PushboxSolver
 var bindings: InputBindings
 
 
@@ -29,6 +30,9 @@ func _ready() -> void:
 	if apply_input_bindings:
 		bindings = InputBindings.load_or_create()
 		bindings.apply()
+	pushboxes = PushboxSolver.new()
+	pushboxes.name = &"PushboxSolver"
+	add_child(pushboxes)
 	solver = CollisionSolver.new()
 	solver.name = &"CollisionSolver"
 	solver.hit_resolved.connect(_on_hit_resolved)
@@ -75,6 +79,7 @@ func register_fighter(fighter: Fighter) -> void:
 		return
 	fighters.append(fighter)
 	solver.register_fighter(fighter)
+	pushboxes.register_fighter(fighter)
 	fighter.died.connect(_on_fighter_died.bind(fighter))
 
 
@@ -83,6 +88,7 @@ func unregister_fighter(fighter: Fighter) -> void:
 		return
 	fighters.erase(fighter)
 	solver.unregister_fighter(fighter)
+	pushboxes.unregister_fighter(fighter)
 	var callback := _on_fighter_died.bind(fighter)
 	if fighter.died.is_connected(callback):
 		fighter.died.disconnect(callback)
@@ -142,6 +148,7 @@ func reset_positions() -> void:
 func clear_battle() -> void:
 	for fighter in fighters.duplicate():
 		solver.unregister_fighter(fighter)
+		pushboxes.unregister_fighter(fighter)
 		fighter.queue_free()
 	fighters.clear()
 

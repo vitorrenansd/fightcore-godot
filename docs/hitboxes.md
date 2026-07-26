@@ -203,9 +203,34 @@ editor:
 godot --headless --path . --script tests/hitbox_smoke_test.gd
 ```
 
+## Pushbox
+
+Fighters are **not physics obstacles to each other**: their bodies sit on the
+`PUSHBOX` layer and only mask `WORLD`, so they collide with the stage and never
+with an opponent. If they collided as bodies, landing on someone's head would
+leave both stuck up there with neither able to hit the other.
+
+`PushboxSolver` (`engine/collision/pushbox_solver.gd`) separates them instead,
+and only **horizontally**:
+
+- The push is skipped while either fighter is airborne. That is what lets a
+  jump pass over the opponent and land on the other side, and it is why
+  crossups exist.
+- Separation is split between both fighters and capped per frame, so landing
+  fully overlapped resolves over a few frames instead of teleporting them apart.
+- Width comes from `FighterStats.pushbox_width`: a bigger character takes more
+  space and loses ground faster in the corner.
+
+It runs at physics priority 90, before the hit solver, so hitbox queries always
+see final positions.
+
+```sh
+godot --headless --path . --script tests/pushbox_smoke_test.gd
+```
+
 ## Not implemented yet
 
-- Pushbox (body to body collision) and throwbox.
+- Throwbox.
 - Proximity guard (automatic block when a hitbox comes close).
 - Per state hurtboxes (crouching shrinks, airborne changes height).
 - Knockback friction: today the target slides at constant speed until hitstun

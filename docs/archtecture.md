@@ -88,6 +88,7 @@ godot --headless --path . --script tests/battle_smoke_test.gd
 godot --headless --path . --script tests/input_smoke_test.gd
 godot --headless --path . --script tests/cancel_smoke_test.gd
 godot --headless --path . --script tests/round_smoke_test.gd
+godot --headless --path . --script tests/pushbox_smoke_test.gd
 ```
 
 `--check-only --script <file>` reports parse errors per file, but it does not
@@ -106,6 +107,7 @@ find the class.
 | Fighter, stats and movement | done — [fighter_format.md](fighter_format.md) |
 | Fighter states | idle, walk, jump, crouch, block, hitstun, attack, ko |
 | Hitbox / hurtbox / HitData | done — [hitboxes.md](hitboxes.md) |
+| Pushbox | done — [hitboxes.md](hitboxes.md) |
 | `BattleManager` | done — [battle.md](battle.md) |
 | Input, buffer and commands | done — [input.md](input.md) |
 | Cancels and gatling routes | done — [cancels.md](cancels.md) |

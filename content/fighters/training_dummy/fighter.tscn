@@ -26,6 +26,8 @@ size = Vector2(46, 74)
 size = Vector2(38, 34)
 
 [node name="TrainingDummy" type="CharacterBody2D" unique_id=2111474389]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_dummy")
 fighter_data = ExtResource("2_data")
 

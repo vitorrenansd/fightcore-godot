@@ -24,7 +24,7 @@ fixed path:
 ```
 TrainingDummy (CharacterBody2D + script extending Fighter)
 ├── Visuals (Node2D)             the only node that flips scale
-├── CollisionShape2D             physical body against floor and walls
+├── CollisionShape2D             body against the stage only, never the opponent
 ├── StateMachine (FighterStateMachine)
 │   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, KO
 ├── HitboxManager                owner of the boxes
@@ -69,6 +69,7 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 | `dash_speed` | 400.0 | px/s while dashing |
 | `jump_velocity` | -650.0 | jump impulse (negative goes up) |
 | `gravity` | 1800.0 | px/s² |
+| `pushbox_width` | 46.0 | space the fighter holds against the opponent |
 | `weight` | 1.0 | divides incoming knockback |
 | `defense_multiplier` | 1.0 | multiplies incoming damage |
 
