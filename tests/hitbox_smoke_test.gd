@@ -64,7 +64,7 @@ func _make_attack(guard: AttackData.Guard, damage: int, chip: int) -> AttackData
 	return attack
 
 
-## Ground knockback does not decay yet (there is no friction), so spacing is
+## Friction stops the slide but does not walk anyone back, so spacing is
 ## restored by hand between phases.
 func _reset_spacing() -> void:
 	p1.position = Vector2(0, 0)

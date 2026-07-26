@@ -19,9 +19,11 @@ game's tension lives.
 both fighters, zoom with the distance between them and clamp to the stage
 bounds — which is also what defines where the corner is.
 
-**Knockback friction.** A fighter that takes a hit slides at constant speed
-until hitstun ends, because nothing slows them down.
-→ `engine/physics/knockback.gd` (stub)
+**Okizeme options.** Knockdown and wakeup exist, but the fighter getting up has
+no say in it: no wakeup roll, no reversal, no delayed wakeup. Right now the
+attacker sets up freely and the defender only waits. The invincibility window
+is already there for a reversal to come out of.
+→ `engine/character/states/wakeup.gd`
 
 ## Then: the moveset is thin
 
@@ -87,7 +89,9 @@ toggles and input display. Half of it already exists in the debug renderer.
 
 - A fighter frozen at round end stops mid-air instead of landing.
 - `engine/physics/gravity.gd` and `movement.gd` are stubs; gravity currently
-  lives in `Fighter`.
+  lives in `Fighter`. `knockback.gd` is real now, the other two are not.
+- There is no air recovery, so every airborne hit ends in a knockdown. A burst
+  or an air tech would be the counterplay.
 - The pushbox is a width only. A proper one would have a height too, so a
   crouching fighter takes less space.
 - No input display, so verifying what the buffer read means reading the HUD

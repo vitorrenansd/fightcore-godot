@@ -80,6 +80,7 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 | `knockdown_frames` | 24 | time lying on the floor — the okizeme window |
 | `wakeup_frames` | 16 | length of the rise, invulnerable throughout |
 | `pushbox_width` | 46.0 | space the fighter holds against the opponent |
+| `knockback_friction` | 1600.0 | px/s² bleeding off ground knockback while stunned |
 | `weight` | 1.0 | divides incoming knockback |
 | `defense_multiplier` | 1.0 | multiplies incoming damage |
 

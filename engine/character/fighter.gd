@@ -58,10 +58,24 @@ func _physics_process(delta: float) -> void:
 		return
 	hitbox_manager.advance()
 	state_machine.physics_update(delta)
+	_apply_knockback_friction(delta)
 	_apply_gravity(delta)
 	move_and_slide()
 	if is_on_floor():
 		land()
+
+
+## Ground knockback bleeds off instead of sliding at a constant speed until the
+## stun runs out. Only while stunned and only on the floor: a fighter in control
+## rewrites their own velocity every frame, and there is nothing in the air to
+## push back against — an airborne victim keeps their arc, which is what a
+## juggle needs.
+func _apply_knockback_friction(delta: float) -> void:
+	if stats == null or not is_on_floor():
+		return
+	if not (is_in_hitstun() or is_in_blockstun()):
+		return
+	velocity.x = Knockback.apply_friction(velocity.x, stats.knockback_friction, delta)
 
 
 func _apply_gravity(delta: float) -> void:
@@ -292,9 +306,15 @@ func can_turn() -> bool:
 
 
 func is_in_stun() -> bool:
+	return is_in_hitstun() or is_in_blockstun() or is_knocked_down()
+
+
+func is_in_hitstun() -> bool:
+	return state_machine.current_state is FighterHitstunState
+
+
+func is_in_blockstun() -> bool:
 	var state := state_machine.current_state
-	if state is FighterHitstunState or is_knocked_down():
-		return true
 	return state is FighterBlockState and (state as FighterBlockState).is_in_blockstun()
 
 
@@ -309,7 +329,7 @@ func is_knocked_down() -> bool:
 func is_blocking() -> bool:
 	if input == null or not is_alive() or not is_on_floor():
 		return false
-	if hitbox_manager.is_attacking() or state_machine.current_state is FighterHitstunState:
+	if hitbox_manager.is_attacking() or is_in_hitstun():
 		return false
 	# A fighter lying on the floor holding back is not guarding.
 	if is_knocked_down():

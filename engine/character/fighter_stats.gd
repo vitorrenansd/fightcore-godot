@@ -43,5 +43,8 @@ extends Resource
 @export var pushbox_width: float = 46.0
 
 @export_group("Combat")
+## How fast ground knockback bleeds off, in px/s². Only applies while the
+## fighter is stunned: someone in control sets their own velocity anyway.
+@export var knockback_friction: float = 1600.0
 @export var weight: float = 1.0
 @export var defense_multiplier: float = 1.0

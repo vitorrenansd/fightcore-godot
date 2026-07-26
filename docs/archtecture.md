@@ -58,6 +58,7 @@ Fighter._physics_process            (one per fighter)
   hitstop -> freeze and bail out
   hitbox_manager.advance()          advance the attack frame
   state_machine.physics_update()    current state logic
+  knockback friction                only while stunned, only on the floor
   gravity (juggle included) + move_and_slide()
   on the floor -> land(): air options and juggle reset
 
@@ -93,6 +94,7 @@ godot --headless --path . --script tests/pushbox_smoke_test.gd
 godot --headless --path . --script tests/air_smoke_test.gd
 godot --headless --path . --script tests/juggle_smoke_test.gd
 godot --headless --path . --script tests/knockdown_smoke_test.gd
+godot --headless --path . --script tests/friction_smoke_test.gd
 ```
 
 `--check-only --script <file>` reports parse errors per file, but it does not
@@ -121,7 +123,8 @@ find the class.
 | Cancels and gatling routes | done — [cancels.md](cancels.md) |
 | Rounds, clock and win conditions | done — [battle.md](battle.md) |
 | Playable training room | `content/battle/training.tscn` |
-| `physics/` (gravity, movement, knockback) | stub — gravity lives in `Fighter` |
+| `physics/knockback.gd` | done — friction rule, called by `Fighter` |
+| `physics/gravity.gd`, `physics/movement.gd` | stub — both live in `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |
 | Animation | stub — [animation.md](animation.md) |
 | Modding | stub — [modding.md](modding.md) |
