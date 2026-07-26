@@ -92,6 +92,7 @@ godot --headless --path . --script tests/round_smoke_test.gd
 godot --headless --path . --script tests/pushbox_smoke_test.gd
 godot --headless --path . --script tests/air_smoke_test.gd
 godot --headless --path . --script tests/juggle_smoke_test.gd
+godot --headless --path . --script tests/knockdown_smoke_test.gd
 ```
 
 `--check-only --script <file>` reports parse errors per file, but it does not
@@ -112,7 +113,7 @@ find the class.
 |---|---|
 | Generic FSM (`state_machine/`) | done — [state_machine.md](state_machine.md) |
 | Fighter, stats and movement | done — [fighter_format.md](fighter_format.md) |
-| Fighter states | idle, walk, jump, crouch, block, hitstun, attack, ko |
+| Fighter states | idle, walk, jump, crouch, block, hitstun, attack, air dash, knockdown, wakeup, ko |
 | Hitbox / hurtbox / HitData | done — [hitboxes.md](hitboxes.md) |
 | Pushbox | done — [hitboxes.md](hitboxes.md) |
 | `BattleManager` | done — [battle.md](battle.md) |

@@ -168,7 +168,11 @@ func _physics_process(_delta: float) -> bool:
 			accepted.clear()
 			p1.position = Vector2(-30, 0)
 			p2.position = Vector2(30, 0)
+			p2.velocity = Vector2.ZERO
 			p2.health = 10000
+			# 236S ends the previous phase in a knockdown, so p2 is lying down
+			# and invulnerable. Put it back on its feet like a round reset would.
+			p2.state_machine.transition_to(&"Idle")
 		173:
 			check(p1.get_attack(&"5D").jump_cancellable, "5D is jump cancellable")
 			check(not p1.get_attack(&"5P").jump_cancellable, "a plain jab is not")

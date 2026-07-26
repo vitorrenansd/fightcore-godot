@@ -293,9 +293,15 @@ func can_turn() -> bool:
 
 func is_in_stun() -> bool:
 	var state := state_machine.current_state
-	if state is FighterHitstunState:
+	if state is FighterHitstunState or is_knocked_down():
 		return true
 	return state is FighterBlockState and (state as FighterBlockState).is_in_blockstun()
+
+
+## On the floor or getting up: no commands, no guard, no turning around.
+func is_knocked_down() -> bool:
+	var state := state_machine.current_state
+	return state is FighterKnockdownState or state is FighterWakeupState
 
 
 ## Blocking is holding back on the ground, outside of an attack and hitstun.
@@ -304,6 +310,9 @@ func is_blocking() -> bool:
 	if input == null or not is_alive() or not is_on_floor():
 		return false
 	if hitbox_manager.is_attacking() or state_machine.current_state is FighterHitstunState:
+		return false
+	# A fighter lying on the floor holding back is not guarding.
+	if is_knocked_down():
 		return false
 	return input.is_holding_back(facing_right)
 
@@ -345,7 +354,7 @@ func _enter_hitstun(hit: HitData) -> void:
 	var state := state_machine.get_state(&"Hitstun") as FighterHitstunState
 	if state == null:
 		return
-	state.start_hitstun(hit.stun_frames)
+	state.start_hitstun(hit.stun_frames, hit.knockdown)
 	state_machine.transition_to(&"Hitstun")
 
 

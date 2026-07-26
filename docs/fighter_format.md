@@ -26,7 +26,8 @@ TrainingDummy (CharacterBody2D + script extending Fighter)
 ├── Visuals (Node2D)             the only node that flips scale
 ├── CollisionShape2D             body against the stage only, never the opponent
 ├── StateMachine (FighterStateMachine)
-│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, AirDash, KO
+│   ├── Idle, Walk, Jump, Crouch, Block, Hitstun, Attack, AirDash,
+│   │   Knockdown, Wakeup, KO
 ├── HitboxManager                owner of the boxes
 ├── Input (InputBuffer)          optional: without it the fighter never acts
 └── Hurtboxes (Node2D)
@@ -76,6 +77,8 @@ position that gets mirrored on flip. See [hitboxes.md](hitboxes.md).
 | `air_dash_frames` | 18 | how long the dash suspends gravity |
 | `juggle_gravity_per_hit` | 0.12 | extra gravity per point of juggle |
 | `max_juggle_gravity` | 2.2 | ceiling for the juggle multiplier |
+| `knockdown_frames` | 24 | time lying on the floor — the okizeme window |
+| `wakeup_frames` | 16 | length of the rise, invulnerable throughout |
 | `pushbox_width` | 46.0 | space the fighter holds against the opponent |
 | `weight` | 1.0 | divides incoming knockback |
 | `defense_multiplier` | 1.0 | multiplies incoming damage |
@@ -93,6 +96,10 @@ is how a launcher leads into an air combo — see [cancels.md](cancels.md).
 the fighter, and it is cut short the moment the fighter touches the ground.
 Authored rather than read from `is_on_floor()`, because that flag only updates
 after a move and would misread a move started on the landing frame.
+
+`causes_knockdown` gives a grounded hit the sweep property: the victim ends up
+on the floor instead of back in neutral. An airborne victim always knocks down,
+flag or not — see [state_machine.md](state_machine.md).
 
 `launcher` and `juggle_cost` drive the juggle. A launcher opens it even though
 it connects on a grounded opponent; after that every hit taken in the air adds

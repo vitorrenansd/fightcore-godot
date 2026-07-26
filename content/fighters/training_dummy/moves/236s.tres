@@ -29,3 +29,4 @@ hitstun = 24
 hitstop = 10
 knockback = Vector2(420, -60)
 block_pushback = Vector2(252, 0)
+causes_knockdown = true

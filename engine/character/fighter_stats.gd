@@ -30,6 +30,13 @@ extends Resource
 ## into a stone that lands before the next hit can ever come out.
 @export_range(1.0, 5.0, 0.1) var max_juggle_gravity: float = 2.2
 
+@export_group("Knockdown")
+## Frames lying on the floor after landing from a knockdown, before getting up.
+## This is the okizeme window: the attacker's time to set up.
+@export var knockdown_frames: int = 24
+## Frames the rise takes. Invulnerable throughout, actionable at the end.
+@export var wakeup_frames: int = 16
+
 @export_group("Pushbox")
 ## Width of the volume that keeps fighters from standing inside each other.
 ## Bigger characters take more space and lose ground faster in the corner.

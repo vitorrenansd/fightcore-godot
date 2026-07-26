@@ -23,12 +23,6 @@ bounds — which is also what defines where the corner is.
 until hitstun ends, because nothing slows them down.
 → `engine/physics/knockback.gd` (stub)
 
-**Knockdown and wakeup.** There is no state between hitstun and KO. A sweep or a
-launcher should knock down, and getting up should have its own timing, with the
-invincibility that makes wakeup a guessing game. `Hurtbox.set_invulnerable()`
-already exists for it.
-→ new state next to `engine/character/states/ko.gd`
-
 ## Then: the moveset is thin
 
 **Throws.** The `D` button was designed as dust alone and throw with a

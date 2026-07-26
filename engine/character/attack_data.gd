@@ -88,6 +88,9 @@ enum CancelType {
 ## Juggle this move puts on an airborne victim, which raises their gravity for
 ## the rest of the combo. Heavy enders cost more, so they close the route.
 @export var juggle_cost: int = 1
+## Puts a grounded opponent on the floor instead of returning them to neutral,
+## the sweep property. An airborne victim always knocks down, flag or not.
+@export var causes_knockdown: bool = false
 
 
 func get_total_frames() -> int:
