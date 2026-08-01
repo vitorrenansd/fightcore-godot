@@ -31,11 +31,13 @@ var p2: Fighter
 var frames: int = 0
 var ok: bool = true
 
-## Landing is observed rather than predicted: the fighters spawn above the
-## stage floor, so when they touch down depends on the stage geometry and the
-## character's gravity, both of which are content and free to change.
-var p1_landed: int = 0
-var p2_landed: int = 0
+## Frames either fighter spent off the ground, and how far the ground moved
+## under them. Both must stay at zero: the round starts with the fighters
+## standing, not falling into place. Counted rather than sampled, because a
+## drop that only lasts until the next checkpoint is still a drop.
+var airborne_frames: int = 0
+var ground_drift: float = 0.0
+var start_y: float = NAN
 
 
 func _initialize() -> void:
@@ -55,21 +57,27 @@ func check(condition: bool, message: String) -> void:
 
 
 func _observe() -> void:
-	if p1 != null and p1_landed == 0 and p1.is_on_floor():
-		p1_landed = frames
-	if p2 != null and p2_landed == 0 and p2.is_on_floor():
-		p2_landed = frames
+	if p1 == null or p2 == null:
+		return
+	if not p1.is_on_floor() or not p2.is_on_floor():
+		airborne_frames += 1
+	if is_nan(start_y):
+		start_y = p1.position.y
+	ground_drift = maxf(ground_drift, absf(p1.position.y - start_y))
 
 
 func _physics_process(_delta: float) -> bool:
 	frames += 1
+	# Resolved on the first frame, not at the first checkpoint: the round starts
+	# immediately and the frames before a checkpoint are the ones under test.
+	if p1 == null:
+		battle = room.battle
+		rounds = room.rounds
+		p1 = battle.get_fighter(0)
+		p2 = battle.get_fighter(1)
 	_observe()
 	match frames:
 		5:
-			battle = room.battle
-			rounds = room.rounds
-			p1 = battle.get_fighter(0)
-			p2 = battle.get_fighter(1)
 			print("== 1. the scene wires itself ==")
 			print("  fighters %d   boxes %s   rounds found battle %s" % [
 				battle.fighters.size(), room.boxes != null, rounds.battle == battle,
@@ -88,10 +96,9 @@ func _physics_process(_delta: float) -> bool:
 			print("  p1 tint %s   p2 tint %s" % [p1.visuals.modulate, p2.visuals.modulate])
 			check(p1.visuals.modulate != p2.visuals.modulate, "team colours differ")
 			check(p1.visuals.modulate != Color.WHITE, "team colour applied to P1")
-			# Frozen means no gravity, so the intro holds them where they spawned.
 			check(rounds.phase == RoundManager.Phase.INTRO, "still in the intro")
 			check(p1.frozen and p2.frozen, "fighters frozen through the intro")
-			check(is_equal_approx(p1.position.y, 0.0), "the freeze suspends gravity")
+			check(ground_drift == 0.0, "the intro holds them still")
 		62:
 			print("\n== 3. the authored match config is what runs ==")
 			print("  round %ds   intro %df   round end %df   first to %d" % [
@@ -105,16 +112,21 @@ func _physics_process(_delta: float) -> bool:
 			check(not p1.frozen and not p2.frozen, "fighters released")
 			check(rounds.get_seconds_left() == 99, "clock starts full")
 		120:
-			print("\n== 4. the stage's own floor catches them ==")
-			print("  landed on f%d and f%d   y %.0f   x %.0f / %.0f" % [
-				p1_landed, p2_landed, p1.position.y, p1.position.x, p2.position.x,
+			print("\n== 4. they start standing on the stage floor ==")
+			print("  airborne frames %d   drift %.5f   y %.3f   x %.0f / %.0f" % [
+				airborne_frames, ground_drift, p1.position.y,
+				p1.position.x, p2.position.x,
 			])
-			check(p1_landed > 0 and p2_landed > 0, "both fighters reached the floor")
-			check(p1_landed > 60, "they only fall once the intro releases them")
-			check(p1.is_on_floor() and p2.is_on_floor(), "still standing on it")
+			# The spawn height is authored as 0, meaning "on the ground", and the
+			# ground is found by casting the fighter's own shape down the stage.
+			# Nobody writes the floor height, so nobody can get it wrong.
+			check(airborne_frames == 0, "never off the ground, not for one frame")
+			check(ground_drift == 0.0, "never fell into place")
+			check(p1.is_on_floor() and p2.is_on_floor(), "standing on the floor")
+			check(is_equal_approx(p1.position.y, p2.position.y), "both on the same ground")
 			check(is_equal_approx(p1.position.x, -140.0), "P1 held its spawn column")
 			check(is_equal_approx(p2.position.x, 140.0), "P2 held its spawn column")
-			check(p1.state_machine.current_state.name == &"Idle", "landed into Idle")
+			check(p1.state_machine.current_state.name == &"Idle", "idle on the ground")
 		125:
 			# The round layer only reads is_alive(), so this is a clean KO.
 			p2.health = 0
