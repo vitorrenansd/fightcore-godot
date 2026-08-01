@@ -117,13 +117,6 @@ toggles and input display. Half of it already exists in the debug renderer.
 ## Known small rough edges
 
 - A fighter frozen at round end stops mid-air instead of landing.
-- Every round starts with both fighters falling in. The training room spawns
-  them at `y = 0`, which is 150px above the stage floor, and the intro freeze
-  suspends gravity — so the drop happens *after* `FIGHT`, not during the intro.
-  For about 25 frames both fighters are airborne while their state machine says
-  `Idle` and `can_act()` is true, which is a grounded state holding an airborne
-  body. Found by `tests/training_scene_smoke_test.gd`. The fix is the spawn `y`
-  in the scene, but the state machine should not agree to that pose either.
 - `engine/physics/gravity.gd` and `movement.gd` are stubs; gravity currently
   lives in `Fighter`. `knockback.gd` is real now, the other two are not.
 - There is no air recovery, so every airborne hit ends in a knockdown. A burst

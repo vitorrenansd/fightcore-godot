@@ -6,7 +6,7 @@ the fighters, assigns teams, links the opponents and runs the
 sides.
 
 Rounds, timer and score do **not** live here — those belong to `RoundManager`,
-still a stub.
+[further down this page](#rounds).
 
 ## Setup
 
@@ -27,6 +27,32 @@ register on.
 
 `pair_fighters()` only runs once everyone is in the tree: linking opponents and
 adjusting facing touches nodes that only exist after the fighter's `_ready`.
+
+## Spawning on the ground
+
+In `spawn_positions`, `x` is the starting column and **`y` is measured from the
+stage floor**: `0` puts the fighter on the ground, and a negative value starts
+them that far above it.
+
+The ground itself is never written down. `reset_positions()` casts each
+fighter's own collision shape straight down the spawn column and stands them on
+whatever it hits, so a taller character, a different floor height or a stage
+with two levels all work with no number to keep in sync. A stage that changes
+height cannot desync from a spawn constant that does not exist.
+
+The cast runs more than once. `move_and_collide` binary-searches the motion
+rather than solving it, so a single long cast stops short of the surface by
+roughly its own length over 768 — a 4000px search leaves the fighter 10px in the
+air. Each further cast starts where the last one stopped and reaches far less,
+which closes the gap geometrically; `GROUND_SNAP_PASSES` is well past
+convergence. The snap ends with a `move_and_slide()`, because a fighter is not
+standing on anything until one says so, and without it `is_on_floor()` would
+stay false through the whole intro.
+
+`reset_positions()` is also called during `_ready`, where the physics space
+cannot answer a query yet. When the cast finds nothing the fighters keep their
+authored height and the snap is retried on the first physics frame — once, since
+anything still failing has no floor under it at all.
 
 ## Solver
 
@@ -69,7 +95,9 @@ the genre expects (and what makes crossups exist).
 | `pair_fighters()` | links opponents and sets the initial facing |
 | `get_fighter(team)` | a team's fighter |
 | `get_opponent_of(f)` | a fighter's opponent |
-| `reset_positions()` | sends everyone back to spawn (round reset) |
+| `reset_positions()` | sends everyone back to spawn, standing on the ground |
+| `snap_fighters_to_ground()` | stands everyone on the floor; false if the space could not answer |
+| `snap_to_ground(f)` | stands one fighter on the floor under their spawn column |
 | `clear_battle()` | removes every fighter |
 
 **Signals**: `battle_started`, `fighter_spawned(fighter)`,
@@ -140,11 +168,14 @@ turns the hurtboxes back on.
 ```sh
 godot --headless --path . --script tests/battle_smoke_test.gd
 godot --headless --path . --script tests/round_smoke_test.gd
+godot --headless --path . --script tests/training_scene_smoke_test.gd
 ```
 
 The first covers spawn, teams, facing, the solver resolving a hit on its own,
 and the KO. The second covers the intro freeze, a KO round, the reset between
-rounds, a timeout decided by health and the end of the match.
+rounds, a timeout decided by health and the end of the match. The third runs
+the shipped `training.tscn` untouched, which is the only one that can catch a
+stage the fighters no longer land on.
 
 ## Not implemented yet
 
