@@ -152,6 +152,11 @@ made of real seconds would drift away from a frame locked simulation and would
 make a replay or a rollback land on a different countdown. It is named
 `RoundTimer` because `Timer` is a native Godot class.
 
+It also holds `FRAMES_PER_SECOND`, the rate the whole engine's frame data is
+written for, and `verify_tick_rate()`, which `BattleManager` calls when a match
+is built. See [archtecture.md](archtecture.md#engine-rules) for why the number
+is asserted here instead of being pinned in `project.godot`.
+
 ### Reset between rounds
 
 `BattleManager.reset_round()` calls `Fighter.reset_for_round()` on everyone —

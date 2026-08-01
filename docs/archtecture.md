@@ -47,9 +47,18 @@ engine/
 
 ## Engine rules
 
-**Fixed step simulation.** All fight logic runs in `_physics_process` at
-`physics_ticks_per_second = 60`. No combat logic in `_process` and nothing that
-depends on the video framerate.
+**Fixed step simulation.** All fight logic runs in `_physics_process` at 60
+ticks per second. No combat logic in `_process` and nothing that depends on the
+video framerate.
+
+The rate is not written in `project.godot`: Godot drops a project setting whose
+value equals the engine default, and 60 *is* the default, so the line does not
+survive the editor saving the project. It lives as
+`RoundTimer.FRAMES_PER_SECOND` and `BattleManager` calls
+`RoundTimer.verify_tick_rate()` when a match is built, which errors if the
+project is running at anything else. A wrong rate never crashes — it just makes
+every frame count in the engine mean the wrong amount of time — so it has to be
+said out loud.
 
 **Integer frame counting.** Startup, hitstun, blockstun and recovery are counted
 as `int`, never in seconds and never with `await` or `Timer`. Every state

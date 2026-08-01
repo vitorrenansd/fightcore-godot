@@ -41,6 +41,10 @@ var _ground_snap_pending: bool = false
 
 
 func _ready() -> void:
+	# Checked where a fight starts, because a fight is what the rate is wrong
+	# for. Errors and carries on: the match still runs, it just runs at a speed
+	# the frame data was not written for, and that has to be said out loud.
+	RoundTimer.verify_tick_rate()
 	if apply_input_bindings:
 		bindings = InputBindings.load_or_create()
 		bindings.apply()

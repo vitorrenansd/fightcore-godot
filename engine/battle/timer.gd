@@ -10,11 +10,37 @@ extends RefCounted
 ## of real seconds would drift away from the fight and, worse, would make a
 ## replay or a rollback land on a different countdown.
 
+## The rate the whole engine is written for. Every frame count in the project —
+## startup, hitstun, knockdown, this clock — means a sixtieth of a second, so
+## the game has to actually run at this rate for any of that data to be true.
+##
+## It is asserted from here rather than pinned in `project.godot` because Godot
+## drops a project setting whose value equals the engine default, and 60 *is*
+## the default: the line does not survive the editor saving the project. A
+## constant cannot be deleted by a tool that does not know it matters.
 const FRAMES_PER_SECOND: int = 60
 
 var duration_frames: int = 0
 var remaining_frames: int = 0
 var running: bool = false
+
+
+## True when the project runs at the rate the frame data is written for.
+##
+## A wrong rate breaks everything quietly: the fight still plays, but every
+## startup, every hitstun and every combo route is off by the ratio, and the
+## clock counts a second that is not one. Nothing crashes, so it would be found
+## by someone wondering why a punish stopped working.
+static func verify_tick_rate() -> bool:
+	if Engine.physics_ticks_per_second == FRAMES_PER_SECOND:
+		return true
+	push_error(
+		"Physics tick rate is %d, but the engine's frame data assumes %d. " % [
+			Engine.physics_ticks_per_second, FRAMES_PER_SECOND,
+		]
+		+ "Set physics/common/physics_ticks_per_second back to %d." % FRAMES_PER_SECOND
+	)
+	return false
 
 
 func start(seconds: int) -> void:

@@ -125,6 +125,16 @@ func _physics_process(_delta: float) -> bool:
 			check(rounds.phase == RoundManager.Phase.MATCH_END, "match ended")
 			check(match_winner == 0, "P1 won the match")
 		116:
+			print("\n== 7. the tick rate guard ==")
+			check(RoundTimer.verify_tick_rate(), "passes at the real tick rate")
+			# Swapped and restored inside one frame, so no physics step ever runs
+			# at the wrong rate. The push_error below is the expected output.
+			Engine.physics_ticks_per_second = RoundTimer.FRAMES_PER_SECOND / 2
+			print("  one push_error is expected here:")
+			check(not RoundTimer.verify_tick_rate(), "fails at half the tick rate")
+			Engine.physics_ticks_per_second = RoundTimer.FRAMES_PER_SECOND
+			check(RoundTimer.verify_tick_rate(), "passes again once restored")
+		117:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
