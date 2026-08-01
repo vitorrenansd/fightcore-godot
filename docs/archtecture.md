@@ -3,6 +3,22 @@
 FightCore is a 2D fighting game engine built in Godot 4.7. This document covers
 how the project is organized and which rules hold everywhere in the code.
 
+## Conventions
+
+**Everything in this repository is written in English** — identifiers,
+comments, docstrings, these docs, the README, on-screen text and move names,
+test output and commit messages. The project is public and takes outside
+contributions, so a reader who does not speak the author's language has to be
+able to use all of it.
+
+**Commit messages are one line**, with a conventional-commit prefix and no
+body: `feat(engine): add input buffer`, `fix(stage): fix wall collision`. A
+change that needs explaining is explained here in `docs/`, where it can be
+found later, rather than in a commit message nobody reads twice.
+
+[CLAUDE.md](../CLAUDE.md) carries the same rules for anyone working on the
+repository with an agent.
+
 ## Engine / content split
 
 ```

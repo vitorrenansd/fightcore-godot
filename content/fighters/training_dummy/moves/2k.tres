@@ -16,7 +16,7 @@ end_frame = 8
 [resource]
 script = ExtResource("2_4qmne")
 attack_id = &"2K"
-display_name = "Chute baixo"
+display_name = "Low Kick"
 startup_frames = 6
 recovery_frames = 10
 hitboxes = Array[ExtResource("1_i27v6")]([SubResource("Resource_b52po")])

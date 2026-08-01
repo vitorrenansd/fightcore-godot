@@ -16,7 +16,7 @@ end_frame = 16
 [resource]
 script = ExtResource("2_b8p7f")
 attack_id = &"236S"
-display_name = "Avanco"
+display_name = "Advance"
 startup_frames = 11
 active_frames = 6
 recovery_frames = 26

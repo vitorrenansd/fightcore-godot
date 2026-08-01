@@ -16,7 +16,7 @@ end_frame = 6
 [resource]
 script = ExtResource("2_brkyl")
 attack_id = &"5P"
-display_name = "Soco"
+display_name = "Punch"
 startup_frames = 4
 recovery_frames = 8
 hitboxes = Array[ExtResource("1_hxv4a")]([SubResource("Resource_8godm")])
