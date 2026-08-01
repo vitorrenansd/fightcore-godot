@@ -111,7 +111,16 @@ godot --headless --path . --script tests/air_smoke_test.gd
 godot --headless --path . --script tests/juggle_smoke_test.gd
 godot --headless --path . --script tests/knockdown_smoke_test.gd
 godot --headless --path . --script tests/friction_smoke_test.gd
+
+# the shipped scene, instantiated as the game launches it
+godot --headless --path . --script tests/training_scene_smoke_test.gd
 ```
+
+Every smoke test but the last one builds its match by hand, which checks the
+engine and not the scene. `training_scene_smoke_test.gd` loads
+`content/battle/training.tscn` untouched, so it is the only one that can catch
+broken node wiring, a stage that no longer catches the fighters, or match
+numbers changed by accident in the scene.
 
 `--check-only --script <file>` reports parse errors per file, but it does not
 catch everything: a `const` built from another class enum passes it and still
