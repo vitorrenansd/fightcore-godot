@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://ofsktfpqfldm"]
+
+[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_hxv4a"]
+[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_brkyl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1d7x4"]
+size = Vector2(50, 26)
+
+[sub_resource type="Resource" id="Resource_8godm"]
+script = ExtResource("1_hxv4a")
+shape = SubResource("RectangleShape2D_1d7x4")
+offset = Vector2(52, -20)
+start_frame = 4
+end_frame = 6
+
+[resource]
+script = ExtResource("2_brkyl")
+attack_id = &"5P"
+display_name = "Punch"
+startup_frames = 4
+recovery_frames = 8
+hitboxes = Array[ExtResource("1_hxv4a")]([SubResource("Resource_8godm")])
+cancel_into_types = 7
+damage = 300
+chip_damage = 30
+hitstun = 14
+blockstun = 10
+hitstop = 5
+knockback = Vector2(160, 0)
+block_pushback = Vector2(96, 0)

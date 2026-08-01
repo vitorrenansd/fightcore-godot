@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+	"godot-gdscript-patterns": {
+	  "source": "wshobson/agents",
+	  "sourceType": "github",
+	  "skillPath": "plugins/game-development/skills/godot-gdscript-patterns/SKILL.md",
+	  "computedHash": "da390e553f8533575a5f9b94c9a7a1aed5abf629a3f687f97c8c8d5b65bac873"
+	},
+	"godot-genre-fighting": {
+	  "source": "thedivergentai/gd-agentic-skills",
+	  "sourceType": "github",
+	  "skillPath": "skills/godot-genre-fighting/SKILL.md",
+	  "computedHash": "5b3a76563c0e363a95ee967dbb6eb5eb82426a4b3b03f7225cf573c3b68cb4ae"
+	}
+  }
+}

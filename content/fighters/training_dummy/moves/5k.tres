@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://b6e3isxha5ir7"]
+
+[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_vq8ad"]
+[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_lc6as"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mwdx5"]
+size = Vector2(56, 30)
+
+[sub_resource type="Resource" id="Resource_7pqgw"]
+script = ExtResource("1_vq8ad")
+shape = SubResource("RectangleShape2D_mwdx5")
+offset = Vector2(58, 0)
+start_frame = 6
+end_frame = 8
+
+[resource]
+script = ExtResource("2_lc6as")
+attack_id = &"5K"
+display_name = "Kick"
+startup_frames = 6
+recovery_frames = 11
+hitboxes = Array[ExtResource("1_vq8ad")]([SubResource("Resource_7pqgw")])
+cancel_into_types = 7
+cancel_level = 1
+damage = 450
+chip_damage = 45
+blockstun = 11
+hitstop = 6
+knockback = Vector2(200, 0)

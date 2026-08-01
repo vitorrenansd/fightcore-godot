@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://cglw4hasuxxla"]
+
+[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_srgm5"]
+[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_djao4"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fcr6c"]
+size = Vector2(70, 34)
+
+[sub_resource type="Resource" id="Resource_isjhq"]
+script = ExtResource("1_srgm5")
+shape = SubResource("RectangleShape2D_fcr6c")
+offset = Vector2(66, -10)
+start_frame = 9
+end_frame = 12
+
+[resource]
+script = ExtResource("2_djao4")
+attack_id = &"5S"
+display_name = "Slash"
+startup_frames = 9
+active_frames = 4
+recovery_frames = 16
+hitboxes = Array[ExtResource("1_srgm5")]([SubResource("Resource_isjhq")])
+cancel_into_types = 7
+cancel_level = 2
+damage = 700
+chip_damage = 70
+hitstun = 19
+blockstun = 13
+knockback = Vector2(280, 0)
+block_pushback = Vector2(168, 0)

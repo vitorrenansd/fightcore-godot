@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="AttackData" format=3 uid="uid://flrudgkskvju"]
+
+[ext_resource type="Script" uid="uid://cpppj7vtjjy4c" path="res://engine/collision/hitbox.gd" id="1_i27v6"]
+[ext_resource type="Script" uid="uid://cki3ybjkgw5qx" path="res://engine/character/attack_data.gd" id="2_4qmne"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c68of"]
+size = Vector2(60, 26)
+
+[sub_resource type="Resource" id="Resource_b52po"]
+script = ExtResource("1_i27v6")
+shape = SubResource("RectangleShape2D_c68of")
+offset = Vector2(56, 30)
+start_frame = 6
+end_frame = 8
+
+[resource]
+script = ExtResource("2_4qmne")
+attack_id = &"2K"
+display_name = "Low Kick"
+startup_frames = 6
+recovery_frames = 10
+hitboxes = Array[ExtResource("1_i27v6")]([SubResource("Resource_b52po")])
+cancel_into_types = 7
+cancel_level = 1
+damage = 350
+chip_damage = 35
+guard = 2
+hitstun = 15
+blockstun = 10
+hitstop = 6
+knockback = Vector2(170, 0)
+block_pushback = Vector2(102, 0)

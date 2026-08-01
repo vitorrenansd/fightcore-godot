@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Fight Core"
+run/main_scene="res://content/battle/training.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -18,6 +19,13 @@ config/icon="res://icon.svg"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+
+[layer_names]
+
+2d_physics/layer_1="World"
+2d_physics/layer_2="Pushbox"
+2d_physics/layer_3="Hurtbox Team 0"
+2d_physics/layer_4="Hurtbox Team 1"
 
 [physics]
 
