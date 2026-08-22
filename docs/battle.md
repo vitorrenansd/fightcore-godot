@@ -101,7 +101,7 @@ the genre expects (and what makes crossups exist).
 | `clear_battle()` | removes every fighter |
 
 **Signals**: `battle_started`, `fighter_spawned(fighter)`,
-`fighter_died(fighter)`, `hit_resolved(hit)`.
+`fighter_died(fighter)`, `hit_resolved(hit)`, `throw_broken(first, second)`.
 
 ## Rounds
 

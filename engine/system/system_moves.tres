@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SystemMoves" format=3]
+
+[ext_resource type="Script" path="res://engine/system/system_moves.gd" id="1_system"]
+[ext_resource type="Script" path="res://engine/character/command_data.gd" id="2_command"]
+[ext_resource type="Resource" path="res://engine/system/throw_forward.tres" id="3_forward"]
+[ext_resource type="Resource" path="res://engine/system/throw_back.tres" id="4_back"]
+
+[sub_resource type="Resource" id="Resource_forward"]
+script = ExtResource("2_command")
+command_id = &"6D"
+attack = ExtResource("3_forward")
+button = 16
+hold_direction = 6
+
+[sub_resource type="Resource" id="Resource_back"]
+script = ExtResource("2_command")
+command_id = &"4D"
+attack = ExtResource("4_back")
+button = 16
+hold_direction = 4
+
+[resource]
+script = ExtResource("1_system")
+commands = Array[ExtResource("2_command")]([SubResource("Resource_forward"), SubResource("Resource_back")])

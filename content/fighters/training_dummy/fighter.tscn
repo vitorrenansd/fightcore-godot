@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://engine/character/states/air_dash.gd" id="9_airdash"]
 [ext_resource type="Script" path="res://engine/character/states/knockdown.gd" id="9_knockdown"]
 [ext_resource type="Script" path="res://engine/character/states/wakeup.gd" id="9_wakeup"]
+[ext_resource type="Script" path="res://engine/character/states/throw_break.gd" id="9_throwbreak"]
 [ext_resource type="Script" uid="uid://dpfw148wuhrq8" path="res://engine/collision/hitbox_manager.gd" id="10_manager"]
 [ext_resource type="Script" uid="uid://cpjtic4murchg" path="res://engine/collision/hurtbox.gd" id="11_hurtbox"]
 [ext_resource type="Script" path="res://engine/input/input_buffer.gd" id="12_input"]
@@ -82,6 +83,9 @@ script = ExtResource("9_knockdown")
 
 [node name="Wakeup" type="Node" parent="StateMachine"]
 script = ExtResource("9_wakeup")
+
+[node name="ThrowBreak" type="Node" parent="StateMachine"]
+script = ExtResource("9_throwbreak")
 
 [node name="HitboxManager" type="Node" parent="."]
 script = ExtResource("10_manager")

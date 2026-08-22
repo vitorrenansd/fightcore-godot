@@ -5,7 +5,25 @@ lists the file that already exists as a stub, when there is one.
 
 For what is already built, see [archtecture.md](archtecture.md).
 
-## Just closed: the combat loop has an ending
+## Just closed: blocking is no longer free
+
+`6D` and `4D` throw, every character has them without authoring them, and two
+throws reaching each other break instead of resolving. Before this the correct
+answer to any pressure was to hold back and wait: nothing in the game could
+open a guard, so the mid-range game came down to whoever got bored first.
+
+The throw is a guess with a real cost on both sides — 24 frames of recovery for
+missing it, a 10 frame window for reading it — which is what turns holding back
+into a decision instead of a default. Landing one pops the opponent up and gives
+the fighter their turn back, so it starts a combo instead of ending the exchange.
+
+`AttackData.recovery_on_hit` came out of it: a throw needs a punishable whiff and
+a hit that hands the fighter back, and one recovery number cannot be both. It is
+generic, and no move other than the throws uses it yet.
+
+Details: [throws.md](throws.md).
+
+## Before that: the combat loop got an ending
 
 Juggle gravity, knockdown/wakeup and knockback friction landed together, and
 they are one thing rather than three. Before them the air route built by the
@@ -56,11 +74,11 @@ is already there for a reversal to come out of.
 
 ## Then: the moveset is thin
 
-**Throws.** The `D` button was designed as dust alone and throw with a
-direction, but only dust exists. Throws need their own box type, their own
-whiff animation, and a tech window — they are the answer to a turtling
-opponent.
-→ `engine/collision/`, `CollisionLayers` already reserves the layer
+**Air throws, and a reaction of their own.** The ground throw is in. A thrown
+opponent still goes through plain hitstun into a knockdown, because there is no
+animation to hang a real throw reaction on yet, and nobody can be grabbed out
+of the air.
+→ `engine/system/`, [throws.md](throws.md)
 
 **Ground dash and backdash.** The air dash exists but the ground one does not.
 `FighterStats.dash_speed` is already there and unused. A backdash with

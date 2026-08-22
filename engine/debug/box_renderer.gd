@@ -9,6 +9,9 @@ extends Node2D
 
 const HURTBOX_COLOR := Color(0.25, 0.8, 0.35, 0.22)
 const HITBOX_COLOR := Color(0.95, 0.25, 0.25, 0.35)
+## A grab has its own colour because it obeys none of the rules a red box does:
+## it goes through a guard and it whiffs on anyone airborne.
+const THROWBOX_COLOR := Color(0.85, 0.55, 0.95, 0.35)
 const PIVOT_COLOR := Color(1.0, 1.0, 1.0, 0.5)
 const PIVOT_RADIUS := 3.0
 
@@ -64,9 +67,11 @@ func _draw_hurtboxes(fighter: Fighter) -> void:
 
 
 func _draw_hitboxes(fighter: Fighter) -> void:
+	var attack := fighter.hitbox_manager.current_attack
+	var color := THROWBOX_COLOR if attack != null and attack.is_throw else HITBOX_COLOR
 	for hitbox in fighter.hitbox_manager.get_active_hitboxes():
 		var box_transform := hitbox.get_query_transform(fighter.global_position, fighter.facing_right)
-		_draw_shape(hitbox.shape, to_local(box_transform.origin), HITBOX_COLOR)
+		_draw_shape(hitbox.shape, to_local(box_transform.origin), color)
 
 
 func _draw_shape(shape: Shape2D, local_position: Vector2, color: Color) -> void:

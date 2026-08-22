@@ -92,11 +92,12 @@ hitstun and blockstun take the duration of the move that just connected.
 | `Jump` | jumps on enter, returns to `Idle` on landing; also the airborne state |
 | `Crouch` | clears horizontal velocity, counts as crouching for the guard |
 | `Block` | blockstun only; blocking itself is holding back |
-| `Hitstun` | locked for the move's frames; resets the fighter's combo on exit |
+| `Hitstun` | locked for the move's frames; resets the combo and the knockdown on exit |
 | `Attack` | runs an `AttackData`; returns to `Idle` when the move ends |
 | `AirDash` | horizontal burst with gravity suspended |
 | `Knockdown` | falls out of the combo, lands, lies there for `knockdown_frames` |
 | `Wakeup` | gets up over `wakeup_frames`, invulnerable throughout |
+| `ThrowBreak` | two throws answered each other; locked out and pushed apart |
 | `KO` | knockout; disables the hurtboxes and never leaves on its own |
 
 `AirDash` suspends gravity for its whole duration, which is what makes it read
@@ -106,6 +107,13 @@ the momentum. It costs one of the fighter's air dashes.
 `Jump` doubles as the airborne state. Entering it from the ground jumps;
 entering it from the air — after an air attack, after an air dash — just means
 "still falling", with no second impulse and no change to the arc.
+
+The knockdown flag **accumulates** across a combo. A move authored with
+`causes_knockdown` — a sweep, a throw — decides that the whole route ends on the
+floor, and a later hit that does not knock down cannot take that back. Without
+it, throwing someone and following up with a jab would hand them back standing,
+as though the throw had never landed. The flag clears when the fighter leaves
+hitstun, so the next combo starts owing nothing.
 
 `Knockdown` is where an air combo ends. Hitstun running out in the air always
 goes here, never back to `Jump`: there is no air recovery, so handing control
@@ -123,6 +131,11 @@ Invincibility ends on the exact frame the fighter becomes actionable. That one
 frame is the whole point of the wakeup: a meaty has to time its active frames
 to still be running when the body comes back, instead of hitting someone who
 cannot answer yet.
+
+`ThrowBreak` counts a lockout the same way blockstun does, and both fighters get
+the same one — a break is both sides losing their turn, not an exchange somebody
+won. It differs from blockstun in one place: it does not let the fighter guard.
+See [throws.md](throws.md).
 
 `Attack` does not count the move's frames: the `HitboxManager` does. The state
 only waits for `is_attacking()` to become false. Entering it always goes through

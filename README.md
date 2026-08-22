@@ -1,8 +1,6 @@
 # Fight Core
 
-A 2D fighting game engine written from scratch in Godot 4.7 :3
-
-Not a MUGEN or Ikemen project. Everything runs on code in this repository.
+A 2D fighting game engine written from scratch in Godot 4.7
 
 > **Early days.** The engine underneath is real and tested, but the game on top
 > of it is not: fighters are coloured polygons, there is no sound, no menus and
@@ -16,6 +14,8 @@ Not a MUGEN or Ikemen project. Everything runs on code in this repository.
 - **Data driven:** Frame data, stats, moves and cancel routes are `.tres`
   resources. A character is a scene plus a folder of resources, and no engine code is specific to any character.
 - **Combat:** Hitboxes and hurtboxes with guard height, blocking with chip damage, hitstop, damage scaling, pushboxes, cancels with a gatling ladder, jump cancels, air normals, double jump and air dash.
+- **Throws:** `6D` and `4D` are a grab every character has without authoring it.
+  They only reach at point blank, they go through a guard, and they pop the opponent up for a hit or two. `4D` swaps sides. If both players go for a throw within ten frames it breaks and pushes them apart instead of landing.
 - **Combos that end:** Juggle gravity, knockdown and wakeup close the air route,
   so a combo terminates and the defender gets a window to respond instead of the same sequence repeating.
 - **Matches:** Rounds, a frame counted clock, KO / timeout / draw conditions and
@@ -34,7 +34,7 @@ Needs [Godot 4.7](https://godotengine.org/). Open the project and press F5, it w
 
 Gamepad: d-pad or stick, `A`=P `B`=K `X`=S `Y`=HS `RB`=D. `F1` toggles the hitbox overlay, `F2` restarts the match.
 
-Try `236` + `S` for the special, and the gatling ladder `P > K > S > HS > D`. Any normal cancels into `236S`.
+Try `236` + `S` for the special, and the gatling ladder `P > K > S > HS > D`. Any normal cancels into `236S`. Hold forward or back with `D` to throw.
 
 ## Tests
 
@@ -61,6 +61,7 @@ godot --headless --path . --script tests/training_scene_smoke_test.gd
 | [hitboxes.md](docs/hitboxes.md) | hit resolution and box types |
 | [state_machine.md](docs/state_machine.md) | fighter states |
 | [cancels.md](docs/cancels.md) | cancel and gatling rules |
+| [throws.md](docs/throws.md) | the system throw and the break |
 | [input.md](docs/input.md) | buffer, motions and commands |
 | [battle.md](docs/battle.md) | match, rounds and clock |
 | [roadmap.md](docs/roadmap.md) | what is missing, and in what order |

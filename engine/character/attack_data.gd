@@ -31,6 +31,16 @@ enum CancelType {
 @export var active_frames: int = 3
 ## Recovery frames after the hitboxes are gone.
 @export var recovery_frames: int = 12
+## Recovery counted from the frame the move connects, for a move whose hit
+## should not owe the same frames as its whiff. `-1` uses `recovery_frames` for
+## both, which is what an ordinary normal wants.
+##
+## A throw is the case that needs it: missing one has to be a long, punishable
+## animation, and landing one has to hand the fighter back while the opponent is
+## still in the air. One number cannot describe both, and whichever one it
+## describes, the other is wrong. Applies on contact, hit or block — the same
+## simplification the advantage helpers already make.
+@export var recovery_on_hit: int = -1
 ## Air moves end the moment the fighter touches the ground, the landing
 ## recovery of the genre. Authored here and not read from `is_on_floor()`
 ## because that flag only updates after a move, and a move started on the same
@@ -92,6 +102,34 @@ enum CancelType {
 ## the sweep property. An airborne victim always knocks down, flag or not.
 @export var causes_knockdown: bool = false
 
+@export_group("Throw")
+## Grabs instead of striking. A throw ignores the guard entirely and only
+## catches an opponent who is grounded and in control, so it is the answer to
+## someone blocking rather than a way to extend a combo — see `Fighter.can_be_thrown`.
+## A throw that reaches someone who is throwing back breaks instead of landing.
+@export var is_throw: bool = false
+## How long this throw counts as an answer to an incoming one. Starting a throw
+## opens the window; a grab that reaches the fighter while it is still open
+## breaks instead of connecting.
+##
+## Ten frames is a workable window: wide enough that going for the break is a
+## read a player can actually make, narrow enough that it still has to be one.
+## It is also symmetric — whoever presses first, the other has until five frames
+## after that press to answer.
+@export var throw_tech_frames: int = 10
+## Trades the two fighters' columns when the throw lands, the back throw's whole
+## point. Done by placing them and not by knockback: carrying someone past the
+## attacker fast enough to actually get there sends them too far to follow up,
+## and a back throw that ends the exchange is the one thing it is not.
+@export var throw_side_switch: bool = false
+## Frames both fighters are locked out for when two throws break each other.
+@export var throw_break_frames: int = 20
+## Speed both fighters are pushed apart at when two throws break each other.
+## Applied whole to each side, so the break is symmetric.
+@export var throw_break_pushback: float = 300.0
+## Freeze on the break, the way a hit freezes both sides on impact.
+@export var throw_break_hitstop: int = 10
+
 
 func get_total_frames() -> int:
 	return startup_frames + active_frames + recovery_frames
@@ -111,6 +149,8 @@ func is_active_on_frame(frame: int) -> bool:
 
 ## Frames the attacker still owes after connecting on the first active frame.
 func get_recovery_after_hit() -> int:
+	if recovery_on_hit >= 0:
+		return recovery_on_hit
 	return maxi(active_frames - 1, 0) + recovery_frames
 
 

@@ -19,6 +19,11 @@ var attack_frame: int = -1
 ## are gated on this, which is what stops a whiffed move from being free.
 var has_connected: bool = false
 
+## Last frame of the current attack. Kept here rather than read off the resource
+## every frame because connecting can bring it forward — see
+## `AttackData.recovery_on_hit`. Reads -1 while not attacking.
+var _last_frame: int = -1
+
 var _hurtboxes: Array[Hurtbox] = []
 ## victim_id -> { hit_group: true }
 var _hits: Dictionary = {}
@@ -53,6 +58,7 @@ func start_attack(attack: AttackData) -> void:
 		return
 	current_attack = attack
 	attack_frame = 0
+	_last_frame = attack.get_last_frame()
 	has_connected = false
 	_hits.clear()
 	attack_started.emit(attack)
@@ -63,6 +69,7 @@ func stop_attack() -> void:
 		return
 	current_attack = null
 	attack_frame = -1
+	_last_frame = -1
 	has_connected = false
 	_hits.clear()
 	attack_finished.emit()
@@ -74,7 +81,7 @@ func advance() -> void:
 	if not is_attacking():
 		return
 	attack_frame += 1
-	if attack_frame > current_attack.get_last_frame():
+	if attack_frame > _last_frame:
 		stop_attack()
 
 
@@ -104,6 +111,10 @@ func register_hit(victim: Fighter, hit_group: int) -> void:
 		_hits[victim_id] = {}
 	_hits[victim_id][hit_group] = true
 	has_connected = true
+	# A move that authors its own recovery on hit ends earlier now that it has
+	# landed. Only ever earlier: connecting cannot lengthen a move.
+	if current_attack.recovery_on_hit >= 0:
+		_last_frame = mini(_last_frame, attack_frame + current_attack.recovery_on_hit)
 
 
 func get_hurtboxes() -> Array[Hurtbox]:

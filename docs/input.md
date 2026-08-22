@@ -19,7 +19,9 @@ Five buttons, Guilty Gear style:
 cancel, macros). An unmapped button costs nothing and commits to no design.
 
 D exists to give every character an overhead and a launcher without authoring
-one move at a time.
+one move at a time. With a direction it is the throw: `6D` forward, `4D` back,
+`5D` still the dust. Those two are system moves and no character authors them —
+see [throws.md](throws.md).
 
 **Specials come out through motions**, not dedicated buttons: `236S`, `623P`,
 `214K`. That is what makes five buttons produce dozens of moves.
@@ -145,11 +147,17 @@ command.hold_direction = 6                 # optional: makes 6P its own command
 burst) needs to set more than one.
 
 Training dummy commands: `5P`, `5K`, `2K`, `5S`, `5HS`, `5D`, `236S`, and the
-air normals `j.P`, `j.K`, `j.S`, `j.HS`.
+air normals `j.P`, `j.K`, `j.S`, `j.HS`. On top of those every fighter answers
+to the system throws, `6D` and `4D`, which `Fighter` merges into the list on
+`_ready` — see [throws.md](throws.md).
 
 Stance is what picks between them: the same P button gives `5P` standing and
 `j.P` in the air. A `Stance.ANY` command never fires airborne — ground moves
 staying on the ground is the default, not something each move opts out of.
+
+`hold_direction` picks between commands on the same button, and adds to the
+effective priority for the same reason a motion does: without it `5D` and `6D`
+would tie and the order of the list would decide which move came out.
 
 ## Air options
 
@@ -176,6 +184,8 @@ Counts and speeds are per character, in `FighterStats`: `air_jumps`,
 Blocking is not a button: **holding back defends**, as in every 2D game in the
 genre. `Fighter.is_blocking()` looks at the input, not at the state. Holding
 down-back blocks lows; standing blocks overheads.
+
+It does not stop a throw, which is the point of the throw.
 
 ## Training room
 

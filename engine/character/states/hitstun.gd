@@ -8,15 +8,22 @@ var knockdown: bool = false
 
 ## Restarts the count even if the fighter is already in hitstun, which is the
 ## case for every combo hit after the first.
+##
+## The knockdown accumulates instead of being replaced. A throw or a sweep says
+## this combo ends on the floor, and a jab picked up afterwards cannot take that
+## back: without the `or`, `6D > 5P` would hand the victim back standing, as if
+## the throw had never happened.
 func start_hitstun(frames: int, causes_knockdown: bool = false) -> void:
 	stun_frames = frames
-	knockdown = causes_knockdown
+	knockdown = knockdown or causes_knockdown
 	state_frame = 0
 
 
 func exit() -> void:
 	super()
 	fighter.reset_combo()
+	# The combo is over, so the next one starts owing nothing.
+	knockdown = false
 
 
 func physics_update(delta: float) -> void:
