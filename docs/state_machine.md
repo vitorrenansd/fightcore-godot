@@ -97,6 +97,7 @@ hitstun and blockstun take the duration of the move that just connected.
 | `AirDash` | horizontal burst with gravity suspended |
 | `Knockdown` | falls out of the combo, lands, lies there for `knockdown_frames` |
 | `Wakeup` | gets up over `wakeup_frames`, invulnerable throughout |
+| `ThrowBreak` | two throws answered each other; locked out and pushed apart |
 | `KO` | knockout; disables the hurtboxes and never leaves on its own |
 
 `AirDash` suspends gravity for its whole duration, which is what makes it read
@@ -123,6 +124,11 @@ Invincibility ends on the exact frame the fighter becomes actionable. That one
 frame is the whole point of the wakeup: a meaty has to time its active frames
 to still be running when the body comes back, instead of hitting someone who
 cannot answer yet.
+
+`ThrowBreak` counts a lockout the same way blockstun does, and both fighters get
+the same one — a break is both sides losing their turn, not an exchange somebody
+won. It differs from blockstun in one place: it does not let the fighter guard.
+See [throws.md](throws.md).
 
 `Attack` does not count the move's frames: the `HitboxManager` does. The state
 only waits for `is_attacking()` to become false. Entering it always goes through

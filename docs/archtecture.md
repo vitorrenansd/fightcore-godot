@@ -43,7 +43,14 @@ engine/
   input/          input buffer, motions and mapping
   physics/        gravity, movement, knockback
   state_machine/  generic FSM
+  system/         moves every character has, throws included
 ```
+
+`engine/system/` is the one place the engine holds `.tres` of its own. A system
+move is an engine rule — a fighter can no more opt out of the throw than out of
+blocking — so its data belongs to the engine rather than being copied into every
+character. It is still authored data and not script constants, which is the rule
+that actually matters. See [throws.md](throws.md).
 
 ## Engine rules
 
@@ -120,6 +127,7 @@ godot --headless --path . --script tests/air_smoke_test.gd
 godot --headless --path . --script tests/juggle_smoke_test.gd
 godot --headless --path . --script tests/knockdown_smoke_test.gd
 godot --headless --path . --script tests/friction_smoke_test.gd
+godot --headless --path . --script tests/throw_smoke_test.gd
 
 # the shipped scene, instantiated as the game launches it
 godot --headless --path . --script tests/training_scene_smoke_test.gd
@@ -149,13 +157,14 @@ find the class.
 |---|---|
 | Generic FSM (`state_machine/`) | done — [state_machine.md](state_machine.md) |
 | Fighter, stats and movement | done — [fighter_format.md](fighter_format.md) |
-| Fighter states | idle, walk, jump, crouch, block, hitstun, attack, air dash, knockdown, wakeup, ko |
+| Fighter states | idle, walk, jump, crouch, block, hitstun, attack, air dash, knockdown, wakeup, throw break, ko |
 | Hitbox / hurtbox / HitData | done — [hitboxes.md](hitboxes.md) |
 | Pushbox | done — [hitboxes.md](hitboxes.md) |
 | `BattleManager` | done — [battle.md](battle.md) |
 | Input, buffer and commands | done — [input.md](input.md) |
 | Cancels and gatling routes | done — [cancels.md](cancels.md) |
 | Juggle, knockdown and wakeup | done — [state_machine.md](state_machine.md) |
+| System throws and the break | done — [throws.md](throws.md) |
 | Rounds, clock and win conditions | done — [battle.md](battle.md) |
 | Playable training room | `content/battle/training.tscn` |
 | `physics/knockback.gd` | done — friction rule, called by `Fighter` |

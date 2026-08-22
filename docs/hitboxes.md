@@ -108,6 +108,13 @@ Advantage on hit and block are **not authored**: `get_advantage_on_hit()` and
 `get_advantage_on_block()` derive from the frame data, so there is no duplicated
 value able to lie about the move.
 
+`recovery_on_hit` is the one move that changes what "the frame data" means. Left
+at `-1` a move owes the same recovery whether it lands or whiffs, which is what
+a normal wants. Set, it owes that many frames from the frame it connects, and
+the `HitboxManager` brings the end of the move forward to match. A throw needs
+it: a punishable whiff and a hit that gives the fighter their turn back cannot
+be the same number.
+
 Offsets are always written facing right and mirrored at runtime by
 `get_query_transform()`. Negative node scale is never used to turn a fighter
 around: only the `Visuals` node flips, boxes are mirrored in code.
@@ -229,10 +236,18 @@ see final positions.
 godot --headless --path . --script tests/pushbox_smoke_test.gd
 ```
 
+## Throws
+
+A throw is an ordinary `AttackData` with `is_throw` set: its throwbox is a
+`Hitbox` queried the same way, against the same hurtbox layer. What changes is
+what `CollisionSolver._resolve` does with the result — a grab ignores the guard,
+only catches an opponent who is grounded and in control, and breaks against
+another throw instead of connecting.
+
+Every character has `6D` and `4D` without authoring them. The whole mechanic is
+in [throws.md](throws.md).
+
 ## Not implemented yet
 
-- Throwbox.
 - Proximity guard (automatic block when a hitbox comes close).
 - Per state hurtboxes (crouching shrinks, airborne changes height).
-- Knockback friction: today the target slides at constant speed until hitstun
-  ends, because `engine/physics/knockback.gd` is still a stub.
