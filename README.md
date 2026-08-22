@@ -1,6 +1,7 @@
 # Fight Core
 
-A 2D fighting game engine written from scratch in Godot 4.7
+I'm a Brazilian programmer building a 2D fighting game engine from scratch with
+Godot 4.7. I sometimes use AI to help translate my writing into English.
 
 > **Early days.** The engine underneath is real and tested, but the game on top
 > of it is not: fighters are coloured polygons, there is no sound, no menus and
