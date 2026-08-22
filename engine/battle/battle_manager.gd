@@ -10,6 +10,7 @@ signal battle_started()
 signal fighter_spawned(fighter: Fighter)
 signal fighter_died(fighter: Fighter)
 signal hit_resolved(hit: HitData)
+signal throw_broken(first: Fighter, second: Fighter)
 
 const DEFAULT_SPAWN_OFFSET: float = 120.0
 
@@ -54,6 +55,7 @@ func _ready() -> void:
 	solver = CollisionSolver.new()
 	solver.name = &"CollisionSolver"
 	solver.hit_resolved.connect(_on_hit_resolved)
+	solver.throw_broken.connect(_on_throw_broken)
 	add_child(solver)
 	if start_on_ready and not fighter_scenes.is_empty():
 		start_battle()
@@ -235,6 +237,10 @@ func clear_battle() -> void:
 
 func _on_hit_resolved(hit: HitData) -> void:
 	hit_resolved.emit(hit)
+
+
+func _on_throw_broken(first: Fighter, second: Fighter) -> void:
+	throw_broken.emit(first, second)
 
 
 func _on_fighter_died(fighter: Fighter) -> void:
