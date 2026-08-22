@@ -33,6 +33,8 @@ var tech_frames: int = 0
 ## Columns before the back throw, so the swap can be checked against them.
 var before_p1_x: float = 0.0
 var before_p2_x: float = 0.0
+var frozen_p1_x: float = 0.0
+var frozen_p2_x: float = 0.0
 
 ## Set for the follow-up phase: press the fastest button the moment the throw
 ## lets go, which is the question a combo starter has to answer.
@@ -291,6 +293,20 @@ func _physics_process(_delta: float) -> bool:
 			check(is_equal_approx(p1.position.x, before_p2_x), "p1 took the opponent's column")
 			check(is_equal_approx(p2.position.x, before_p1_x), "the opponent took p1's")
 			check(not p1.facing_right and p2.facing_right, "both turned to face the new sides")
+			check(p1.hitstop_frames > 0 and p2.hitstop_frames > 0, "both held after the swap")
+			frozen_p1_x = p1.position.x
+			frozen_p2_x = p2.position.x
+		365:
+			# Still inside the freeze the back throw authors, which is longer than
+			# the forward one: a side switch has to be readable, and later it is
+			# where the animation goes.
+			print("  freeze at f365: p1 hitstop %d   p2 hitstop %d" % [
+				p1.hitstop_frames, p2.hitstop_frames,
+			])
+			check(p1.hitstop_frames > 0 and p2.hitstop_frames > 0, "the hold is still running")
+			check(is_equal_approx(p1.position.x, frozen_p1_x)
+				and is_equal_approx(p2.position.x, frozen_p2_x),
+				"neither one drifts during the hold")
 		400:
 			print("\n== 9. the input: 6D, 4D and 5D on the same button ==")
 			reset_pair(FAR)

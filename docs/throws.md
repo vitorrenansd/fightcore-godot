@@ -159,6 +159,7 @@ Both throws, in `engine/system/`:
 | guard | `UNBLOCKABLE` |
 | hitstun | 32, `launcher`, `causes_knockdown` |
 | knockback | `(80, -400)` forward, `(-80, -400)` back |
+| hitstop | 12 forward, 26 back |
 | tech window | 10 frames |
 | break lockout | 20 frames |
 | break pushback | 300 px/s each side |
@@ -181,6 +182,13 @@ attacker fast enough to get there would send them far enough that nothing can
 follow up, and a back throw that ends the exchange is the one thing it is not.
 The swap is instant — no interpolation, on purpose — so `reset_physics_interpolation()`
 goes with it, or both fighters smear across the screen.
+
+What makes it readable is the freeze after it. The back throw authors 26 frames
+of hitstop against the forward throw's 12, so both fighters are held in place
+long enough for the player to see that the sides changed. Hitstop is symmetric,
+so the longer hold costs the attacker nothing: the follow-up window is the same
+on both throws. That hold is also where a throw animation goes once there is
+one to play.
 
 The throw group on `AttackData` is generic, so a character-specific throw is
 authored the same way: set `is_throw`, and the rest of the rules follow.
@@ -213,7 +221,8 @@ Ten phases: the throw reaching a character that never authored it, the tech
 window lasting exactly its count, the grab going through a guard, whiffing on an
 airborne opponent and on a combo victim, the break and its symmetry, a whiffed
 throw being punished by a throw once the window is closed, the back throw's
-side switch, `6D` / `4D` / `5D` coming out of the same button, and a follow-up connecting while the thrown opponent is still off
+side switch and the hold that follows it, `6D` / `4D` / `5D` coming out of the
+same button, and a follow-up connecting while the thrown opponent is still off
 the ground — after which they still end up on the floor.
 
 ## Not implemented yet
