@@ -27,6 +27,13 @@ var air_dashes_left: int = 0
 var juggle_count: int = 0
 ## Turned off while an air dash holds its momentum.
 var gravity_enabled: bool = true
+## Everything this fighter answers to: their own commands plus the system moves
+## every character has. Built on `_ready`, since neither list changes at runtime.
+var commands: Array[CommandData] = []
+## Frames left in which this fighter's own throw still answers an incoming one.
+## Opened by starting a throw and counted down like every other window in the
+## engine, so it freezes during hitstop along with everything else.
+var throw_tech_frames: int = 0
 
 var stats: FighterStats:
 	get:
@@ -41,6 +48,7 @@ var stats: FighterStats:
 
 func _ready() -> void:
 	hitbox_manager.setup(self)
+	_build_commands()
 	land()
 	health = stats.max_health if stats != null else 0
 	health_changed.emit(health, health)
@@ -56,6 +64,9 @@ func _physics_process(delta: float) -> void:
 	if hitstop_frames > 0:
 		hitstop_frames -= 1
 		return
+	# Before the state machine, so a throw started this frame opens its window
+	# with the full count and the solver sees it on the same frame.
+	throw_tech_frames = maxi(throw_tech_frames - 1, 0)
 	hitbox_manager.advance()
 	state_machine.physics_update(delta)
 	_apply_knockback_friction(delta)
@@ -193,6 +204,7 @@ func reset_for_round() -> void:
 	health = stats.max_health if stats != null else health
 	combo_hits = 0
 	hitstop_frames = 0
+	throw_tech_frames = 0
 	velocity = Vector2.ZERO
 	gravity_enabled = true
 	land()
@@ -211,16 +223,64 @@ func can_be_hit() -> bool:
 	return is_alive()
 
 
+## Valid target for a throw, which is a much shorter list than `can_be_hit`.
+##
+## A grab is the answer to someone holding back, not a way to extend a combo, so
+## it only catches an opponent who is grounded and in control: it whiffs on
+## anyone airborne, in hitstun, in blockstun, on the floor or already recovering
+## from a break. That is what keeps the throw a neutral tool and leaves it a
+## whiff animation to be punished for.
+func can_be_thrown() -> bool:
+	return is_alive() and is_on_floor() and not is_in_stun()
+
+
+## Whether this fighter's own throw still answers a grab arriving right now.
+## A throw reaching someone in this window breaks instead of landing.
+func is_teching_throw() -> bool:
+	return throw_tech_frames > 0
+
+
+## Both throws answered each other, so neither one happened.
+##
+## Called on both sides with the same numbers and opposite directions. The push
+## ignores weight on purpose — unlike every other knockback in the engine: a
+## break resets the exchange rather than landing on somebody, and a heavier
+## fighter coming out of it closer would make the break worth fishing for.
+func break_throw(attack: AttackData, away: float) -> void:
+	hitbox_manager.stop_attack()
+	# The window is spent: the break is the answer it was open for.
+	throw_tech_frames = 0
+	apply_hitstop(attack.throw_break_hitstop)
+	var state := state_machine.get_state(&"ThrowBreak") as FighterThrowBreakState
+	if state != null:
+		state.start_break(attack.throw_break_frames)
+		state_machine.transition_to(&"ThrowBreak")
+	else:
+		state_machine.transition_to(&"Idle")
+	# After the transition: entering a state clears horizontal velocity.
+	velocity = Vector2(attack.throw_break_pushback * away, 0.0)
+
+
 ## Valid attacker this frame. A frozen fighter confirms no new hit.
 func can_resolve_hits() -> bool:
 	return is_alive() and hitstop_frames == 0 and hitbox_manager.is_attacking()
 
 
+## Character commands first, system moves after. Order does not decide a tie —
+## `CommandData.get_effective_priority` does — so a character can author a 6D of
+## their own and it will beat the system throw on its own merit.
+func _build_commands() -> void:
+	commands.clear()
+	if fighter_data != null:
+		commands.append_array(fighter_data.commands)
+	commands.append_array(SystemMoves.get_shared().commands)
+
+
 ## Tries to run whatever attack the input is asking for.
 func try_command() -> bool:
-	if input == null or fighter_data == null or not can_act():
+	if input == null or not can_act():
 		return false
-	var command := input.get_command(fighter_data.commands, facing_right, get_stance())
+	var command := input.get_command(commands, facing_right, get_stance())
 	if command == null or not perform_attack(command.attack):
 		return false
 	input.accept(command)
@@ -267,6 +327,10 @@ func perform_attack(attack: AttackData, force: bool = false) -> bool:
 		return false
 	state.setup(attack)
 	state_machine.transition_to(&"Attack")
+	# Opened here rather than on contact: a throw answers an incoming grab from
+	# the frame it is committed to, not from the frame it would have connected.
+	if attack.is_throw:
+		throw_tech_frames = attack.throw_tech_frames
 	return true
 
 
@@ -287,12 +351,11 @@ func perform_attack_by_id(attack_id: StringName) -> bool:
 
 
 func get_attack(attack_id: StringName) -> AttackData:
-	if fighter_data == null:
-		return null
-	for attack in fighter_data.moves:
-		if attack != null and attack.attack_id == attack_id:
-			return attack
-	return null
+	if fighter_data != null:
+		for attack in fighter_data.moves:
+			if attack != null and attack.attack_id == attack_id:
+				return attack
+	return SystemMoves.get_shared().get_attack(attack_id)
 
 
 ## Free to take a command. Frozen or stunned fighters take nothing.
@@ -306,7 +369,7 @@ func can_turn() -> bool:
 
 
 func is_in_stun() -> bool:
-	return is_in_hitstun() or is_in_blockstun() or is_knocked_down()
+	return is_in_hitstun() or is_in_blockstun() or is_knocked_down() or is_throw_broken()
 
 
 func is_in_hitstun() -> bool:
@@ -324,6 +387,12 @@ func is_knocked_down() -> bool:
 	return state is FighterKnockdownState or state is FighterWakeupState
 
 
+## Recovering from a throw that met another throw. A lockout like blockstun, but
+## it does not let the fighter guard: a break is both sides losing their turn.
+func is_throw_broken() -> bool:
+	return state_machine.current_state is FighterThrowBreakState
+
+
 ## Blocking is holding back on the ground, outside of an attack and hitstun.
 ## Being in blockstun does not get in the way: that is how block strings work.
 func is_blocking() -> bool:
@@ -331,8 +400,9 @@ func is_blocking() -> bool:
 		return false
 	if hitbox_manager.is_attacking() or is_in_hitstun():
 		return false
-	# A fighter lying on the floor holding back is not guarding.
-	if is_knocked_down():
+	# A fighter lying on the floor, or picking themselves up out of a broken
+	# throw, is not guarding.
+	if is_knocked_down() or is_throw_broken():
 		return false
 	return input.is_holding_back(facing_right)
 
