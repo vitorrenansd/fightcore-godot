@@ -46,8 +46,11 @@ var button: int = FightInput.Buttons.P
 
 
 ## A command with a motion always beats one without, or 236S would come out as S.
+## A held direction counts for the same reason, one rung lower: without it 6D and
+## 5D would tie and the throw would come out as a dust, or the other way around,
+## decided by nothing but the order of the list.
 func get_effective_priority() -> int:
-	return priority + motion.size() * 10
+	return priority + motion.size() * 10 + (5 if hold_direction > 0 else 0)
 
 
 func has_motion() -> bool:
