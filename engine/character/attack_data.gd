@@ -31,6 +31,16 @@ enum CancelType {
 @export var active_frames: int = 3
 ## Recovery frames after the hitboxes are gone.
 @export var recovery_frames: int = 12
+## Recovery counted from the frame the move connects, for a move whose hit
+## should not owe the same frames as its whiff. `-1` uses `recovery_frames` for
+## both, which is what an ordinary normal wants.
+##
+## A throw is the case that needs it: missing one has to be a long, punishable
+## animation, and landing one has to hand the fighter back while the opponent is
+## still in the air. One number cannot describe both, and whichever one it
+## describes, the other is wrong. Applies on contact, hit or block — the same
+## simplification the advantage helpers already make.
+@export var recovery_on_hit: int = -1
 ## Air moves end the moment the fighter touches the ground, the landing
 ## recovery of the genre. Authored here and not read from `is_on_floor()`
 ## because that flag only updates after a move, and a move started on the same
@@ -93,6 +103,7 @@ enum CancelType {
 @export var causes_knockdown: bool = false
 
 
+
 func get_total_frames() -> int:
 	return startup_frames + active_frames + recovery_frames
 
@@ -111,6 +122,8 @@ func is_active_on_frame(frame: int) -> bool:
 
 ## Frames the attacker still owes after connecting on the first active frame.
 func get_recovery_after_hit() -> int:
+	if recovery_on_hit >= 0:
+		return recovery_on_hit
 	return maxi(active_frames - 1, 0) + recovery_frames
 
 
