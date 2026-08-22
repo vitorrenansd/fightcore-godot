@@ -5,6 +5,7 @@ extends Node2D
 ## Keyboard P1: WASD to move, J=P K=K L=S U=HS I=D
 ## Keyboard P2: arrows to move, numpad 1..5
 ## Gamepad:     d-pad or stick, A=P B=K X=S Y=HS RB=D
+## Forward or back with D throws; the grab box draws purple.
 ## F1 toggles the box overlay, F2 restarts the match.
 
 const TEAM_COLORS: Array[Color] = [Color(0.6, 0.8, 1.0), Color(1.0, 0.7, 0.6)]
@@ -90,13 +91,14 @@ func _describe(fighter: Fighter, index: int) -> String:
 			manager.attack_frame,
 			" C" if manager.is_in_cancel_window() else "",
 		]
-	return "P%d  health %5d  %-9s  move %-12s  dir %d  hitstop %d  combo %d  juggle %d (x%.2f)" % [
+	return "P%d  health %5d  %-11s  move %-12s  dir %d  hitstop %d  tech %2d  combo %d  juggle %d (x%.2f)" % [
 		index + 1,
 		fighter.health,
 		fighter.state_machine.current_state.name if fighter.state_machine.current_state else "-",
 		attack_info,
 		fighter.input.get_direction() if fighter.input != null else 5,
 		fighter.hitstop_frames,
+		fighter.throw_tech_frames,
 		fighter.combo_hits,
 		fighter.juggle_count,
 		fighter.get_juggle_gravity_multiplier(),
