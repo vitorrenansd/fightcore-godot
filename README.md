@@ -1,8 +1,6 @@
 # Fight Core
 
-A 2D fighting game engine written from scratch in Godot 4.7 :3
-
-Not a MUGEN or Ikemen project. Everything runs on code in this repository.
+A 2D fighting game engine written from scratch in Godot 4.7
 
 > **Early days.** The engine underneath is real and tested, but the game on top
 > of it is not: fighters are coloured polygons, there is no sound, no menus and
