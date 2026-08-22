@@ -194,9 +194,14 @@ the rest of the engine — no commands, no guard, no turning around — but unli
 blockstun it does not let the fighter block, because a break is both sides
 losing their turn.
 
-A throw that lands is ordinary hitstun. Left alone it ends in `Knockdown` like
-any airborne hit; followed up, it is the start of the combo. There is no
-separate thrown state, and no throw-specific animation to hang one on yet.
+A throw that lands is ordinary hitstun carrying `causes_knockdown`, so the
+combo ends on the floor and the victim gets their wakeup — with or without a
+follow-up. `FighterHitstunState` accumulates the flag rather than replacing it:
+a jab picked up after the throw cannot cancel what the throw decided, or
+`6D > 5P` would hand the opponent back standing as if nothing had happened.
+
+There is no separate thrown state, and no throw-specific animation to hang one
+on yet.
 
 ## Test
 
@@ -208,8 +213,8 @@ Ten phases: the throw reaching a character that never authored it, the tech
 window lasting exactly its count, the grab going through a guard, whiffing on an
 airborne opponent and on a combo victim, the break and its symmetry, a whiffed
 throw being punished by a throw once the window is closed, the back throw's
-side switch, `6D` / `4D` / `5D` coming out of the same button, and a follow-up
-connecting while the thrown opponent is still off the ground.
+side switch, `6D` / `4D` / `5D` coming out of the same button, and a follow-up connecting while the thrown opponent is still off
+the ground — after which they still end up on the floor.
 
 ## Not implemented yet
 

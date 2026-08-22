@@ -40,6 +40,9 @@ var chasing: bool = false
 var chase_recorded: bool = false
 var chase_airborne: bool = false
 var chase_combo: int = 0
+var chase_attacks: int = 0
+## Latched: a throw has to end on the floor even when a combo came off it.
+var saw_knockdown: bool = false
 
 ## Actions held this frame, refreshed every frame so Godot sees the releases.
 var _held: Array[StringName] = []
@@ -110,12 +113,17 @@ func _observe() -> void:
 		tech_frames += 1
 	if not chasing:
 		return
-	if p1.can_act() and not p1.hitbox_manager.is_attacking():
-		p1.perform_attack(p1.get_attack(&"5P"))
+	# Exactly one follow-up, which is the case that was reported broken: 6D into
+	# 5P and nothing else.
+	if chase_attacks < 1 and p1.can_act() and not p1.hitbox_manager.is_attacking():
+		if p1.perform_attack(p1.get_attack(&"5P")):
+			chase_attacks += 1
 	if landed.size() >= 2 and not chase_recorded:
 		chase_recorded = true
 		chase_airborne = not p2.is_on_floor()
 		chase_combo = p2.combo_hits
+	if p2.is_knocked_down():
+		saw_knockdown = true
 
 
 func _physics_process(_delta: float) -> bool:
@@ -321,14 +329,19 @@ func _physics_process(_delta: float) -> bool:
 			chasing = true
 			check(throw_with(p1, &"6D"), "p1 threw")
 		580:
-			chasing = false
 			print("  hits %d   combo %d   caught airborne %s   p2 health %d" % [
 				landed.size(), chase_combo, chase_airborne, p2.health,
 			])
 			check(landed.size() >= 2, "a throw is a starter: something connected after it")
 			check(chase_airborne, "the follow-up caught them before they landed")
 			check(chase_combo >= 2, "it counted as a combo, not as a fresh hit")
-		600:
+		640:
+			chasing = false
+			print("  after the combo: p2 %s   went down at some point %s" % [
+				p2.state_machine.current_state.name, saw_knockdown,
+			])
+			check(saw_knockdown, "a throw ends on the floor even when a combo came off it")
+		660:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
