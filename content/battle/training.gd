@@ -8,7 +8,7 @@ extends Node2D
 ## Forward or back with D throws; the grab box draws purple.
 ## F1 toggles the box overlay, F2 restarts the match.
 
-const TEAM_COLORS: Array[Color] = [Color(0.6, 0.8, 1.0), Color(1.0, 0.7, 0.6)]
+const TEAM_COLORS: Array[Color] = [Color(0.0, 0.0, 1.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)]
 
 @onready var battle: BattleManager = $Battle
 @onready var rounds: RoundManager = $Rounds
