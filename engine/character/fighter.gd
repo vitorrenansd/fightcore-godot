@@ -191,6 +191,19 @@ func apply_hit_landed(hit: HitData) -> void:
 	hit_landed.emit(hit)
 
 
+## Damage from something that is not an attack. The wall break is the only
+## source so far, and it deliberately goes through the same KO path as a hit, so
+## dying to the stage is not a special case anywhere downstream.
+func take_damage(amount: int) -> void:
+	if amount <= 0 or not is_alive():
+		return
+	health = maxi(health - amount, 0)
+	health_changed.emit(health, stats.max_health if stats != null else health)
+	if health == 0:
+		_enter_ko()
+		died.emit()
+
+
 func apply_hitstop(frames: int) -> void:
 	hitstop_frames = maxi(hitstop_frames, frames)
 
