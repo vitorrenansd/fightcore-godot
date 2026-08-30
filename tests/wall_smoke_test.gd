@@ -101,6 +101,30 @@ func _physics_process(_delta: float) -> bool:
 			check(data.get_neighbour(2, 1) == 0, "right off the last section wraps to the first")
 			check(data.get_neighbour(0, -1) == 2, "left off the first wraps to the last")
 			check(data.get_neighbour(1, 1) == 2, "and the middle still just goes right")
+		2:
+			print("\n== 1b. the section count is a number, not a shape ==")
+			for count in [2, 4, 5, 11]:
+				var other := StageData.new()
+				other.section_count = count
+				var start := other.get_start_section()
+				print("  %2d sections: start %d, wrap right %d, wrap left %d, %.0f wide" % [
+					count, start,
+					other.get_neighbour(count - 1, 1), other.get_neighbour(0, -1),
+					other.get_total_width(),
+				])
+				check(other.get_neighbour(count - 1, 1) == 0,
+					"%d sections still wrap right" % count)
+				check(other.get_neighbour(0, -1) == count - 1,
+					"%d sections still wrap left" % count)
+				check(start >= 0 and start < count, "%d sections start inside" % count)
+				check(is_equal_approx(other.get_total_width(), other.section_width * count),
+					"%d sections cover their own width" % count)
+				# An odd count has a real middle, so it lands on the origin. An
+				# even one has none and picks a side, which is only a
+				# convention: on a ring every section has the same two walls.
+				if count % 2 == 1:
+					check(is_equal_approx(other.get_section_center(start), 0.0),
+						"%d sections start centred on the origin" % count)
 		3:
 			print("\n== 2. nobody leaves the stage ==")
 			# Straight past the wall, the way a knockback would carry someone.

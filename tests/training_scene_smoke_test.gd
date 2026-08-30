@@ -56,6 +56,12 @@ func check(condition: bool, message: String) -> void:
 		print("  FAIL: %s" % message)
 
 
+## Middle of the section the round is being fought in, or 0 on an unwalled
+## stage.
+func _section_center() -> float:
+	return battle.stage_bounds.get_center() if battle.stage_bounds != null else 0.0
+
+
 func _observe() -> void:
 	if p1 == null or p2 == null:
 		return
@@ -124,8 +130,12 @@ func _physics_process(_delta: float) -> bool:
 			check(ground_drift == 0.0, "never fell into place")
 			check(p1.is_on_floor() and p2.is_on_floor(), "standing on the floor")
 			check(is_equal_approx(p1.position.y, p2.position.y), "both on the same ground")
-			check(is_equal_approx(p1.position.x, -140.0), "P1 held its spawn column")
-			check(is_equal_approx(p2.position.x, 140.0), "P2 held its spawn column")
+			# Measured from the section and not from 0: spawn columns are read
+			# relative to the screen the round starts in, so a stage with a
+			# different number of them is not a different set of numbers.
+			var center := _section_center()
+			check(is_equal_approx(p1.position.x, center - 140.0), "P1 held its spawn column")
+			check(is_equal_approx(p2.position.x, center + 140.0), "P2 held its spawn column")
 			check(p1.state_machine.current_state.name == &"Idle", "idle on the ground")
 		125:
 			# The round layer only reads is_alive(), so this is a clean KO.
@@ -148,7 +158,8 @@ func _physics_process(_delta: float) -> bool:
 			check(rounds.round_number == 2, "second round started")
 			check(rounds.phase == RoundManager.Phase.INTRO, "back to the intro")
 			check(p2.health == p2.stats.max_health, "health restored")
-			check(is_equal_approx(p2.position.x, 140.0), "spawn position restored")
+			check(is_equal_approx(p2.position.x, _section_center() + 140.0),
+				"spawn position restored")
 			check(p2.state_machine.current_state.name == &"Idle", "state restored")
 			check(rounds.get_wins(0) == 1, "round wins carried over")
 		315:
