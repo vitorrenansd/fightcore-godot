@@ -139,6 +139,14 @@ is the one the training room uses.
 `FightCamera.fixed_zoom` is 0.9 and belongs with `section_width` above, even
 though it is authored on the camera node and not in the resource.
 
+The `.tres` writes all of them out even though they match the script defaults
+right now, so the stage's numbers are readable in the stage's own file. Godot
+drops a value equal to the default when it saves, the same way it drops
+`physics_ticks_per_second` — see [archtecture.md](archtecture.md) — so opening
+the resource in the editor and saving it will empty the file out. Nothing
+changes when that happens: the defaults are the same numbers. It is worth
+knowing before the diff turns up.
+
 ## Placeholder art
 
 There is none yet, so `content/stages/empty_stage/stage.gd` draws the stage from
