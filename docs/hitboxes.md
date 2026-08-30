@@ -227,6 +227,11 @@ and only **horizontally**:
   crossups exist.
 - Separation is split between both fighters and capped per frame, so landing
   fully overlapped resolves over a few frames instead of teleporting them apart.
+- A fighter with their back to the wall has no ground to give, so the whole
+  separation goes into the opponent instead of half of it. The stage walls are
+  resolved here for that reason — keeping a fighter inside the stage and keeping
+  two fighters apart are one constraint, and solving them apart means one undoes
+  the other. See [stages.md](stages.md).
 - Width comes from `FighterStats.pushbox_width`: a bigger character takes more
   space and loses ground faster in the corner.
 
@@ -235,6 +240,7 @@ see final positions.
 
 ```sh
 godot --headless --path . --script tests/pushbox_smoke_test.gd
+godot --headless --path . --script tests/wall_smoke_test.gd
 ```
 
 ## Throws

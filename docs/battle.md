@@ -61,6 +61,20 @@ fighter in it. The solver resolves itself every physics frame, with
 `process_physics_priority = 100` so it runs after all fighters have moved. See
 [hitboxes.md](hitboxes.md).
 
+## Walls
+
+`BattleManager` finds the stage's `StageBounds` at startup, hands them to the
+`PushboxSolver` so the corner works, and feeds it every hit that lands. When a
+wall breaks it is the match that moves both fighters into the next section,
+deals the break damage and puts the victim on the floor — `StageBounds` reports
+the break and never touches a fighter, because knowing that there are two sides
+is this class's job and not the stage's.
+
+Spawn columns are read relative to the current section, so a stage with five
+screens needs no different spawn numbers than one with one. A match with no
+bounds runs unwalled, which is what every hand built test gets. See
+[stages.md](stages.md).
+
 ## Input
 
 `BattleManager` registers the mapping in the InputMap on startup
@@ -89,6 +103,8 @@ the genre expects (and what makes crossups exist).
 |---|---|
 | `fighters` | the match's fighters, in team order |
 | `solver` | the match's `CollisionSolver` |
+| `pushboxes` | the match's `PushboxSolver`, which also holds the walls |
+| `stage_bounds` | the stage's walls, or null on an unwalled match |
 | `start_battle()` | clears and builds everything again |
 | `spawn_fighter(scene, index)` | spawns a fighter on team `index` |
 | `register_fighter(f)` | registers an already existing fighter |
@@ -100,8 +116,11 @@ the genre expects (and what makes crossups exist).
 | `snap_to_ground(f)` | stands one fighter on the floor under their spawn column |
 | `clear_battle()` | removes every fighter |
 
+| `find_stage_bounds()` | walks the scene once for the stage's walls |
+
 **Signals**: `battle_started`, `fighter_spawned(fighter)`,
-`fighter_died(fighter)`, `hit_resolved(hit)`, `throw_broken(first, second)`.
+`fighter_died(fighter)`, `hit_resolved(hit)`, `throw_broken(first, second)`,
+`wall_broken(side, from_section, to_section)`.
 
 ## Rounds
 
@@ -184,7 +203,6 @@ stage the fighters no longer land on.
 
 ## Not implemented yet
 
-- A camera that follows the fighters, screen bounds and corner pushback.
 - Round intro and result presentation: the phases exist, the animation does not.
 - Freezing at round end stops a KO'd fighter mid-air instead of letting them
   land.

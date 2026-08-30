@@ -37,11 +37,13 @@ engine code specific to any character.
 ```
 engine/
   battle/         match, rounds and timer
+  camera/         framing, zoom and the clamp to the stage
   character/      Fighter, data resources, concrete states
   collision/      hitbox, hurtbox, hit resolution
   debug/          box drawing for frame data tuning
   input/          input buffer, motions and mapping
   physics/        gravity, movement, knockback
+  stage/          sections, walls and the corner
   state_machine/  generic FSM
   system/         moves every character has, throws included
 ```
@@ -128,6 +130,7 @@ godot --headless --path . --script tests/juggle_smoke_test.gd
 godot --headless --path . --script tests/knockdown_smoke_test.gd
 godot --headless --path . --script tests/friction_smoke_test.gd
 godot --headless --path . --script tests/throw_smoke_test.gd
+godot --headless --path . --script tests/wall_smoke_test.gd
 
 # the shipped scene, instantiated as the game launches it
 godot --headless --path . --script tests/training_scene_smoke_test.gd
@@ -166,10 +169,10 @@ find the class.
 | Juggle, knockdown and wakeup | done — [state_machine.md](state_machine.md) |
 | System throws and the break | done — [throws.md](throws.md) |
 | Rounds, clock and win conditions | done — [battle.md](battle.md) |
+| Stage sections, walls and camera | done — [stages.md](stages.md) |
 | Playable training room | `content/battle/training.tscn` |
 | `physics/knockback.gd` | done — friction rule, called by `Fighter` |
 | `physics/gravity.gd`, `physics/movement.gd` | stub — both live in `Fighter` |
 | `character/fighter_loader`, `fighter_manager` | stub |
-| Walls, corner and camera | missing — the next slice, see [roadmap.md](roadmap.md) |
 | Animation | stub — [animation.md](animation.md) |
 | Modding | stub — [modding.md](modding.md) |
