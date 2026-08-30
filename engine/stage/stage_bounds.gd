@@ -141,6 +141,22 @@ static func side_name(side: int) -> String:
 	return "left" if side == Side.LEFT else "right"
 
 
+## Finds the bounds anywhere under `node`. One walk, done at startup by both
+## the match and the camera: the bounds live inside the stage scene, which is a
+## sibling of neither's parent, so the parent-then-siblings lookup used
+## elsewhere in the engine is one level too shallow for them.
+static func find_in(node: Node) -> StageBounds:
+	if node == null:
+		return null
+	for child in node.get_children():
+		if child is StageBounds:
+			return child
+		var found := find_in(child)
+		if found != null:
+			return found
+	return null
+
+
 ## Wall a fighter at `x` is standing against, or -1 for neither.
 func get_contact_side(x: float, half: float) -> int:
 	for side in SIDES:

@@ -100,20 +100,24 @@ touches a fighter: knowing that there are two sides is the match's job.
 
 ## The camera
 
-`FightCamera` centres between the fighters, zooms out as they spread and clamps
-to the section they are in.
+`FightCamera` sits still in the middle of the section and cuts to the next one
+when a wall breaks. That is the whole of it: it does not follow anyone and it
+runs no per frame work.
 
-Only the horizontal axis follows the pair. A camera that chased height would
-drop the floor out of frame on every jump, and the floor is what a player reads
-spacing against — so the height tracks the lower of the two fighters instead.
+**The zoom never changes.** A section is exactly one screen wide and the walls
+keep both fighters inside it, so there is nothing for a zoom to react to — the
+pair cannot get further apart than the view already shows. A camera that pulled
+back with distance would be answering a question the walls already answered, and
+it would make the fighters change size for no reason a player can act on.
 
-A section is sized to be exactly what the camera frames at its widest zoom, so a
-fully spread pair fills the screen with the walls at its corners and never sees
-past them. Change `section_width` and `min_zoom` together or one of them is
-wrong.
+`FightCamera.fixed_zoom` and `StageData.section_width` are one setting in two
+places: at that zoom the view is exactly one section wide, so the walls land on
+the edges of the screen. Change one without the other and the corner stops
+lining up with what you can see. At the project's 1152 wide viewport, a zoom of
+0.9 frames 1280 units, which is the section width.
 
-A section change **snaps** the camera. Both fighters were placed, not moved, and
-easing into it would be a shot of the stage sliding past.
+A section change is a **cut**. Both fighters were placed rather than walked over,
+so easing into it would be a shot of the stage sliding past.
 
 ## Authored numbers
 
@@ -123,7 +127,7 @@ is the one the training room uses.
 | Field | Value | Why |
 |---|---|---|
 | `section_count` | 3 | |
-| `section_width` | 1280 | what the camera frames at `min_zoom` |
+| `section_width` | 1280 | exactly what the camera frames, and never more |
 | `start_section` | -1 | the middle one, equal walls either side |
 | `wall_health` | 3000 | a little over one full corner combo |
 | `wall_regen_delay` | 40 | longer than the gaps inside a blockstring |
@@ -132,13 +136,22 @@ is the one the training room uses.
 | `wall_break_entry` | 200 | how far in the attacker lands |
 | `wall_break_separation` | 280 | the distance a round starts at |
 
+`FightCamera.fixed_zoom` is 0.9 and belongs with `section_width` above, even
+though it is authored on the camera node and not in the resource.
+
 ## Placeholder art
 
 There is none yet, so `content/stages/empty_stage/stage.gd` draws the stage from
-the same data: a rectangle per section with its number in the middle, a bar at
-each edge for the wall, and a seam where two sections meet. The two walls of the
-section being fought in drain from grey to red as they take damage; the rest are
-drawn faint, because they are scenery until the fight reaches them.
+the same data: a rectangle per section with its number sitting just above head
+height, a bar at each edge for the wall, and a seam where two sections meet. The
+two walls of the section being fought in drain from grey to red as they take
+damage; the rest are drawn faint, because they are scenery until the fight
+reaches them.
+
+The training room announces a break — `WALL BREAK    screen 2 -> 3` — for two
+seconds under the round banner, counted in frames like everything else. It reads
+`BattleManager.wall_broken`, so it is a HUD reaction and not something the stage
+knows about.
 
 Built in code and not authored as nodes on purpose: the section count is a
 number, and a stage with five screens must not need five copies of anything.
@@ -154,15 +167,15 @@ anywhere and a stage with a different floor works with no change.
 |---|---|---|
 | `StageData` | `engine/stage/stage_data.gd` | authored numbers, one per stage |
 | `StageBounds` | `engine/stage/stage_bounds.gd` | current section, wall health, regen, the break |
-| `FightCamera` | `engine/camera/fight_camera.gd` | framing, zoom, clamp |
+| `FightCamera` | `engine/camera/fight_camera.gd` | sits on the section, cuts on a break |
 | `PushboxSolver` | `engine/collision/pushbox_solver.gd` | the corner |
 | `BattleManager` | `engine/battle/battle_manager.gd` | feeds hits in, moves everyone through |
 
-`BattleManager` finds the bounds by walking the scene once at startup: they live
-inside the stage scene, which is a sibling and not a parent, so the
-parent-then-siblings lookup used elsewhere in the engine is one level too
-shallow. A match with no bounds runs unwalled, which is what every hand built
-test gets.
+`StageBounds.find_in()` walks the scene once at startup, and both the match and
+the camera use it: the bounds live inside the stage scene, which is a sibling of
+neither's parent, so the parent-then-siblings lookup used elsewhere in the engine
+is one level too shallow for them. A match with no bounds runs unwalled, which is
+what every hand built test gets.
 
 ## Test
 
@@ -172,7 +185,17 @@ godot --headless --path . --script tests/wall_smoke_test.gd
 
 Covers the ring and its wraparound, the clamp, the corner push, a clean hit
 wearing the wall down against a blocked one that does not, the regen delay, the
-break and where it puts everyone, and the round reset.
+break and where it puts everyone, and the round reset. Section counts other than
+three are checked there too, so the count staying a number is under test rather
+than assumed.
+
+```sh
+godot --headless --path . --script tests/training_scene_smoke_test.gd
+```
+
+The camera and the break notice are checked there instead, because both only
+exist once the real scene is running: it spreads the fighters to opposite walls
+and asserts that neither the zoom nor the camera moved.
 
 ## Not implemented yet
 
@@ -184,3 +207,6 @@ break and where it puts everyone, and the round reset.
   turn if the corner ends up too easy to sit in.
 - Stage specific hazards, moving stages, and anything else a section could hold
   besides a floor.
+- A window whose aspect is wider than the project's shows a little past the
+  walls, because the zoom is fixed and the stretch mode expands. It is a
+  presentation call to make when there is art to letterbox against.

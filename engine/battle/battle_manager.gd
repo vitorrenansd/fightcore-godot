@@ -257,23 +257,8 @@ func clear_battle() -> void:
 	fighters.clear()
 
 
-## Searches the whole scene for the stage's walls. One walk, at startup: the
-## bounds live inside the stage scene, which is a sibling and not a parent, so
-## the parent-then-siblings lookup the rest of the engine uses is one level too
-## shallow for them.
 func find_stage_bounds() -> StageBounds:
-	var parent := get_parent()
-	return _find_bounds_in(parent) if parent != null else null
-
-
-static func _find_bounds_in(node: Node) -> StageBounds:
-	for child in node.get_children():
-		if child is StageBounds:
-			return child
-		var found := _find_bounds_in(child)
-		if found != null:
-			return found
-	return null
+	return StageBounds.find_in(get_parent())
 
 
 func _on_hit_resolved(hit: HitData) -> void:

@@ -41,8 +41,9 @@ const WALL_IDLE_COLOR := Color(0.16, 0.16, 0.18, 1.0)
 @export var wall_height: float = 420.0
 @export var wall_width: float = 14.0
 @export var label_size: int = 48
-## How far above the floor the section number sits.
-@export var label_height: float = 300.0
+## How far above the floor the section number sits. Low enough to read as part
+## of the ground the fight is on, high enough to clear a standing fighter.
+@export var label_height: float = 130.0
 
 
 func _ready() -> void:
