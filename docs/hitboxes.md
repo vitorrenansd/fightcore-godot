@@ -152,7 +152,8 @@ nothing.
 
 **Guard** — `Fighter.can_block()`. Blocking means holding back, not pressing a
 button (see [input.md](input.md)). Air moves are authored as `HIGH`, which is
-what makes jumping in an overhead:
+what makes jumping in an overhead; the dust is the grounded one, and the only
+one a character gets without leaving the floor:
 
 | `Guard` | Blocks |
 |---|---|

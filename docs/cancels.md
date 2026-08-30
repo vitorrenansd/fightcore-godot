@@ -59,12 +59,19 @@ whiffed launcher cannot be jump cancelled.
 That is what turns a launcher into an air combo instead of a single knockdown:
 
 ```
-5D (hit, launches) -> hold up -> j.P > j.K > j.S
+launcher (hit) -> hold up -> j.P > j.K > j.S
 ```
 
 The check runs **after** the attack cancel, so holding up while pressing a
 button gives the attack. The press then sits in the buffer and comes out as the
 air version a frame later, which is exactly the combo route above.
+
+**No shipped move sets it yet.** The dust used to, back when it doubled as the
+launcher. The launch belongs to the throw now, and the throw gives the fighter
+their turn back on the ground rather than in the air — see
+[throws.md](throws.md). The rule stays because it is the route the first
+character with a real launcher is going to want, and `cancel_smoke_test.gd`
+brings a move of its own to keep it covered.
 
 `Fighter.can_jump_cancel()` answers whether the window is open right now.
 
@@ -121,15 +128,15 @@ it the command would only be read after recovery ended.
 | 5K / 2K | 1 | 5S, 5HS, 5D, 236S |
 | 5S | 2 | 5HS, 5D, 236S |
 | 5HS | 3 | 5D, 236S |
-| 5D | 4 | 236S, and jump cancel on hit |
+| 5D | 4 | 236S |
 | 236S | special | supers only (none exist yet) |
 | j.P | 0 | j.K, j.S, j.HS |
 | j.K | 1 | j.S, j.HS |
 | j.S | 2 | j.HS |
 | j.HS | 3 | — |
 
-Air moves use the same ladder, so `5D` launching into a jump and then
-`j.P > j.K > j.S` is a real combo route.
+Air moves use the same ladder, so `j.P > j.K > j.S` off a jump-in is a real
+combo route.
 
 ## Test
 

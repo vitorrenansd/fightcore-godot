@@ -95,7 +95,9 @@ plus the cancel routes. Documented in [hitboxes.md](hitboxes.md) and
 [cancels.md](cancels.md).
 
 `jump_cancellable` lets the move be cancelled into a jump by holding up, which
-is how a launcher leads into an air combo — see [cancels.md](cancels.md).
+is how a launcher leads into an air combo — see [cancels.md](cancels.md). No
+shipped move sets it: the launch belongs to the throw, which does not jump
+cancel.
 
 `recovery_on_hit` lets a move owe fewer frames when it connects than when it
 whiffs. `-1`, the default, uses `recovery_frames` for both. The system throw is

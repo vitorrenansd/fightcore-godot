@@ -21,6 +21,11 @@ the fighter their turn back, so it starts a combo instead of ending the exchange
 a hit that hands the fighter back, and one recovery number cannot be both. It is
 generic, and no move other than the throws uses it yet.
 
+The dust gave the launch up in the process. It had been carrying two jobs — the
+universal overhead and the only way into an air combo — and once the throw took
+the second one, `5D` was left doing the job it is named for: it beats a crouching
+guard, it is blocked standing, and nobody moves.
+
 Details: [throws.md](throws.md).
 
 ## Before that: the combat loop got an ending

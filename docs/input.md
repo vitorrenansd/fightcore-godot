@@ -18,10 +18,12 @@ Five buttons, Guilty Gear style:
 `SYSTEM_1..3` stay reserved in the bitmask for system mechanics (burst, roman
 cancel, macros). An unmapped button costs nothing and commits to no design.
 
-D exists to give every character an overhead and a launcher without authoring
-one move at a time. With a direction it is the throw: `6D` forward, `4D` back,
-`5D` still the dust. Those two are system moves and no character authors them —
-see [throws.md](throws.md).
+D is the button every character answers the same way. Alone it is the dust, the
+universal overhead: it goes through a crouching guard, it is blocked standing,
+and it leaves both fighters where they stood. With a direction it is the throw,
+`6D` forward and `4D` back. Only the two throws are system moves that no
+character authors — see [throws.md](throws.md). The dust is ordinary content, so
+its frame data is the character's own.
 
 **Specials come out through motions**, not dedicated buttons: `236S`, `623P`,
 `214K`. That is what makes five buttons produce dozens of moves.
