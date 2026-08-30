@@ -5,7 +5,8 @@ extends Node2D
 ## Keyboard P1: WASD to move, J=P K=K L=S U=HS I=D
 ## Keyboard P2: arrows to move, numpad 1..5
 ## Gamepad:     d-pad or stick, A=P B=K X=S Y=HS RB=D
-## Forward or back with D throws; the grab box draws purple.
+## D alone is the overhead; forward or back with D throws, and the grab box
+## draws purple.
 ## F1 toggles the box overlay, F2 restarts the match.
 
 const TEAM_COLORS: Array[Color] = [Color(0.0, 0.0, 1.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)]

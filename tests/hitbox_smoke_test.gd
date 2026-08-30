@@ -158,7 +158,54 @@ func _physics_process(_delta: float) -> bool:
 			check(not hit.blocked, "standing guard does not block a low")
 			check(p2.health == 9260, "health 9260, got %d" % p2.health)
 			check(p2.state_machine.current_state.name == &"Hitstun", "p2 in Hitstun")
-		82:
+		100:
+			print("\n== 4. the dust against a crouching guard ==")
+			landed.clear()
+			_reset_spacing()
+			p2.health = 10000
+			# Down-back: guarding without giving ground, and the one guard an
+			# overhead goes through.
+			Input.action_press(&"p2_down")
+		103:
+			check(p2.is_crouching(), "p2 is crouching")
+			check(p2.is_blocking(), "p2 is holding back")
+			p1.hitbox_manager.start_attack(p1.get_attack(&"5D"))
+		128:
+			check(landed.size() == 1, "exactly 1 hit")
+			var hit: HitData = landed[0]
+			print("  blocked=%s damage=%d health=%d state=%s p2 y=%.0f" % [
+				hit.blocked, hit.damage, p2.health,
+				p2.state_machine.current_state.name, p2.global_position.y,
+			])
+			check(not hit.blocked, "a crouching guard does not stop the dust")
+			check(p2.health == 9400, "health 9400, got %d" % p2.health)
+			# The dust opens a guard. Opening an air route is the throw's job.
+			check(not hit.launcher, "the dust does not launch")
+			check(p2.is_on_floor(), "the opponent never left the ground")
+		165:
+			print("\n== 5. the same dust against a standing guard ==")
+			landed.clear()
+			_reset_spacing()
+			p2.health = 10000
+			Input.action_release(&"p2_down")
+		168:
+			check(not p2.is_crouching(), "p2 is standing")
+			check(p2.is_blocking(), "p2 is still holding back")
+			p1.hitbox_manager.start_attack(p1.get_attack(&"5D"))
+		185:
+			# A standing guard walks backwards, and the dust has 20 frames of
+			# startup to walk through. Put the spacing back before it goes active.
+			_reset_spacing()
+		193:
+			check(landed.size() == 1, "exactly 1 hit")
+			var blocked_hit: HitData = landed[0]
+			print("  blocked=%s damage=%d health=%d state=%s" % [
+				blocked_hit.blocked, blocked_hit.damage, p2.health,
+				p2.state_machine.current_state.name,
+			])
+			check(blocked_hit.blocked, "a standing guard stops the dust")
+			check(p2.health == 9940, "chip damage only, got %d" % p2.health)
+		195:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true
