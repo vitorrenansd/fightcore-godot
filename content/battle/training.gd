@@ -6,7 +6,7 @@ extends Node2D
 ## Keyboard P2: arrows to move, numpad 1..5
 ## Gamepad:     d-pad or stick, A=P B=K X=S Y=HS RB=D
 ## D alone is the overhead; forward or back with D throws, and the grab box
-## draws purple.
+## draws purple. Clean hits on a cornered opponent wear the wall down.
 ## F1 toggles the box overlay, F2 restarts the match.
 
 const TEAM_COLORS: Array[Color] = [Color(0.0, 0.0, 1.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)]
@@ -40,7 +40,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var lines: PackedStringArray = [_describe_round()]
+	var lines: PackedStringArray = [_describe_round(), _describe_stage()]
 	for index in battle.fighters.size():
 		lines.append(_describe(battle.fighters[index], index))
 	readout.text = "\n".join(lines)
@@ -54,6 +54,18 @@ func _describe_round() -> String:
 		rounds.get_wins(0),
 		rounds.get_wins(1),
 		_phase_name(rounds.phase),
+	]
+
+
+func _describe_stage() -> String:
+	var bounds := battle.stage_bounds
+	if bounds == null:
+		return "stage -"
+	return "stage %d/%d   wall left %4d   wall right %4d" % [
+		bounds.data.get_section_label(bounds.current_section),
+		bounds.data.section_count,
+		bounds.get_wall_health(StageBounds.Side.LEFT),
+		bounds.get_wall_health(StageBounds.Side.RIGHT),
 	]
 
 

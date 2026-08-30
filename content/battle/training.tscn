@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c3e4elfni34m2" path="res://content/fighters/training_dummy/fighter.tscn" id="4_fighter"]
 [ext_resource type="Script" uid="uid://b01ekckju0yqq" path="res://engine/debug/box_renderer.gd" id="5_boxes"]
 [ext_resource type="Script" uid="uid://c64vddd7152xs" path="res://engine/battle/round_manager.gd" id="6_rounds"]
+[ext_resource type="Script" path="res://engine/camera/fight_camera.gd" id="7_camera"]
 
 [node name="Training" type="Node2D" unique_id=165994213]
 script = ExtResource("1_training")
@@ -23,9 +24,8 @@ script = ExtResource("6_rounds")
 [node name="DebugBoxes" type="Node2D" parent="." unique_id=1662939924]
 script = ExtResource("5_boxes")
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1287664715]
-position = Vector2(0, 60)
-zoom = Vector2(1.4, 1.4)
+[node name="Camera" type="Camera2D" parent="." unique_id=1287664715]
+script = ExtResource("7_camera")
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=883443843]
 
@@ -33,22 +33,22 @@ zoom = Vector2(1.4, 1.4)
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 800.0
-offset_bottom = 96.0
+offset_bottom = 116.0
 theme_override_font_sizes/font_size = 15
 
 [node name="Banner" type="Label" parent="HUD" unique_id=1384735701]
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 150.0
-offset_bottom = 180.0
+offset_top = 210.0
+offset_bottom = 240.0
 theme_override_font_sizes/font_size = 22
 horizontal_alignment = 1
 
 [node name="Help" type="Label" parent="HUD" unique_id=987042637]
 offset_left = 16.0
-offset_top = 100.0
+offset_top = 122.0
 offset_right = 900.0
-offset_bottom = 172.0
+offset_bottom = 208.0
 theme_override_font_sizes/font_size = 13
 text = "P1 keyboard: WASD  J=P K=K L=S U=HS I=D      P2 keyboard: arrows + numpad 1..5
 Gamepad: d-pad/stick  A=P B=K X=S Y=HS RB=D
@@ -56,4 +56,5 @@ Special: 236 + S    Gatling: P > K > S > HS > D, any normal into 236S
 5D: overhead, only a standing guard stops it    Throw: 6D / 4D point blank
 Air: jump then P/K/S/HS (overheads)
 Double jump: up again in the air    Air dash: double tap forward/back in the air
+Corner: clean hits on a cornered opponent break the wall into the next screen
 F1: toggle boxes    F2: restart match"
