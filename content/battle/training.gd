@@ -132,7 +132,7 @@ func _describe(fighter: Fighter, index: int) -> String:
 
 func _on_wall_broken(_side: int, from_section: int, to_section: int) -> void:
 	var data := battle.stage_bounds.data
-	_notice = "WALL BREAK    screen %d -> %d" % [
+	_notice = "WALL BREAK    screen %d to %d" % [
 		data.get_section_label(from_section),
 		data.get_section_label(to_section),
 	]
