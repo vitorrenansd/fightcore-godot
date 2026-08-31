@@ -86,14 +86,24 @@ while letting them out gives it back.
 
 The frame a wall reaches zero:
 
-1. Both fighters come out in the next section — the attacker at
-   `wall_break_entry` from the edge they came through, the victim
-   `wall_break_separation` ahead of them, the gap a round starts at.
+1. Both fighters come out in the next section standing the way a round starts
+   them: centred on the section, the round's distance apart, the attacker on the
+   side they came from and the victim ahead of them.
 2. The victim takes `wall_break_damage`, which goes through the same KO path as
    a hit. Dying to the stage is not a special case anywhere downstream.
 3. The victim goes into `Knockdown`, so the combo ends on the spot and the new
    section opens on a wakeup instead of on the same pressure carrying over.
 4. The new section's walls are full.
+
+**The arrival is neutral.** An earlier version landed the pair at the edge they
+came through, which put the attacker in the corner of the room they had just
+opened — winning the exchange cost them the space, which is the opposite of what
+breaking a wall is for. Nobody has earned a side of a section they have only just
+arrived in, so a break hands the ground back to both of them.
+
+The distance is read from the spawn columns rather than written down, so it is
+the round's distance by construction and there is no second number to keep in
+step.
 
 `BattleManager` does all of that. `StageBounds` reports the break and never
 touches a fighter: knowing that there are two sides is the match's job.
@@ -133,8 +143,6 @@ is the one the training room uses.
 | `wall_regen_delay` | 40 | longer than the gaps inside a blockstring |
 | `wall_regen_per_frame` | 50 | empty to full in a second |
 | `wall_break_damage` | 800 | about one heavy normal |
-| `wall_break_entry` | 200 | how far in the attacker lands |
-| `wall_break_separation` | 280 | the distance a round starts at |
 
 `FightCamera.fixed_zoom` is 0.9 and belongs with `section_width` above, even
 though it is authored on the camera node and not in the resource.
@@ -193,7 +201,8 @@ godot --headless --path . --script tests/wall_smoke_test.gd
 
 Covers the ring and its wraparound, the clamp, the corner push, a clean hit
 wearing the wall down against a blocked one that does not, the regen delay, the
-break and where it puts everyone, and the round reset. Section counts other than
+break and where it puts everyone — the pair centred and the round's distance
+apart, on the wrap as much as on any other break — and the round reset. Section counts other than
 three are checked there too, so the count staying a number is under test rather
 than assumed.
 

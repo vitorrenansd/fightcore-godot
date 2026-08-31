@@ -13,6 +13,10 @@ extends Resource
 ## is what keeps the corner meaning the same thing on the tenth break as on the
 ## first — a ring whose walls stayed down would end up as one open field.
 ##
+## Where the two of them land after a break is not written here. It is the same
+## distance a round starts at, which `BattleManager` already knows, and a second
+## copy of it would be a number to keep in step for no gain.
+##
 ## Authored data only, shared between rounds. The damage a wall has taken is
 ## runtime state and lives in `StageBounds`.
 
@@ -42,12 +46,6 @@ extends Resource
 @export var wall_regen_per_frame: int = 50
 ## Damage the breaking wall deals to whoever went through it.
 @export var wall_break_damage: int = 800
-## How far into the new section the attacker comes out, measured from the edge
-## they came in through.
-@export var wall_break_entry: float = 200.0
-## Distance between the two of them once they are through. Same gap a round
-## starts at, so the new section opens at a neutral distance.
-@export var wall_break_separation: float = 280.0
 
 
 ## Centre of a section in world units. Sections are laid out left to right with

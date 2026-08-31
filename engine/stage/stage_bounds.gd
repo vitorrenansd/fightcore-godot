@@ -125,12 +125,6 @@ func is_against_wall(x: float, half: float, side: int) -> bool:
 	return get_room(x, half, direction) <= CONTACT_SLACK
 
 
-## Edge a fighter entering the current section from `direction` comes in
-## through. Moving right means coming in at the left edge.
-func get_entry_x(direction: float) -> float:
-	return get_left() if direction > 0.0 else get_right()
-
-
 ## -1 for the left wall, +1 for the right one. The direction you travel when
 ## that wall gives way.
 static func side_direction(side: int) -> float:

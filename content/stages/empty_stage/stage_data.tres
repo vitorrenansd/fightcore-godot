@@ -11,5 +11,3 @@ wall_health = 3000
 wall_regen_delay = 40
 wall_regen_per_frame = 50
 wall_break_damage = 800
-wall_break_entry = 200.0
-wall_break_separation = 280.0

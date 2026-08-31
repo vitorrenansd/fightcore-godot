@@ -167,6 +167,13 @@ func get_spawn_position(index: int) -> Vector2:
 	return spawn
 
 
+## Distance between the two starting columns. It is the neutral distance, and
+## anything that has to put the pair back down somewhere measures from it: a new
+## round, and a section they have just broken into.
+func get_spawn_separation() -> float:
+	return absf(get_spawn_position(0).x - get_spawn_position(1).x)
+
+
 ## Full reset for a new round: health, states and positions.
 func reset_round() -> void:
 	# Before the positions: the spawn columns are read from the section, so the
@@ -298,18 +305,26 @@ func _cornered_side(fighter: Fighter, push_x: float) -> int:
 	return -1
 
 
-## Both of them come out the other side: the attacker at the edge they broke
-## through, the victim ahead of them at the distance a round starts at.
+## Both of them come out the other side standing where a round starts: centred
+## in the new section, the round's distance apart, the attacker on the side they
+## came from and the victim ahead of them.
+##
+## **Neutral on purpose.** Landing the pair against the edge they broke through
+## put the attacker in the corner of the room they had just opened, so winning
+## the exchange cost them the space — the opposite of what breaking a wall is
+## for. Nobody has earned a side of a section they have only just arrived in, so
+## the break gives the ground back to both of them and the fight starts over
+## from the middle.
 ##
 ## The victim takes the break damage and goes down. That ends the combo on the
 ## spot, which is the point — the new section opens on a wakeup and not on the
 ## same pressure carrying straight over.
 func _go_through_wall(victim: Fighter, attacker: Fighter, side: int) -> void:
 	var direction := StageBounds.side_direction(side)
-	var entry := stage_bounds.get_entry_x(direction)
-	var attacker_x := entry + direction * stage_bounds.data.wall_break_entry
-	_place_through_wall(attacker, attacker_x)
-	_place_through_wall(victim, attacker_x + direction * stage_bounds.data.wall_break_separation)
+	var half_gap := get_spawn_separation() * 0.5
+	var center := stage_bounds.get_center()
+	_place_through_wall(attacker, center - direction * half_gap)
+	_place_through_wall(victim, center + direction * half_gap)
 	attacker.hitbox_manager.stop_attack()
 	attacker.state_machine.transition_to(&"Idle")
 	victim.take_damage(stage_bounds.data.wall_break_damage)

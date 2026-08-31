@@ -54,6 +54,18 @@ func _initialize() -> void:
 	)
 
 
+## Whether the two of them are standing the way a round starts them: the round's
+## distance apart, with the middle of the pair on the middle of the section.
+func centred_and_apart() -> bool:
+	var gap := absf(p2.global_position.x - p1.global_position.x)
+	var middle := (p1.global_position.x + p2.global_position.x) * 0.5
+	print("  gap %.1f (round %.1f)   middle %.1f (section %.1f)" % [
+		gap, battle.get_spawn_separation(), middle, bounds.get_center(),
+	])
+	return absf(gap - battle.get_spawn_separation()) < 1.0 \
+		and absf(middle - bounds.get_center()) < 1.0
+
+
 func check(condition: bool, message: String) -> void:
 	if not condition:
 		ok = false
@@ -243,9 +255,11 @@ func _physics_process(_delta: float) -> bool:
 			check(bounds.current_section == 2, "moved into section 3, got %d" % (
 				bounds.current_section + 1))
 			check(_breaks.size() == 1, "the break was reported once")
-			check(p1.global_position.x > bounds.get_left(), "the attacker came through")
 			check(p2.global_position.x > p1.global_position.x, "the victim came out ahead")
-			check(p2.global_position.x < bounds.get_right(), "and inside the new section")
+			# The point of the break is the room it opens, so it cannot hand the
+			# attacker a corner of their own: both of them land where a round
+			# starts, centred in the section they arrived in.
+			check(centred_and_apart(), "the pair came out at a neutral distance")
 			# 5P deals 300 and the wall had 100 left, so the rest is the break.
 			check(p2.health == 10000 - 300 - data.wall_break_damage,
 				"the break dealt its own damage, health %d" % p2.health)
@@ -273,6 +287,7 @@ func _physics_process(_delta: float) -> bool:
 				bounds.current_section + 1))
 			check(p1.global_position.x >= bounds.get_left(), "the attacker is inside the section")
 			check(p2.global_position.x <= bounds.get_right(), "and so is the victim")
+			check(centred_and_apart(), "and the wrap is as neutral as any other break")
 		255:
 			print("\n== 9. a new round puts the stage back ==")
 			battle.reset_round()
