@@ -18,12 +18,17 @@ const FLOOR_COLOR := Color(0.16565639, 0.16565642, 0.16565639, 1.0)
 ## and not as an object in the fight.
 const SEAM_COLOR := Color(0.09, 0.09, 0.09, 1.0)
 const LABEL_COLOR := Color(0.32, 0.32, 0.32, 1.0)
-## A wall at full health and a wall about to go. The bar drains between them, so
+## A wall at full health and a wall about to go. The slab shifts between them, so
 ## the corner tells you how much it has left without a number.
-const WALL_FULL_COLOR := Color(0.55, 0.55, 0.6, 0.75)
-const WALL_EMPTY_COLOR := Color(0.85, 0.3, 0.3, 0.75)
+const WALL_FULL_COLOR := Color(0.62, 0.62, 0.68, 1.0)
+const WALL_EMPTY_COLOR := Color(0.9, 0.28, 0.28, 1.0)
 ## Walls of a section nobody is fighting in.
 const WALL_IDLE_COLOR := Color(0.16, 0.16, 0.18, 1.0)
+## Empty part of a wall meter, and the outline that separates it from the
+## backdrop. Both dark: the meter has to read as a gauge on the stage and not as
+## another slab standing in the fight.
+const METER_TRACK_COLOR := Color(0.1, 0.1, 0.11, 1.0)
+const METER_BORDER_COLOR := Color(0.0, 0.0, 0.0, 1.0)
 
 @onready var bounds: StageBounds = $Bounds
 @onready var floor_body: StaticBody2D = $Floor
@@ -39,11 +44,23 @@ const WALL_IDLE_COLOR := Color(0.16, 0.16, 0.18, 1.0)
 
 @export_group("Placeholder art")
 @export var wall_height: float = 420.0
-@export var wall_width: float = 14.0
+@export var wall_width: float = 22.0
 @export var label_size: int = 48
 ## How far above the floor the section number sits. Low enough to read as part
 ## of the ground the fight is on, high enough to clear a standing fighter.
 @export var label_height: float = 130.0
+
+@export_group("Wall meter")
+## Length of the bar beside each wall of the section being fought in.
+@export var meter_width: float = 200.0
+@export var meter_height: float = 14.0
+## Gap between the wall and the end of its bar.
+@export var meter_inset: float = 12.0
+## How far below the floor surface the bar sits. On the ground rather than up
+## the wall: down there nothing in the fight ever covers it, and a fighter
+## standing in the corner is the one moment the wall's health matters most.
+@export var meter_drop: float = 18.0
+@export var meter_border: float = 2.0
 
 
 func _ready() -> void:
@@ -70,8 +87,9 @@ func _draw() -> void:
 	var data := bounds.data
 	for index in data.section_count:
 		_draw_section(data, index)
-	_draw_wall(data, StageBounds.Side.LEFT)
-	_draw_wall(data, StageBounds.Side.RIGHT)
+	for side in StageBounds.SIDES:
+		_draw_wall(data, side)
+		_draw_wall_meter(data, side)
 
 
 func _draw_section(data: StageData, index: int) -> void:
@@ -102,9 +120,51 @@ func _draw_label(data: StageData, index: int) -> void:
 
 
 func _draw_wall(data: StageData, side: int) -> void:
-	var x := bounds.get_left() if side == StageBounds.Side.LEFT else bounds.get_right()
-	var fraction := float(bounds.get_wall_health(side)) / maxf(data.wall_health, 1.0)
-	_draw_wall_bar(x, WALL_EMPTY_COLOR.lerp(WALL_FULL_COLOR, fraction))
+	_draw_wall_bar(_wall_x(side), WALL_EMPTY_COLOR.lerp(WALL_FULL_COLOR, _wall_fraction(data, side)))
+
+
+## A health bar for the wall, laid out like a fighter's: a dark track with the
+## remaining health filling it.
+##
+## The slab already changes colour, which says the wall has been hurt but not how
+## much of it is left, and the regen is a thing you have to be able to watch come
+## back. A colour you have to remember the last shade of does not show that; a bar
+## creeping along does.
+##
+## It drains toward the middle of the section, so the health that is left is the
+## part still hugging the corner it protects.
+func _draw_wall_meter(data: StageData, side: int) -> void:
+	# Away from the wall is away from the edge it sits on.
+	var inward := -StageBounds.side_direction(side)
+	var near := _wall_x(side) + inward * meter_inset
+	var fraction := _wall_fraction(data, side)
+	var filled := meter_width * fraction
+	var top := floor_top + meter_drop
+	var track_left := near if inward > 0.0 else near - meter_width
+	var fill_left := near if inward > 0.0 else near - filled
+	draw_rect(
+		Rect2(
+			track_left - meter_border,
+			top - meter_border,
+			meter_width + meter_border * 2.0,
+			meter_height + meter_border * 2.0
+		),
+		METER_BORDER_COLOR
+	)
+	draw_rect(Rect2(track_left, top, meter_width, meter_height), METER_TRACK_COLOR)
+	if filled > 0.0:
+		draw_rect(
+			Rect2(fill_left, top, filled, meter_height),
+			WALL_EMPTY_COLOR.lerp(WALL_FULL_COLOR, fraction)
+		)
+
+
+func _wall_x(side: int) -> float:
+	return bounds.get_left() if side == StageBounds.Side.LEFT else bounds.get_right()
+
+
+func _wall_fraction(data: StageData, side: int) -> float:
+	return float(bounds.get_wall_health(side)) / maxf(data.wall_health, 1.0)
 
 
 func _draw_wall_bar(x: float, color: Color) -> void:

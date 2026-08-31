@@ -1,13 +1,6 @@
-[gd_resource type="Resource" script_class="StageData" format=3]
+[gd_resource type="Resource" script_class="StageData" format=3 uid="uid://cn0ea4d70smaq"]
 
-[ext_resource type="Script" path="res://engine/stage/stage_data.gd" id="1_data"]
+[ext_resource type="Script" uid="uid://c1hp31hm1iapp" path="res://engine/stage/stage_data.gd" id="1_data"]
 
 [resource]
 script = ExtResource("1_data")
-section_count = 3
-section_width = 1280.0
-start_section = -1
-wall_health = 3000
-wall_regen_delay = 40
-wall_regen_per_frame = 50
-wall_break_damage = 800

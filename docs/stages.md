@@ -147,24 +147,34 @@ is the one the training room uses.
 `FightCamera.fixed_zoom` is 0.9 and belongs with `section_width` above, even
 though it is authored on the camera node and not in the resource.
 
-The `.tres` writes all of them out even though they match the script defaults
-right now, so the stage's numbers are readable in the stage's own file. Godot
-drops a value equal to the default when it saves, the same way it drops
-`physics_ticks_per_second` — see [archtecture.md](archtecture.md) — so opening
-the resource in the editor and saving it will empty the file out. Nothing
-changes when that happens: the defaults are the same numbers. It is worth
-knowing before the diff turns up.
+**The `.tres` is empty of them.** Every value above still matches the script
+default, and Godot drops a value equal to the default when it saves, the same way
+it drops `physics_ticks_per_second` — see [archtecture.md](archtecture.md). So
+the stage's own file lists no numbers at all: the table above is where they are,
+and `StageData` is where they live. Nothing is lost by that, but it is worth
+knowing before going to the resource looking for them. Writing a value that
+differs from the default keeps it.
 
 ## Placeholder art
 
 There is none yet, so `content/stages/empty_stage/stage.gd` draws the stage from
 the same data: a rectangle per section with its number sitting just above head
-height, a bar at each edge for the wall, and a seam where two sections meet. The
-two walls of the section being fought in drain from grey to red as they take
+height, a slab at each edge for the wall, and a seam where two sections meet. The
+two walls of the section being fought in shift from grey to red as they take
 damage; the rest are drawn faint, because they are scenery until the fight
 reaches them.
 
-The training room announces a break — `WALL BREAK    screen 2 -> 3` — for two
+Each of those two walls also has a **health bar on the ground beside it**, laid
+out like a fighter's: a dark track with what the wall has left filling it. The
+colour alone says the wall has been hurt but not how much of it is there, and the
+regen is a thing you have to be able to watch come back — a shade you would have
+to remember the last version of does not show that, a bar creeping along does. It
+drains toward the middle of the section, so the health still standing is the part
+hugging the corner it protects, and it sits on the floor rather than up the wall
+because a fighter pinned in that corner is the one moment it matters most and the
+one moment they would be standing in front of it.
+
+The training room announces a break — `WALL BREAK    screen 2 to 3` — for two
 seconds under the round banner, counted in frames like everything else. It reads
 `BattleManager.wall_broken`, so it is a HUD reaction and not something the stage
 knows about.
