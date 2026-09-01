@@ -11,6 +11,8 @@ signal fighter_spawned(fighter: Fighter)
 signal fighter_died(fighter: Fighter)
 signal hit_resolved(hit: HitData)
 signal throw_broken(first: Fighter, second: Fighter)
+## The fight went through a wall and came out in another section.
+signal wall_broken(side: int, from_section: int, to_section: int)
 
 const DEFAULT_SPAWN_OFFSET: float = 120.0
 
@@ -30,6 +32,9 @@ const GROUND_SNAP_PASSES: int = 4
 ## mirrored offset.
 @export var spawn_positions: Array[Vector2] = []
 @export var start_on_ready: bool = true
+## Walls the fight happens between. Found in the stage scene when left empty;
+## null means an unbounded stage, which is what a hand built test match gets.
+@export var stage_bounds: StageBounds
 ## Registers the keyboard and pad mapping in the InputMap on startup.
 @export var apply_input_bindings: bool = true
 
@@ -49,9 +54,17 @@ func _ready() -> void:
 	if apply_input_bindings:
 		bindings = InputBindings.load_or_create()
 		bindings.apply()
+	if stage_bounds == null:
+		stage_bounds = find_stage_bounds()
+	if stage_bounds != null:
+		# Settles the starting section before anyone is spawned into it.
+		stage_bounds.reset()
 	pushboxes = PushboxSolver.new()
 	pushboxes.name = &"PushboxSolver"
+	pushboxes.bounds = stage_bounds
 	add_child(pushboxes)
+	if stage_bounds != null:
+		stage_bounds.wall_broken.connect(_on_wall_broken)
 	solver = CollisionSolver.new()
 	solver.name = &"CollisionSolver"
 	solver.hit_resolved.connect(_on_hit_resolved)
@@ -143,14 +156,30 @@ func get_fighter(team: int) -> Fighter:
 	return null
 
 
+## Spawn columns are read relative to the section the round starts in, so a
+## stage with five screens needs no different spawn numbers than one with one.
 func get_spawn_position(index: int) -> Vector2:
+	var spawn := Vector2(-DEFAULT_SPAWN_OFFSET if index == 0 else DEFAULT_SPAWN_OFFSET, 0.0)
 	if index < spawn_positions.size():
-		return spawn_positions[index]
-	return Vector2(-DEFAULT_SPAWN_OFFSET if index == 0 else DEFAULT_SPAWN_OFFSET, 0.0)
+		spawn = spawn_positions[index]
+	if stage_bounds != null:
+		spawn.x += stage_bounds.get_center()
+	return spawn
+
+
+## Distance between the two starting columns. It is the neutral distance, and
+## anything that has to put the pair back down somewhere measures from it: a new
+## round, and a section they have just broken into.
+func get_spawn_separation() -> float:
+	return absf(get_spawn_position(0).x - get_spawn_position(1).x)
 
 
 ## Full reset for a new round: health, states and positions.
 func reset_round() -> void:
+	# Before the positions: the spawn columns are read from the section, so the
+	# stage has to be back at its starting one first.
+	if stage_bounds != null:
+		stage_bounds.reset()
 	for fighter in fighters:
 		fighter.reset_for_round()
 	reset_positions()
@@ -235,8 +264,84 @@ func clear_battle() -> void:
 	fighters.clear()
 
 
+func find_stage_bounds() -> StageBounds:
+	return StageBounds.find_in(get_parent())
+
+
 func _on_hit_resolved(hit: HitData) -> void:
+	_wear_down_wall(hit)
 	hit_resolved.emit(hit)
+
+
+## A clean hit on a cornered opponent is what wears a wall down.
+##
+## Blocked ones do not count: the guard already answered the exchange, and a
+## wall that fell to chip would make the corner a place you leave by holding
+## back. Neither does a hit whose knockback points away from the wall — nothing
+## was driven into it.
+##
+## The amount is the damage the hit actually dealt, scaling included, so a long
+## combo wears the wall the same way it wears the fighter: less per hit as it
+## goes on.
+func _wear_down_wall(hit: HitData) -> void:
+	if stage_bounds == null or hit == null or hit.blocked or hit.victim == null:
+		return
+	var side := _cornered_side(hit.victim, hit.knockback.x)
+	if side < 0:
+		return
+	if stage_bounds.damage_wall(side, hit.damage):
+		_go_through_wall(hit.victim, hit.attacker, side)
+
+
+## Which wall the victim is pinned against, given where the hit pushes them.
+## -1 when they have room to be knocked back normally.
+func _cornered_side(fighter: Fighter, push_x: float) -> int:
+	if is_zero_approx(push_x):
+		return -1
+	var half := pushboxes.get_pushbox_width(fighter) * 0.5
+	var side := StageBounds.Side.RIGHT if push_x > 0.0 else StageBounds.Side.LEFT
+	if stage_bounds.is_against_wall(fighter.global_position.x, half, side):
+		return side
+	return -1
+
+
+## Both of them come out the other side standing where a round starts: centred
+## in the new section, the round's distance apart, the attacker on the side they
+## came from and the victim ahead of them.
+##
+## **Neutral on purpose.** Landing the pair against the edge they broke through
+## put the attacker in the corner of the room they had just opened, so winning
+## the exchange cost them the space — the opposite of what breaking a wall is
+## for. Nobody has earned a side of a section they have only just arrived in, so
+## the break gives the ground back to both of them and the fight starts over
+## from the middle.
+##
+## The victim takes the break damage and goes down. That ends the combo on the
+## spot, which is the point — the new section opens on a wakeup and not on the
+## same pressure carrying straight over.
+func _go_through_wall(victim: Fighter, attacker: Fighter, side: int) -> void:
+	var direction := StageBounds.side_direction(side)
+	var half_gap := get_spawn_separation() * 0.5
+	var center := stage_bounds.get_center()
+	_place_through_wall(attacker, center - direction * half_gap)
+	_place_through_wall(victim, center + direction * half_gap)
+	attacker.hitbox_manager.stop_attack()
+	attacker.state_machine.transition_to(&"Idle")
+	victim.take_damage(stage_bounds.data.wall_break_damage)
+	if victim.is_alive():
+		victim.state_machine.transition_to(&"Knockdown")
+	pair_fighters()
+
+
+func _place_through_wall(fighter: Fighter, x: float) -> void:
+	fighter.global_position.x = x
+	fighter.velocity = Vector2.ZERO
+	fighter.hitstop_frames = 0
+	fighter.reset_physics_interpolation()
+
+
+func _on_wall_broken(side: int, from_section: int, to_section: int) -> void:
+	wall_broken.emit(side, from_section, to_section)
 
 
 func _on_throw_broken(first: Fighter, second: Fighter) -> void:

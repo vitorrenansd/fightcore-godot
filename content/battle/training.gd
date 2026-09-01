@@ -5,24 +5,34 @@ extends Node2D
 ## Keyboard P1: WASD to move, J=P K=K L=S U=HS I=D
 ## Keyboard P2: arrows to move, numpad 1..5
 ## Gamepad:     d-pad or stick, A=P B=K X=S Y=HS RB=D
-## Forward or back with D throws; the grab box draws purple.
+## D alone is the overhead; forward or back with D throws, and the grab box
+## draws purple. Clean hits on a cornered opponent wear the wall down, and
+## breaking it announces which screen the fight moved to.
 ## F1 toggles the box overlay, F2 restarts the match.
 
 const TEAM_COLORS: Array[Color] = [Color(0.0, 0.0, 1.0, 1.0), Color(1.0, 0.0, 0.0, 1.0)]
+## Frames a wall break stays on screen. Counted rather than timed, like
+## everything else in the match.
+const NOTICE_FRAMES: int = 120
 
 @onready var battle: BattleManager = $Battle
 @onready var rounds: RoundManager = $Rounds
 @onready var boxes: DebugBoxRenderer = $DebugBoxes
 @onready var readout: Label = $HUD/Readout
 @onready var banner: Label = $HUD/Banner
+@onready var notice: Label = $HUD/Notice
+@onready var camera: FightCamera = $Camera
 
 var _last_result: String = ""
+var _notice: String = ""
+var _notice_frames: int = 0
 
 
 func _ready() -> void:
 	for index in battle.fighters.size():
 		var fighter := battle.fighters[index]
 		fighter.visuals.modulate = TEAM_COLORS[index % TEAM_COLORS.size()]
+	battle.wall_broken.connect(_on_wall_broken)
 	rounds.round_ended.connect(_on_round_ended)
 	rounds.match_ended.connect(_on_match_ended)
 	rounds.round_started.connect(func(_number: int) -> void: _last_result = "")
@@ -39,11 +49,14 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var lines: PackedStringArray = [_describe_round()]
+	var lines: PackedStringArray = [_describe_round(), _describe_stage()]
 	for index in battle.fighters.size():
 		lines.append(_describe(battle.fighters[index], index))
 	readout.text = "\n".join(lines)
 	banner.text = _last_result
+	if _notice_frames > 0:
+		_notice_frames -= 1
+	notice.text = _notice if _notice_frames > 0 else ""
 
 
 func _describe_round() -> String:
@@ -53,6 +66,18 @@ func _describe_round() -> String:
 		rounds.get_wins(0),
 		rounds.get_wins(1),
 		_phase_name(rounds.phase),
+	]
+
+
+func _describe_stage() -> String:
+	var bounds := battle.stage_bounds
+	if bounds == null:
+		return "stage -"
+	return "stage %d/%d   wall left %4d   wall right %4d" % [
+		bounds.data.get_section_label(bounds.current_section),
+		bounds.data.section_count,
+		bounds.get_wall_health(StageBounds.Side.LEFT),
+		bounds.get_wall_health(StageBounds.Side.RIGHT),
 	]
 
 
@@ -103,6 +128,15 @@ func _describe(fighter: Fighter, index: int) -> String:
 		fighter.juggle_count,
 		fighter.get_juggle_gravity_multiplier(),
 	]
+
+
+func _on_wall_broken(_side: int, from_section: int, to_section: int) -> void:
+	var data := battle.stage_bounds.data
+	_notice = "WALL BREAK    screen %d to %d" % [
+		data.get_section_label(from_section),
+		data.get_section_label(to_section),
+	]
+	_notice_frames = NOTICE_FRAMES
 
 
 func _on_round_ended(winner_team: int, reason: RoundManager.EndReason) -> void:

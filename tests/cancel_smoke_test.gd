@@ -56,6 +56,21 @@ func current_move(fighter: Fighter) -> StringName:
 	return manager.current_attack.attack_id if manager.is_attacking() else &""
 
 
+## The launcher the jump cancel needs, built on top of the dust's boxes.
+##
+## It is not authored on a move because no shipped move opts into a jump cancel:
+## the dust used to, back when it doubled as the launcher, and the launch is the
+## throw's job now. The rule still has to hold for the first character that wants
+## it, so the test brings its own move.
+func make_launcher() -> AttackData:
+	var attack: AttackData = p1.get_attack(&"5D").duplicate()
+	attack.attack_id = &"TestLauncher"
+	attack.knockback = Vector2(120, -520)
+	attack.launcher = true
+	attack.jump_cancellable = true
+	return attack
+
+
 func _physics_process(_delta: float) -> bool:
 	frames += 1
 	match frames:
@@ -164,7 +179,7 @@ func _physics_process(_delta: float) -> bool:
 			check(current_move(p1) == &"236S", "5S cancelled into the special")
 			check(accepted.size() == 2, "two commands accepted, got %d" % accepted.size())
 		170:
-			print("\n== 6. jump cancel: 5D launches into an air combo ==")
+			print("\n== 6. jump cancel: a launcher chains into an air combo ==")
 			accepted.clear()
 			p1.position = Vector2(-30, 0)
 			p2.position = Vector2(30, 0)
@@ -173,19 +188,22 @@ func _physics_process(_delta: float) -> bool:
 			# 236S ends the previous phase in a knockdown, so p2 is lying down
 			# and invulnerable. Put it back on its feet like a round reset would.
 			p2.state_machine.transition_to(&"Idle")
+		171:
+			# The dust is an overhead and nothing else. It opens a guard; it does
+			# not open an air route, which is what the throw is for.
+			var dust := p1.get_attack(&"5D")
+			check(not dust.launcher, "the dust does not launch")
+			check(not dust.jump_cancellable, "the dust is not jump cancellable")
+			check(not p1.get_attack(&"5P").jump_cancellable, "and neither is a plain jab")
 		173:
-			check(p1.get_attack(&"5D").jump_cancellable, "5D is jump cancellable")
-			check(not p1.get_attack(&"5P").jump_cancellable, "a plain jab is not")
-			hold([&"p1_d"])
-		174:
-			hold([])
+			p1.perform_attack(make_launcher(), true)
 		196:
-			# 5D has 20 frames of startup, so it has connected by now.
+			# The launcher has 20 frames of startup, so it has connected by now.
 			print("  move %s  connected=%s  p2 y=%.0f" % [
 				current_move(p1), p1.hitbox_manager.has_connected, p2.global_position.y,
 			])
-			check(current_move(p1) == &"5D", "5D is running")
-			check(p1.hitbox_manager.has_connected, "5D connected")
+			check(current_move(p1) == &"TestLauncher", "the launcher is running")
+			check(p1.hitbox_manager.has_connected, "the launcher connected")
 			check(p1.can_jump_cancel(), "the jump cancel window is open")
 			hold([&"p1_up"])
 		205:
@@ -201,7 +219,8 @@ func _physics_process(_delta: float) -> bool:
 		209:
 			print("  air follow-up: %s" % current_move(p1))
 			check(current_move(p1) == &"j.P", "the air normal came out after the jump")
-			check(accepted.size() == 2, "two commands accepted, got %d" % accepted.size())
+			# One and not two: the launcher was forced, not asked for.
+			check(accepted.size() == 1, "one command accepted, got %d" % accepted.size())
 		215:
 			print("  p2 health %d  combo %d  p2 y=%.0f" % [
 				p2.health, p2.combo_hits, p2.global_position.y,

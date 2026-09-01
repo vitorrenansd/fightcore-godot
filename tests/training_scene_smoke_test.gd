@@ -38,6 +38,9 @@ var ok: bool = true
 var airborne_frames: int = 0
 var ground_drift: float = 0.0
 var start_y: float = NAN
+## Where the camera was before the fighters were spread to the walls, so phase 9
+## can prove nothing about the view answered it.
+var camera_before := Vector2.ZERO
 
 
 func _initialize() -> void:
@@ -54,6 +57,12 @@ func check(condition: bool, message: String) -> void:
 	if not condition:
 		ok = false
 		print("  FAIL: %s" % message)
+
+
+## Middle of the section the round is being fought in, or 0 on an unwalled
+## stage.
+func _section_center() -> float:
+	return battle.stage_bounds.get_center() if battle.stage_bounds != null else 0.0
 
 
 func _observe() -> void:
@@ -124,8 +133,12 @@ func _physics_process(_delta: float) -> bool:
 			check(ground_drift == 0.0, "never fell into place")
 			check(p1.is_on_floor() and p2.is_on_floor(), "standing on the floor")
 			check(is_equal_approx(p1.position.y, p2.position.y), "both on the same ground")
-			check(is_equal_approx(p1.position.x, -140.0), "P1 held its spawn column")
-			check(is_equal_approx(p2.position.x, 140.0), "P2 held its spawn column")
+			# Measured from the section and not from 0: spawn columns are read
+			# relative to the screen the round starts in, so a stage with a
+			# different number of them is not a different set of numbers.
+			var center := _section_center()
+			check(is_equal_approx(p1.position.x, center - 140.0), "P1 held its spawn column")
+			check(is_equal_approx(p2.position.x, center + 140.0), "P2 held its spawn column")
 			check(p1.state_machine.current_state.name == &"Idle", "idle on the ground")
 		125:
 			# The round layer only reads is_alive(), so this is a clean KO.
@@ -148,7 +161,8 @@ func _physics_process(_delta: float) -> bool:
 			check(rounds.round_number == 2, "second round started")
 			check(rounds.phase == RoundManager.Phase.INTRO, "back to the intro")
 			check(p2.health == p2.stats.max_health, "health restored")
-			check(is_equal_approx(p2.position.x, 140.0), "spawn position restored")
+			check(is_equal_approx(p2.position.x, _section_center() + 140.0),
+				"spawn position restored")
 			check(p2.state_machine.current_state.name == &"Idle", "state restored")
 			check(rounds.get_wins(0) == 1, "round wins carried over")
 		315:
@@ -171,7 +185,57 @@ func _physics_process(_delta: float) -> bool:
 			check(rounds.get_wins(0) == 0 and rounds.get_wins(1) == 0, "score cleared")
 			check(rounds.phase == RoundManager.Phase.INTRO, "restarted into the intro")
 			check(p1.health == p1.stats.max_health, "health restored on restart")
-		325:
+		322:
+			print("\n== 9. the camera holds one section and never zooms ==")
+			var data := battle.stage_bounds.data
+			print("  zoom %s   visible %.0f   section %.0f   x %.0f" % [
+				room.camera.zoom, room.camera.get_visible_width(),
+				data.section_width, room.camera.global_position.x,
+			])
+			check(is_equal_approx(room.camera.zoom.x, room.camera.fixed_zoom),
+				"the zoom is the authored one")
+			check(room.camera.get_visible_width() >= data.section_width - 0.5,
+				"the view covers a whole section")
+			check(is_equal_approx(room.camera.global_position.x, battle.stage_bounds.get_center()),
+				"centred on the section")
+			camera_before = Vector2(room.camera.global_position.x, room.camera.zoom.x)
+			# As far apart as the walls allow, which is the widest the pair can
+			# ever be. Nothing about the view is allowed to answer it.
+			p1.global_position.x = battle.stage_bounds.get_left()
+			p2.global_position.x = battle.stage_bounds.get_right()
+		330:
+			var spread := p2.global_position.x - p1.global_position.x
+			print("  spread to the walls: gap %.0f   zoom %s   x %.0f" % [
+				spread, room.camera.zoom, room.camera.global_position.x,
+			])
+			check(spread <= battle.stage_bounds.data.section_width,
+				"the walls keep the pair inside one screen, gap %.0f" % spread)
+			check(is_equal_approx(room.camera.zoom.x, camera_before.y),
+				"the zoom did not move")
+			check(is_equal_approx(room.camera.global_position.x, camera_before.x),
+				"and neither did the camera")
+		336:
+			print("\n== 10. a wall break says so on screen ==")
+			# Broken from the data rather than by cornering someone: what is
+			# under test is the announcement and the cut, not the hit path the
+			# wall smoke test already covers.
+			battle.stage_bounds.damage_wall(StageBounds.Side.RIGHT, 999999)
+		340:
+			print("  notice %s   section %d   camera x %.0f" % [
+				JSON.stringify(room.notice.text), battle.stage_bounds.current_section,
+				room.camera.global_position.x,
+			])
+			check(battle.stage_bounds.current_section == 2, "moved into the next section")
+			check(room.notice.text.contains("2") and room.notice.text.contains("3"),
+				"the notice names the screen left and the one arrived in")
+			check(is_equal_approx(room.camera.global_position.x, battle.stage_bounds.get_center()),
+				"the camera cut to the new section")
+			check(is_equal_approx(room.camera.zoom.x, room.camera.fixed_zoom),
+				"and still did not zoom")
+		336 + 130:
+			print("  after %d frames: %s" % [130, JSON.stringify(room.notice.text)])
+			check(room.notice.text.is_empty(), "the notice cleared itself")
+		475:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true

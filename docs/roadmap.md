@@ -5,7 +5,25 @@ lists the file that already exists as a stub, when there is one.
 
 For what is already built, see [archtecture.md](archtecture.md).
 
-## Just closed: blocking is no longer free
+## Just closed: the stage has a corner
+
+A stage is a ring of one screen sections now, and the wall between two of them
+has health. Cornering someone means the whole pushback goes into them instead of
+half of it; clean hits wear the wall down; breaking it drops both fighters into
+the next screen with the victim on the floor. Leave them alone and the wall
+comes back in about a second, so the corner has to be held rather than reached.
+
+The camera came with it and not after it: what the camera can frame is what
+decides how wide a section is, so building them apart would have meant building
+the same boundary twice.
+
+The ends of the ring join up, which is the one thing the shape buys — no section
+is a dead end, and the count is a number in a resource rather than a shape in a
+scene, so a stage can have two screens or eleven.
+
+Details: [stages.md](stages.md).
+
+## Before that: blocking is no longer free
 
 `6D` and `4D` throw, every character has them without authoring them, and two
 throws reaching each other break instead of resolving. Before this the correct
@@ -21,9 +39,14 @@ the fighter their turn back, so it starts a combo instead of ending the exchange
 a hit that hands the fighter back, and one recovery number cannot be both. It is
 generic, and no move other than the throws uses it yet.
 
+The dust gave the launch up in the process. It had been carrying two jobs — the
+universal overhead and the only way into an air combo — and once the throw took
+the second one, `5D` was left doing the job it is named for: it beats a crouching
+guard, it is blocked standing, and nobody moves.
+
 Details: [throws.md](throws.md).
 
-## Before that: the combat loop got an ending
+## And before that: the combat loop got an ending
 
 Juggle gravity, knockdown/wakeup and knockback friction landed together, and
 they are one thing rather than three. Before them the air route built by the
@@ -40,37 +63,23 @@ loop, which simply did not exist before.
 Details: [state_machine.md](state_machine.md) for the states,
 [fighter_format.md](fighter_format.md) for the authored fields.
 
-## The next slice: walls, the corner and the camera
+## The next slice: okizeme, and the fight being fair
 
-**Agreed as the next piece of work, deliberately deferred.** These two are one
-slice, not two items: the camera clamp is what decides where the wall is, so
-building them apart means building the same boundary twice and reconciling it.
+**Agreed as the next piece of work.** The corner now exists, and the corner is
+exactly where the imbalance shows: a knockdown there is the strongest position
+in the game, and the fighter getting up has no say in it at all.
 
-**Walls and the corner.** The stage is only a floor, so a fighter can be pushed
-out of the screen forever. Screen bounds turn the corner into a real place: it
-is where pushback stops working, where mixups get scary, and where half the
-game's tension lives. The `PushboxSolver` has to learn about them too — a
-fighter with their back to the wall should push the *opponent* out instead of
-giving ground, which is the entire reason cornering someone is worth doing.
-→ `engine/battle/battle_manager.gd`, `engine/collision/pushbox_solver.gd`,
-stage scene
-
-**Camera.** One static camera that does not follow anyone. It needs to frame
-both fighters, zoom with the distance between them and clamp to the stage
-bounds.
-→ `engine/camera/` (empty)
-
-This slice is worth more now than it was before the knockdown existed: a corner
-without a knockdown is just a wall, but a corner *with* one is where okizeme
-turns into real pressure.
-
-## Then: the fight is still not fair
-
-**Okizeme options.** Knockdown and wakeup exist, but the fighter getting up has
-no say in it: no wakeup roll, no reversal, no delayed wakeup. Right now the
-attacker sets up freely and the defender only waits. The invincibility window
-is already there for a reversal to come out of.
+**Wakeup options.** No wakeup roll, no reversal, no delayed wakeup. The attacker
+sets up freely and the defender waits for it. The invincibility window is
+already in `Wakeup` for a reversal to come out of, and the throw is already the
+answer to a guard, so the pieces the option select needs are in place — what is
+missing is a choice for the person on the floor.
 → `engine/character/states/wakeup.gd`
+
+**Ground dash and backdash.** The air dash exists, the ground one does not.
+`FighterStats.dash_speed` is there and unused. A backdash with invincibility
+frames is a defensive option the game currently has none of, and it is the one
+that makes the corner a place you can try to leave.
 
 ## Then: the moveset is thin
 
@@ -79,10 +88,6 @@ opponent still goes through plain hitstun into a knockdown, because there is no
 animation to hang a real throw reaction on yet, and nobody can be grabbed out
 of the air.
 → `engine/system/`, [throws.md](throws.md)
-
-**Ground dash and backdash.** The air dash exists but the ground one does not.
-`FighterStats.dash_speed` is already there and unused. A backdash with
-invincibility frames is a defensive option the game currently has none of.
 
 **Super moves and meter.** `AttackData.CancelType.SUPER` and
 `FighterStats.max_meter` both exist and neither is used. Needs meter gain on

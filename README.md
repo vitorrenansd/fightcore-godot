@@ -19,6 +19,8 @@ Godot 4.7. I sometimes use AI to help translate my writing into English.
   They only reach at point blank, they go through a guard, and they pop the opponent up for a hit or two. `4D` swaps sides. If both players go for a throw within ten frames it breaks and pushes them apart instead of landing.
 - **Combos that end:** Juggle gravity, knockdown and wakeup close the air route,
   so a combo terminates and the defender gets a window to respond instead of the same sequence repeating.
+- **Stages with a corner:** A stage is a ring of one screen sections. Cornering
+  someone means the whole pushback goes into them instead of half of it, clean hits wear the wall down, and breaking it drops both fighters into the next screen. Walls come back on their own once the pressure stops, and the section count is a number in a resource rather than a shape in a scene.
 - **Matches:** Rounds, a frame counted clock, KO / timeout / draw conditions and
   a full reset between rounds.
 - **Input:** Buffering, SOCD handling, motion commands, stance dependent moves,
@@ -35,7 +37,7 @@ Needs [Godot 4.7](https://godotengine.org/). Open the project and press F5, it w
 
 Gamepad: d-pad or stick, `A`=P `B`=K `X`=S `Y`=HS `RB`=D. `F1` toggles the hitbox overlay, `F2` restarts the match.
 
-Try `236` + `S` for the special, and the gatling ladder `P > K > S > HS > D`. Any normal cancels into `236S`. Hold forward or back with `D` to throw.
+Try `236` + `S` for the special, and the gatling ladder `P > K > S > HS > D`. Any normal cancels into `236S`. Hold forward or back with `D` to throw. Corner the other fighter and keep hitting them to break the wall into the next screen — the numbers on the backdrop say which one you are in.
 
 ## Tests
 

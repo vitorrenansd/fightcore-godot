@@ -38,7 +38,7 @@ A character can still author a `6D` of their own. It wins on
 |---|---|---|
 | `6D` | forward + D | pops the opponent up in front of the attacker |
 | `4D` | back + D | trades columns with the opponent, then pops them up |
-| `5D` | D alone | still the dust, unchanged |
+| `5D` | D alone | the dust, the universal overhead |
 
 The direction is read in fighter space, so `6` is forward on either side. A held
 direction adds to a command's effective priority, one rung below a motion —

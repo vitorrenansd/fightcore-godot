@@ -1,21 +1,22 @@
 [gd_scene format=3 uid="uid://dox58mpt3ju3y"]
 
+[ext_resource type="Script" uid="uid://dohcee05krlrx" path="res://content/stages/empty_stage/stage.gd" id="1_stage"]
+[ext_resource type="Script" uid="uid://cu2yundd8n5vn" path="res://engine/stage/stage_bounds.gd" id="2_bounds"]
+[ext_resource type="Resource" path="res://content/stages/empty_stage/stage_data.tres" id="3_data"]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
-size = Vector2(4000, 80)
+size = Vector2(3840, 80)
 
-[node name="Stage" type="Node2D" unique_id=219759945]
+[node name="Stage" type="Node2D" unique_id=1839093752]
+script = ExtResource("1_stage")
 
-[node name="Background" type="Polygon2D" parent="." unique_id=362997970]
-color = Color(0, 0, 0, 1)
-polygon = PackedVector2Array(-2000, -800, 2000, -800, 2000, 200, -2000, 200)
+[node name="Bounds" type="Node" parent="." unique_id=1724794753]
+script = ExtResource("2_bounds")
+data = ExtResource("3_data")
 
-[node name="Floor" type="StaticBody2D" parent="." unique_id=2029547127]
+[node name="Floor" type="StaticBody2D" parent="." unique_id=1598941069]
 position = Vector2(0, 240)
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=296206039]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=579504630]
 shape = SubResource("RectangleShape2D_floor")
-
-[node name="Surface" type="Polygon2D" parent="Floor" unique_id=1878072253]
-color = Color(0.16565639, 0.16565642, 0.16565639, 1)
-polygon = PackedVector2Array(-2000, -40, 2000, -40, 2000, 40, -2000, 40)

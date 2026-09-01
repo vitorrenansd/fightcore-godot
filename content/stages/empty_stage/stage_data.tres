@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="StageData" format=3 uid="uid://cn0ea4d70smaq"]
+
+[ext_resource type="Script" uid="uid://c1hp31hm1iapp" path="res://engine/stage/stage_data.gd" id="1_data"]
+
+[resource]
+script = ExtResource("1_data")

@@ -4,11 +4,19 @@ extends SceneTree
 ## to it, the victim falls faster the longer the combo runs, and landing wipes
 ## it. This is what stops an air route from repeating forever.
 ##
+## The last two phases cover what a hit does to a victim already moving through
+## the air, which is the other half of the same question: a move with no vertical
+## knockback stops the climb and leaves the fall untouched.
+##
 ##   godot --headless --path . --script tests/juggle_smoke_test.gd
 
 const FIGHTER_SCENE := "res://content/fighters/training_dummy/fighter.tscn"
 ## High enough that nothing in the test accidentally touches the floor.
 const AIR_HEIGHT: float = -320.0
+## Vertical speeds used to check what a hit does to a victim already moving
+## through the air. Both are a real fraction of a jump arc.
+const FALL_SPEED: float = 500.0
+const RISE_SPEED: float = 400.0
 
 var p1: Fighter
 var p2: Fighter
@@ -226,6 +234,40 @@ func _physics_process(_delta: float) -> bool:
 			check(p2.juggle_count == 0, "blocking built no juggle, got %d" % p2.juggle_count)
 			Input.action_release(&"p2_right")
 		114:
+			print("\n== 8. a hit with no vertical knockback leaves the fall alone ==")
+			landed.clear()
+			p2.input.enabled = false
+			_park_in_air()
+			p2.velocity.y = FALL_SPEED
+			p1.hitbox_manager.start_attack(_make_attack(false, 1, Vector2(200, 0)))
+		126:
+			print("  hits %d   vy %.1f (was %.1f)" % [
+				landed.size(), p2.velocity.y, FALL_SPEED,
+			])
+			check(landed.size() == 1, "the move connected")
+			# The bug this covers: writing the whole knockback vector zeroed the
+			# fall, so a jab caught someone descending and hung them in the air.
+			# They then drifted down too slowly to be on the floor when hitstun
+			# ran out, and hitstun ending airborne is a knockdown — so a 5P
+			# anti-air scored one or did not depending on the height it hit at.
+			check(is_equal_approx(p2.velocity.y, FALL_SPEED),
+				"the fall survived the hit, vy %.1f" % p2.velocity.y)
+		130:
+			print("\n== 9. and takes the climb away ==")
+			landed.clear()
+			_park_in_air()
+			p2.velocity.y = -RISE_SPEED
+			p1.hitbox_manager.start_attack(_make_attack(false, 1, Vector2(200, 0)))
+		142:
+			print("  hits %d   vy %.1f (was %.1f)" % [
+				landed.size(), p2.velocity.y, -RISE_SPEED,
+			])
+			check(landed.size() == 1, "the move connected")
+			# It cannot hold anyone up either: being punched on the way up stops
+			# the jump rather than carrying on as if nothing had happened.
+			check(is_zero_approx(p2.velocity.y),
+				"the climb was taken away, vy %.1f" % p2.velocity.y)
+		146:
 			print("\nRESULT: %s" % ("OK" if ok else "FAILED"))
 			quit(0 if ok else 1)
 			return true

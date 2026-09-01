@@ -152,7 +152,8 @@ nothing.
 
 **Guard** — `Fighter.can_block()`. Blocking means holding back, not pressing a
 button (see [input.md](input.md)). Air moves are authored as `HIGH`, which is
-what makes jumping in an overhead:
+what makes jumping in an overhead; the dust is the grounded one, and the only
+one a character gets without leaving the floor:
 
 | `Guard` | Blocks |
 |---|---|
@@ -174,6 +175,18 @@ adds hitstun.
 
 **Knockback** — `AttackData.knockback.x` always points away from the attacker;
 the solver orients it by facing and divides it by the target's `weight`.
+
+`knockback.y` is different: a move that leaves it at zero is saying nothing
+about how the victim moves through the air, so the hit **takes the climb away
+and leaves the fall alone**. It cannot hold anyone up, and it cannot drop them
+faster than gravity — juggle gravity is what does that. A move that writes a `y`
+replaces both, which is what makes it a launcher.
+
+The distinction is not cosmetic. Writing the whole vector zeroed the fall, so a
+jab that caught a jumper on the way down hung them in the air; they then drifted
+back down too slowly to be standing when their hitstun ran out, and hitstun
+ending airborne is a knockdown. The same 5P scored a knockdown or did not
+depending on the exact height it connected at.
 
 **Hitstop** — both sides freeze for the same frames. It takes
 `maxi(current, new)`, so a hit during hitstop never shortens the freeze.
@@ -226,6 +239,11 @@ and only **horizontally**:
   crossups exist.
 - Separation is split between both fighters and capped per frame, so landing
   fully overlapped resolves over a few frames instead of teleporting them apart.
+- A fighter with their back to the wall has no ground to give, so the whole
+  separation goes into the opponent instead of half of it. The stage walls are
+  resolved here for that reason — keeping a fighter inside the stage and keeping
+  two fighters apart are one constraint, and solving them apart means one undoes
+  the other. See [stages.md](stages.md).
 - Width comes from `FighterStats.pushbox_width`: a bigger character takes more
   space and loses ground faster in the corner.
 
@@ -234,6 +252,7 @@ see final positions.
 
 ```sh
 godot --headless --path . --script tests/pushbox_smoke_test.gd
+godot --headless --path . --script tests/wall_smoke_test.gd
 ```
 
 ## Throws
