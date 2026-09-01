@@ -178,7 +178,25 @@ func apply_hit(hit: HitData) -> void:
 		_add_juggle(hit)
 		_enter_hitstun(hit)
 	# After the transition: entering a state clears horizontal velocity.
-	velocity = hit.knockback
+	#
+	# Horizontal knockback always replaces what the victim was doing.
+	#
+	# Vertically, a move whose knockback has no `y` is saying nothing about how
+	# the victim moves through the air, and writing a zero there turned any hit
+	# that caught a jumper into a hover: someone falling at 490 px/s stopped dead
+	# and drifted back down slowly enough to still be airborne when their
+	# hitstun ran out, which is a knockdown. The same 5P scored one or did not
+	# depending on the exact height it connected at.
+	#
+	# So a hit takes the climb away and leaves the fall alone. It cannot hold
+	# anyone up, and it cannot make them drop faster than gravity — that is what
+	# juggle gravity is for. A launcher writes a `y` of its own and replaces
+	# both, which is the whole of what a launcher is.
+	velocity.x = hit.knockback.x
+	if not is_zero_approx(hit.knockback.y):
+		velocity.y = hit.knockback.y
+	else:
+		velocity.y = maxf(velocity.y, 0.0)
 	health_changed.emit(health, stats.max_health if stats != null else health)
 	hit_taken.emit(hit)
 	if health == 0:

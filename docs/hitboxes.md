@@ -176,6 +176,18 @@ adds hitstun.
 **Knockback** — `AttackData.knockback.x` always points away from the attacker;
 the solver orients it by facing and divides it by the target's `weight`.
 
+`knockback.y` is different: a move that leaves it at zero is saying nothing
+about how the victim moves through the air, so the hit **takes the climb away
+and leaves the fall alone**. It cannot hold anyone up, and it cannot drop them
+faster than gravity — juggle gravity is what does that. A move that writes a `y`
+replaces both, which is what makes it a launcher.
+
+The distinction is not cosmetic. Writing the whole vector zeroed the fall, so a
+jab that caught a jumper on the way down hung them in the air; they then drifted
+back down too slowly to be standing when their hitstun ran out, and hitstun
+ending airborne is a knockdown. The same 5P scored a knockdown or did not
+depending on the exact height it connected at.
+
 **Hitstop** — both sides freeze for the same frames. It takes
 `maxi(current, new)`, so a hit during hitstop never shortens the freeze.
 
